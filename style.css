@@ -43,6 +43,10 @@ body {
     border-radius: 5px;
     cursor: pointer;
   }
+
+  #controls button.active {
+    background-color: #777;
+  }
   
   #controls button:hover {
     background: #666;

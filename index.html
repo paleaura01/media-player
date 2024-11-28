@@ -1,13 +1,14 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self';"
-  >
+  />
   <title>Winamp-Inspired Media Player</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <!-- Include Howler.js via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 </head>
@@ -22,9 +23,11 @@
     <div id="controls">
       <button id="play">Play</button>
       <button id="pause">Pause</button>
-      <button id="stop">Stop</button>
       <button id="prev">Previous</button>
       <button id="next">Next</button>
+      <!-- New Shuffle and Repeat Buttons -->
+      <button id="shuffle">Shuffle Off</button>
+      <button id="repeat">Repeat Off</button>
     </div>
     <!-- Current Track Display -->
     <div id="current-track">No track playing</div>
