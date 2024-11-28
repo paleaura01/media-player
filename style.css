@@ -167,4 +167,38 @@ body, h1, h2, ul, li, p {
     background-color: #666;
   }
   
+  .folder-node {
+    margin-left: 10px;
+    padding: 5px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #333;
+  }
+  
+  .folder-label {
+    margin-left: 5px;
+    cursor: pointer;
+  }
+  
+  .file-node {
+    margin-left: 20px;
+    padding: 5px;
+    cursor: pointer;
+  }
+  
+  .file-node:hover {
+    background-color: #444;
+  }
+  
+  .toggle-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+  
+  .toggle-btn:hover {
+    color: #ddd;
+  }
   

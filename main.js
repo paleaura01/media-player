@@ -32,18 +32,23 @@ ipcMain.handle("dialog:selectFolderOrFiles", async () => {
   }));
 });
 
-ipcMain.handle("readDirectory", (event, folderPath) => {
-  try {
-    const files = fs.readdirSync(folderPath).filter((file) => {
-      const ext = path.extname(file).toLowerCase();
-      return [".mp3", ".wav", ".ogg", ".opus"].includes(ext);
-    });
-    return files.map((file) => ({
-      name: file,
-      path: path.join(folderPath, file),
-    }));
-  } catch (error) {
-    console.error("Error reading directory:", error);
-    return [];
-  }
-});
+ipcMain.handle("readDirectory", async (event, folderPath) => {
+    try {
+      const items = fs.readdirSync(folderPath).map((fileName) => {
+        const filePath = path.join(folderPath, fileName);
+        const stats = fs.statSync(filePath);
+  
+        return {
+          name: fileName,
+          path: filePath,
+          type: stats.isDirectory() ? "directory" : "file",
+        };
+      });
+      return items;
+    } catch (error) {
+      console.error(`Error reading directory: ${folderPath}`, error);
+      return [];
+    }
+  });
+  
+  

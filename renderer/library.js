@@ -5,9 +5,9 @@ export async function selectFolderOrFiles() {
     return await window.electron.selectFolderOrFiles();
   }
   
-  export function readDirectory(folderPath) {
+  export async function readDirectory(folderPath) {
     console.log(`Reading directory: ${folderPath}`);
-    return window.electron.readDirectory(folderPath);
+    return await window.electron.readDirectory(folderPath);
   }
   
   
