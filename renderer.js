@@ -1,3 +1,5 @@
+// renderer.js
+
 let playlist = [];
 let currentTrackIndex = 0;
 let sound = null;
