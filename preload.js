@@ -57,7 +57,5 @@ ipcMain.handle("readDirectory", (event, folderPath) => {
 });
 
 contextBridge.exposeInMainWorld("electron", {
-    selectFolder: () => ipcRenderer.invoke("dialog:selectFolder"),
     selectFolderOrFiles: () => ipcRenderer.invoke("dialog:selectFolderOrFiles"),
-    readDirectory: (folderPath) => ipcRenderer.invoke("readDirectory", folderPath),
   });

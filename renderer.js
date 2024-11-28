@@ -266,14 +266,14 @@ folderSelector.addEventListener("click", async () => {
   addTracksToPlaylist(tracks);
 });
 
-// Handle file addition via `+` button
-const addFilesButton = document.getElementById("add-files");
-addFilesButton.addEventListener("click", async () => {
-  const selectedItems = await window.electron.selectFolderOrFiles();
-  if (!selectedItems) return;
+  // Add files or folders
+  const addFilesButton = document.getElementById("add-files");
+  addFilesButton.addEventListener("click", async () => {
+    const selectedItems = await window.electron.selectFolderOrFiles();
+    if (!selectedItems) return;
+    addTracksToPlaylist(selectedItems);
+  });
 
-  addTracksToPlaylist(selectedItems);
-});
 
 // Playback Controls
 
