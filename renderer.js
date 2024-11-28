@@ -1,28 +1,25 @@
-let playlist = [];
+let playlists = {}; // Object to store playlists and their tracks
+let currentPlaylist = null; // The name of the current playlist
+let playlistTracks = []; // Tracks in the current playlist
 let currentTrackIndex = 0;
 let sound = null;
 let isPaused = false;
-let selectedFolderPath = null;
 
 let playbackPositions = {};
-
-// New variables for Shuffle and Repeat
 let shuffleMode = false;
 let repeatMode = false;
-let playCounts = {};
-let unplayedTracks = [];
 
-// Load the last selected folder and settings if available
 window.addEventListener('DOMContentLoaded', () => {
-  const savedFolderPath = localStorage.getItem('selectedFolderPath');
-  const savedPlaybackPositions = JSON.parse(localStorage.getItem('playbackPositions'));
-
-  if (savedPlaybackPositions) {
-    playbackPositions = savedPlaybackPositions;
+  // Load saved playlists and settings
+  const savedPlaylists = JSON.parse(localStorage.getItem('playlists'));
+  if (savedPlaylists) {
+    playlists = savedPlaylists;
+    renderPlaylists();
   }
 
-  if (savedFolderPath) {
-    loadFolder(savedFolderPath);
+  const savedCurrentPlaylist = localStorage.getItem('currentPlaylist');
+  if (savedCurrentPlaylist && playlists[savedCurrentPlaylist]) {
+    selectPlaylist(savedCurrentPlaylist);
   }
 
   // Load Shuffle and Repeat modes
@@ -45,52 +42,246 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Disable pause button initially
   document.getElementById('pause').disabled = true;
+
+  // References to modal elements
+  const modalOverlay = document.getElementById('modal-overlay');
+  const playlistNameInput = document.getElementById('playlist-name-input');
+  const modalOkButton = document.getElementById('modal-ok');
+  const modalCancelButton = document.getElementById('modal-cancel');
+
+  // Show the modal dialog to create a new playlist
+  document.getElementById('new-playlist').addEventListener('click', () => {
+    playlistNameInput.value = ''; // Clear previous input
+    showModal();
+  });
+
+  // Handle modal "OK" button click
+  modalOkButton.addEventListener('click', () => {
+    const playlistName = playlistNameInput.value.trim();
+    if (playlistName && !playlists[playlistName]) {
+      playlists[playlistName] = [];
+      savePlaylists();
+      renderPlaylists();
+      selectPlaylist(playlistName);
+      hideModal();
+    } else if (playlists[playlistName]) {
+      alert('Playlist already exists.');
+    } else {
+      alert('Please enter a valid playlist name.');
+    }
+  });
+
+  // Handle modal "Cancel" button click
+  modalCancelButton.addEventListener('click', () => {
+    hideModal();
+  });
+
+  // Attach event listeners to controls
+  document.getElementById('play').addEventListener('click', playTrack);
+  document.getElementById('pause').addEventListener('click', pauseTrack);
+  document.getElementById('next').addEventListener('click', nextTrack);
+  document.getElementById('prev').addEventListener('click', prevTrack);
+
+  // Toggle Shuffle Mode
+  document.getElementById('shuffle').addEventListener('click', () => {
+    shuffleMode = !shuffleMode;
+    const shuffleButton = document.getElementById('shuffle');
+    shuffleButton.textContent = shuffleMode ? 'Shuffle On' : 'Shuffle Off';
+    shuffleButton.classList.toggle('active', shuffleMode);
+
+    localStorage.setItem('shuffleMode', shuffleMode);
+  });
+
+  // Toggle Repeat Mode
+  document.getElementById('repeat').addEventListener('click', () => {
+    repeatMode = !repeatMode;
+    const repeatButton = document.getElementById('repeat');
+    repeatButton.textContent = repeatMode ? 'Repeat On' : 'Repeat Off';
+    repeatButton.classList.toggle('active', repeatMode);
+
+    localStorage.setItem('repeatMode', repeatMode);
+  });
+
+  // Initialize Drag-and-Drop Handlers
+  const playlistDiv = document.getElementById('playlist');
+  playlistDiv.addEventListener('dragover', allowDrop);
+  playlistDiv.addEventListener('drop', dropHandler);
 });
 
-// Select a folder and load files
-const folderSelector = document.getElementById('folder-selector');
-folderSelector.addEventListener('click', async () => {
+// Functions to show and hide the modal
+function showModal() {
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  // Set focus to the input field
+  document.getElementById('playlist-name-input').focus();
+}
+
+function hideModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function renderPlaylists() {
+    const playlistsUl = document.getElementById('playlists');
+    playlistsUl.innerHTML = '';
+    for (const playlistName in playlists) {
+      const li = document.createElement('li');
+  
+      const playlistNameSpan = document.createElement('span');
+      playlistNameSpan.textContent = playlistName;
+      playlistNameSpan.addEventListener('click', () => {
+        selectPlaylist(playlistName);
+      });
+  
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = '×'; // Use a cross symbol or 'Delete'
+      deleteButton.classList.add('delete-playlist');
+      deleteButton.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent the playlist selection event
+        deletePlaylist(playlistName);
+      });
+  
+      if (playlistName === currentPlaylist) {
+        li.classList.add('selected');
+      }
+  
+      li.appendChild(playlistNameSpan);
+      li.appendChild(deleteButton);
+      playlistsUl.appendChild(li);
+    }
+  }
+  
+  function deletePlaylist(playlistName) {
+    if (confirm(`Are you sure you want to delete the playlist "${playlistName}"?`)) {
+      delete playlists[playlistName];
+      savePlaylists();
+      if (playlistName === currentPlaylist) {
+        currentPlaylist = null;
+        playlistTracks = [];
+        document.getElementById('playlist-title').textContent = 'No Playlist Selected';
+        renderPlaylist();
+      }
+      renderPlaylists();
+  
+      // If no playlists remain, prompt to create a new one
+      if (Object.keys(playlists).length === 0) {
+        showModal();
+      }
+    }
+  }
+  
+
+// Select a playlist
+function selectPlaylist(playlistName) {
+  currentPlaylist = playlistName;
+  localStorage.setItem('currentPlaylist', currentPlaylist);
+  playlistTracks = playlists[currentPlaylist] || [];
+  currentTrackIndex = 0;
+  renderPlaylist();
+  document.getElementById('playlist-title').textContent = currentPlaylist;
+  updatePlaylistSelection();
+}
+
+// Update playlist selection UI
+function updatePlaylistSelection() {
+  const playlistItems = document.getElementById('playlists').children;
+  for (const item of playlistItems) {
+    if (item.textContent === currentPlaylist) {
+      item.classList.add('selected');
+    } else {
+      item.classList.remove('selected');
+    }
+  }
+}
+
+// Render the tracks in the current playlist
+function renderPlaylist() {
+  const playlistDiv = document.getElementById('playlist');
+  playlistDiv.innerHTML = '';
+  if (playlistTracks.length === 0) {
+    playlistDiv.innerHTML = '<p>Drag and drop files or folders here to add to the playlist.</p>';
+    return;
+  }
+  playlistTracks.forEach((track, index) => {
+    const trackDiv = document.createElement('div');
+    trackDiv.classList.add('track');
+    if (index === currentTrackIndex) {
+      trackDiv.classList.add('current');
+    }
+    trackDiv.textContent = track.name;
+    trackDiv.addEventListener('click', () => {
+      loadTrack(index);
+      playTrack();
+    });
+    playlistDiv.appendChild(trackDiv);
+  });
+}
+
+// Save playlists to localStorage
+function savePlaylists() {
+  localStorage.setItem('playlists', JSON.stringify(playlists));
+}
+
+// Drag-and-Drop Handlers
+function allowDrop(event) {
+  event.preventDefault();
+}
+
+async function dropHandler(event) {
+  event.preventDefault();
+  const files = event.dataTransfer.files;
+  for (const file of files) {
+    if (file.type === '') {
+      // It's a directory
+      const folderPath = file.path;
+      const tracks = window.electron.readDirectory(folderPath);
+      addTracksToPlaylist(tracks);
+    } else {
+      // It's a file
+      const track = {
+        name: file.name,
+        path: file.path,
+      };
+      addTracksToPlaylist([track]);
+    }
+  }
+}
+
+// Add tracks to the current playlist
+function addTracksToPlaylist(tracks) {
+  if (!currentPlaylist) {
+    alert('Please create or select a playlist first.');
+    return;
+  }
+  playlists[currentPlaylist] = playlists[currentPlaylist].concat(tracks);
+  savePlaylists();
+  selectPlaylist(currentPlaylist);
+}
+
+// Handle folder selection
+const folderSelector = document.getElementById("folder-selector");
+folderSelector.addEventListener("click", async () => {
   const folderPath = await window.electron.selectFolder();
   if (!folderPath) return;
 
-  selectedFolderPath = folderPath;
-  localStorage.setItem('selectedFolderPath', folderPath);
-  loadFolder(folderPath);
+  const tracks = window.electron.readDirectory(folderPath);
+  addTracksToPlaylist(tracks);
 });
 
-// Load files from a folder into the playlist
-function loadFolder(folderPath) {
-  playlist = window.electron.readDirectory(folderPath);
-  if (playlist.length === 0) {
-    console.log('No supported audio files found in the selected folder.');
-    return;
-  }
+// Handle file addition via `+` button
+const addFilesButton = document.getElementById("add-files");
+addFilesButton.addEventListener("click", async () => {
+  const selectedItems = await window.electron.selectFolderOrFiles();
+  if (!selectedItems) return;
 
-  // Initialize play counts
-  playCounts = {};
-  playlist.forEach((track) => {
-    playCounts[track.path] = 0;
-  });
+  addTracksToPlaylist(selectedItems);
+});
 
-  // Initialize unplayed tracks
-  initializeUnplayedTracks();
+// Playback Controls
 
-  loadTrack(0);
-  renderPlaylist();
-}
-
-// Initialize unplayed tracks list
-function initializeUnplayedTracks() {
-  unplayedTracks = [...Array(playlist.length).keys()]; // [0, 1, 2, ..., n]
-}
-
-// Load a track
 function loadTrack(index) {
-  // Save current track position before switching
   saveCurrentTrackPosition();
 
   if (sound) sound.unload();
-  const track = playlist[index];
+  const track = playlistTracks[index];
   sound = new Howl({
     src: [track.path],
     html5: true,
@@ -102,168 +293,82 @@ function loadTrack(index) {
   currentTrackIndex = index;
   isPaused = false;
 
-  // Increment play count
-  playCounts[track.path] = (playCounts[track.path] || 0) + 1;
-
-  // Remove track from unplayedTracks if present
-  const unplayedIndex = unplayedTracks.indexOf(index);
-  if (unplayedIndex !== -1) {
-    unplayedTracks.splice(unplayedIndex, 1);
-  }
-
   updateCurrentTrackDisplay();
-  console.log(`Loaded track: ${track.name}`);
 
-  // Resume from saved position if available
   const trackKey = track.path;
   const savedPosition = playbackPositions[trackKey];
   if (savedPosition !== undefined) {
     sound.seek(savedPosition);
-    console.log(`Resumed track at position: ${savedPosition}`);
   }
 
-  // Update the playlist display
   renderPlaylist();
 
-  // Update button states
   document.getElementById('play').disabled = false;
   document.getElementById('pause').disabled = true;
 }
 
-// Save the current track's playback position
-function saveCurrentTrackPosition() {
-  if (sound) {
-    const track = playlist[currentTrackIndex];
-    const trackKey = track.path;
-    playbackPositions[trackKey] = sound.seek();
-    // Persist positions to localStorage
-    localStorage.setItem('playbackPositions', JSON.stringify(playbackPositions));
-    console.log(`Saved position ${playbackPositions[trackKey]} for track: ${track.name}`);
-  }
-}
-
-// Play or resume the current track
 function playTrack() {
   if (sound) {
     if (!sound.playing()) {
       sound.play();
       isPaused = false;
-      console.log('Playing track.');
-      // Disable the play button
       document.getElementById('play').disabled = true;
       document.getElementById('pause').disabled = false;
-    } else {
-      console.log('Track is already playing.');
     }
-  } else {
-    console.log('No track loaded.');
   }
 }
 
-// Pause the current track
 function pauseTrack() {
   if (sound && sound.playing()) {
     sound.pause();
     isPaused = true;
     saveCurrentTrackPosition();
-    console.log('Paused track.');
-    // Enable the play button
     document.getElementById('play').disabled = false;
     document.getElementById('pause').disabled = true;
   }
 }
 
-// Play the next track
 function nextTrack() {
   saveCurrentTrackPosition();
 
   if (repeatMode) {
-    // Repeat the current track
     loadTrack(currentTrackIndex);
     playTrack();
     return;
   }
 
   if (shuffleMode) {
-    if (unplayedTracks.length === 0) {
-      // All tracks have been played, reset unplayedTracks
-      initializeUnplayedTracks();
-    }
-
-    // Randomly select a track from unplayedTracks
-    const randomIndex = Math.floor(Math.random() * unplayedTracks.length);
-    const nextIndex = unplayedTracks.splice(randomIndex, 1)[0];
-    loadTrack(nextIndex);
+    const indices = [...Array(playlistTracks.length).keys()];
+    indices.splice(currentTrackIndex, 1);
+    const randomIndex = indices[Math.floor(Math.random() * indices.length)];
+    loadTrack(randomIndex);
   } else {
-    // Normal sequential playback
-    const nextIndex = (currentTrackIndex + 1) % playlist.length;
+    const nextIndex = (currentTrackIndex + 1) % playlistTracks.length;
     loadTrack(nextIndex);
   }
 
   playTrack();
 }
 
-// Play the previous track
 function prevTrack() {
   saveCurrentTrackPosition();
 
-  // For previous track, we'll navigate sequentially
-  const prevIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+  const prevIndex = (currentTrackIndex - 1 + playlistTracks.length) % playlistTracks.length;
   loadTrack(prevIndex);
   playTrack();
 }
 
-// Render the playlist
-function renderPlaylist() {
-  const playlistDiv = document.getElementById('playlist');
-  playlistDiv.innerHTML = playlist
-    .map((track, index) => {
-      return `<div class="track ${
-        index === currentTrackIndex ? 'current' : ''
-      }">${track.name} <span class="play-count">(Played ${playCounts[track.path]} times)</span></div>`;
-    })
-    .join('');
+function saveCurrentTrackPosition() {
+  if (sound) {
+    const track = playlistTracks[currentTrackIndex];
+    const trackKey = track.path;
+    playbackPositions[trackKey] = sound.seek();
+    localStorage.setItem('playbackPositions', JSON.stringify(playbackPositions));
+  }
 }
 
-// Update the current track display
 function updateCurrentTrackDisplay() {
   const currentTrackDiv = document.getElementById('current-track');
-  currentTrackDiv.textContent = `Now playing: ${
-    playlist[currentTrackIndex]?.name || 'No track playing'
-  }`;
+  const track = playlistTracks[currentTrackIndex];
+  currentTrackDiv.textContent = track ? `Now playing: ${track.name}` : 'No track playing';
 }
-
-// Attach event listeners to controls
-document.getElementById('play').addEventListener('click', playTrack);
-document.getElementById('pause').addEventListener('click', pauseTrack);
-document.getElementById('next').addEventListener('click', nextTrack);
-document.getElementById('prev').addEventListener('click', prevTrack);
-
-// Toggle Shuffle Mode
-document.getElementById('shuffle').addEventListener('click', () => {
-  shuffleMode = !shuffleMode;
-  const shuffleButton = document.getElementById('shuffle');
-  shuffleButton.textContent = shuffleMode ? 'Shuffle On' : 'Shuffle Off';
-  shuffleButton.classList.toggle('active', shuffleMode);
-
-  localStorage.setItem('shuffleMode', shuffleMode);
-
-  if (shuffleMode) {
-    initializeUnplayedTracks();
-  }
-});
-
-// Toggle Repeat Mode
-document.getElementById('repeat').addEventListener('click', () => {
-  repeatMode = !repeatMode;
-  const repeatButton = document.getElementById('repeat');
-  repeatButton.textContent = repeatMode ? 'Repeat On' : 'Repeat Off';
-  repeatButton.classList.toggle('active', repeatMode);
-
-  localStorage.setItem('repeatMode', repeatMode);
-});
-
-// Save playback position before closing the window
-window.addEventListener('beforeunload', () => {
-  saveCurrentTrackPosition();
-});

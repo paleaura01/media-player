@@ -1,38 +1,59 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta
     http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self';"
-  />
+  >
   <title>Winamp-Inspired Media Player</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- Include Howler.js via CDN -->
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 </head>
 <body>
-  <div id="player">
-    <h1>Media Player (Winamp Style)</h1>
-    <!-- Folder Selector -->
-    <button id="folder-selector">Select Folder</button>
-    <!-- Playlist Display -->
-    <div id="playlist"></div>
-    <!-- Playback Controls -->
-    <div id="controls">
-      <button id="play">Play</button>
-      <button id="pause">Pause</button>
-      <button id="prev">Previous</button>
-      <button id="next">Next</button>
-      <!-- New Shuffle and Repeat Buttons -->
-      <button id="shuffle">Shuffle Off</button>
-      <button id="repeat">Repeat Off</button>
+  <div id="app">
+    <!-- Side Pane -->
+    <div id="playlist-pane">
+      <h2>Playlists</h2>
+      <button id="new-playlist">New Playlist</button>
+      <ul id="playlists"></ul>
     </div>
-    <!-- Current Track Display -->
-    <div id="current-track">No track playing</div>
+
+    <!-- Main Area -->
+    <div id="main-area">
+      <div id="control-bar">
+        <button id="prev">Prev</button>
+        <button id="play">Play</button>
+        <button id="pause">Pause</button>
+        <button id="next">Next</button>
+        <button id="shuffle">Shuffle Off</button>
+        <button id="repeat">Repeat Off</button>
+        <span id="current-track">No track playing</span>
+      </div>
+
+      <div id="playlist-display">
+        <h2 id="playlist-title">No Playlist Selected</h2>
+        <div id="playlist">
+            <p>Drag and drop files or folders here to add to the playlist.</p>
+          </div>
+          <button id="add-files">+</button>
+          
+      </div>
+    </div>
   </div>
-  <!-- Include your renderer script -->
+
+  <!-- Modal Dialog -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal">
+      <h2>Create New Playlist</h2>
+      <input type="text" id="playlist-name-input" placeholder="Enter playlist name">
+      <div id="modal-buttons">
+        <button id="modal-ok">OK</button>
+        <button id="modal-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script src="renderer.js"></script>
 </body>
 </html>
