@@ -1,3 +1,4 @@
+// main.js
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 
@@ -10,7 +11,7 @@ app.on("ready", () => {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,   // Isolate context for security
-      nodeIntegration: false,   // Do not enable Node integration in renderer
+      nodeIntegration: false,   // Do not enable Node.js integration in renderer
       sandbox: false,           // Disable sandbox to allow Node.js in preload
     },
   });

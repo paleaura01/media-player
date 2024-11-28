@@ -48,3 +48,8 @@ body {
     background: #666;
   }
   
+  #current-track {
+    margin-top: 20px;
+    font-size: 1.2em;
+  }
+  

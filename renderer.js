@@ -1,9 +1,7 @@
+// renderer.js
 let playlist = [];
 let currentTrackIndex = 0;
 let sound = null;
-
-// Use Howler from a script tag in index.html
-// Remove: const { Howl } = require("howler");
 
 // Select a folder and load files
 const folderSelector = document.getElementById("folder-selector");
