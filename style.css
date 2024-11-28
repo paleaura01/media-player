@@ -1,125 +1,28 @@
-body, h1, h2, ul, li, p {
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #222;
+    color: #fff;
     margin: 0;
     padding: 0;
   }
   
-  body {
-    font-family: 'Tahoma', sans-serif;
-    background-color: #000;
-    color: #00FF00;
-    overflow: hidden;
-  }
-  
-  #app {
-    display: flex;
-    height: 100vh;
-  }
-  
-  /* Side Pane */
-  #playlist-pane {
-    width: 200px;
+  #player {
+    width: 600px;
+    margin: 50px auto;
+    border: 1px solid #444;
+    padding: 20px;
     background-color: #333;
-    border-right: 2px solid #555;
-    padding: 10px;
-    box-sizing: border-box;
-  }
-  
-  #playlist-pane h2 {
-    margin-bottom: 10px;
-    color: #FFF;
-  }
-  
-  #playlist-pane button {
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 5px;
-    background-color: #444;
-    color: #FFF;
-    border: none;
-    cursor: pointer;
-  }
-  
-  #playlist-pane ul {
-    list-style: none;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-  }
-  
-  #playlist-pane ul li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px;
-    cursor: pointer;
-  }
-  
-  #playlist-pane ul li.selected {
-    background-color: #555;
-  }
-  
-  /* Style for delete playlist button */
-  .delete-playlist {
-    background: none;
-    border: none;
-    color: red;
-    cursor: pointer;
-    margin-left: 10px;
-    font-size: 16px;
-  }
-  
-  .delete-playlist:hover {
-    color: darkred;
-  }
-  
-  /* Main Area */
-  #main-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  #control-bar {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    background-color: #222;
-    border-bottom: 2px solid #555;
-  }
-  
-  #control-bar button {
-    margin-right: 5px;
-    padding: 5px 10px;
-    background-color: #444;
-    color: #FFF;
-    border: none;
-    cursor: pointer;
-  }
-  
-  #control-bar button.active {
-    background-color: #666;
-  }
-  
-  #control-bar #current-track {
-    margin-left: auto;
-  }
-  
-  #playlist-display {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-  }
-  
-  #playlist-display h2 {
-    margin-bottom: 10px;
-    color: #FFF;
+    border-radius: 10px;
   }
   
   #playlist {
-    background-color: #111;
+    text-align: left;
+    background: #444;
     padding: 10px;
-    border: 2px dashed #555;
-    min-height: 200px;
-    position: relative; /* For positioning the + button */
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
   }
   
   .track {
@@ -128,94 +31,29 @@ body, h1, h2, ul, li, p {
   }
   
   .track.current {
-    background-color: #333;
-  }
-  
-  .track:hover {
-    background-color: #222;
-  }
-  
-  /* + Button for Adding Files */
-  #add-files {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 40px;
-    height: 40px;
-    background-color: #444;
-    color: #FFF;
-    border: none;
-    border-radius: 50%;
-    font-size: 24px;
-    text-align: center;
-    line-height: 40px;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  }
-  
-  #add-files:hover {
     background-color: #555;
   }
   
-  /* Modal Overlay */
-  #modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  
-  /* Hide the modal by default */
-  .hidden {
-    display: none !important; /* Use !important to override any conflicting rules */
-  }
-  
-  /* Modal Dialog */
-  #modal {
-    background-color: #222;
-    padding: 20px;
-    border: 2px solid #555;
-    border-radius: 10px;
-    width: 300px;
-    text-align: center;
-  }
-  
-  #modal h2 {
-    margin-bottom: 15px;
-    color: #fff;
-  }
-  
-  #playlist-name-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #555;
-    border-radius: 5px;
-    background-color: #333;
-    color: #fff;
-  }
-  
-  #modal-buttons {
-    display: flex;
-    justify-content: center;
-  }
-  
-  #modal-buttons button {
+  #controls button {
     margin: 5px;
-    padding: 10px 20px;
-    background-color: #444;
+    padding: 10px;
+    background: #555;
     color: white;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
   }
+
+  #controls button.active {
+    background-color: #777;
+  }
   
-  #modal-buttons button:hover {
-    background-color: #555;
+  #controls button:hover {
+    background: #666;
+  }
+  
+  #current-track {
+    margin-top: 20px;
+    font-size: 1.2em;
   }
   

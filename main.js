@@ -1,6 +1,6 @@
+// main.js
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
-const fs = require("fs");
 
 let mainWindow;
 
@@ -10,22 +10,26 @@ app.on("ready", () => {
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
-      contextIsolation: true,
+      contextIsolation: true,   // Isolate context for security
+      nodeIntegration: false,   // Do not enable Node.js integration in renderer
+      sandbox: false,           // Disable sandbox to allow Node.js in preload
     },
   });
+
   mainWindow.loadFile("index.html");
+  mainWindow.webContents.openDevTools(); // Open DevTools for debugging
 });
 
-ipcMain.handle("dialog:selectFolderOrFiles", async () => {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+// Handle folder selection
+ipcMain.handle("dialog:selectFolder", async () => {
   const result = await dialog.showOpenDialog({
-    properties: ["openFile", "openDirectory", "multiSelections"],
-    filters: [
-      { name: "Audio Files", extensions: ["mp3", "wav", "ogg", "opus"] },
-    ],
+    properties: ["openDirectory"],
   });
-  if (result.canceled) return null;
-  return result.filePaths.map((filePath) => ({
-    name: path.basename(filePath),
-    path: filePath,
-  }));
+  return result.canceled ? null : result.filePaths[0];
 });
