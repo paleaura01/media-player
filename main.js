@@ -1,6 +1,8 @@
 // main.js
+
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
+const fs = require("fs");
 
 let mainWindow;
 
@@ -10,26 +12,38 @@ app.on("ready", () => {
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
-      contextIsolation: true,   // Isolate context for security
-      nodeIntegration: false,   // Do not enable Node.js integration in renderer
-      sandbox: false,           // Disable sandbox to allow Node.js in preload
+      contextIsolation: true,
     },
   });
 
   mainWindow.loadFile("index.html");
-  mainWindow.webContents.openDevTools(); // Open DevTools for debugging
+  mainWindow.webContents.openDevTools();
+  console.log("Main window loaded with DevTools open.");
 });
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
-
-// Handle folder selection
-ipcMain.handle("dialog:selectFolder", async () => {
+ipcMain.handle("dialog:selectFolderOrFiles", async () => {
   const result = await dialog.showOpenDialog({
-    properties: ["openDirectory"],
+    properties: ["openFile", "openDirectory", "multiSelections"],
+    filters: [{ name: "Audio Files", extensions: ["mp3", "wav", "ogg", "opus"] }],
   });
-  return result.canceled ? null : result.filePaths[0];
+  return result.canceled ? null : result.filePaths.map((filePath) => ({
+    name: path.basename(filePath),
+    path: filePath,
+  }));
+});
+
+ipcMain.handle("readDirectory", (event, folderPath) => {
+  try {
+    const files = fs.readdirSync(folderPath).filter((file) => {
+      const ext = path.extname(file).toLowerCase();
+      return [".mp3", ".wav", ".ogg", ".opus"].includes(ext);
+    });
+    return files.map((file) => ({
+      name: file,
+      path: path.join(folderPath, file),
+    }));
+  } catch (error) {
+    console.error("Error reading directory:", error);
+    return [];
+  }
 });

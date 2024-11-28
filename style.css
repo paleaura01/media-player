@@ -1,28 +1,105 @@
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #222;
-    color: #fff;
+/* style.css */
+body, h1, h2, ul, li, p {
     margin: 0;
     padding: 0;
+    font-family: Arial, sans-serif;
   }
   
-  #player {
-    width: 600px;
-    margin: 50px auto;
-    border: 1px solid #444;
-    padding: 20px;
+  body {
+    background-color: #222;
+    color: #fff;
+    overflow: hidden;
+  }
+  
+  #app {
+    display: flex;
+    height: 100vh;
+  }
+  
+  /* Playlist Pane */
+  #playlist-pane {
+    width: 250px;
     background-color: #333;
-    border-radius: 10px;
+    border-right: 2px solid #555;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  #playlist-pane h2 {
+    margin-bottom: 10px;
+    color: #fff;
+  }
+  
+  #playlist-pane button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 5px;
+    background-color: #444;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  #playlist-pane ul {
+    list-style: none;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+  
+  #playlist-pane ul li {
+    padding: 5px;
+    cursor: pointer;
+    border-bottom: 1px solid #555;
+  }
+  
+  #playlist-pane ul li:hover {
+    background-color: #444;
+  }
+  
+  #playlist-pane ul li.selected {
+    background-color: #555;
+  }
+  
+  /* Main Area */
+  #main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #control-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #222;
+    border-bottom: 2px solid #555;
+  }
+  
+  #control-bar button {
+    margin-right: 5px;
+    padding: 10px 15px;
+    background-color: #444;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  #control-bar button:hover {
+    background-color: #555;
+  }
+  
+  #playlist-display {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #333;
   }
   
   #playlist {
-    text-align: left;
-    background: #444;
+    position: relative;
+    border: 2px dashed #555;
+    min-height: 200px;
     padding: 10px;
-    border-radius: 5px;
-    max-height: 200px;
-    overflow-y: auto;
   }
   
   .track {
@@ -30,30 +107,64 @@ body {
     cursor: pointer;
   }
   
-  .track.current {
+  .track:hover {
     background-color: #555;
   }
   
-  #controls button {
+  #add-files {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background-color: #444;
+    color: white;
+    font-size: 20px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 40px;
+    cursor: pointer;
+  }
+  
+  #add-files:hover {
+    background-color: #555;
+  }
+
+  .hidden {
+    display: none;
+  }
+  
+  #modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-content {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .modal-actions button {
     margin: 5px;
-    padding: 10px;
-    background: #555;
+    padding: 10px 15px;
+    background-color: #555;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
   }
-
-  #controls button.active {
-    background-color: #777;
+  
+  .modal-actions button:hover {
+    background-color: #666;
   }
   
-  #controls button:hover {
-    background: #666;
-  }
-  
-  #current-track {
-    margin-top: 20px;
-    font-size: 1.2em;
-  }
   
