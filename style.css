@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #222;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #player {
+    width: 600px;
+    margin: 50px auto;
+    border: 1px solid #444;
+    padding: 20px;
+    background-color: #333;
+    border-radius: 10px;
+  }
+  
+  #playlist {
+    text-align: left;
+    background: #444;
+    padding: 10px;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .track {
+    padding: 5px;
+    cursor: pointer;
+  }
+  
+  .track.current {
+    background-color: #555;
+  }
+  
+  #controls button {
+    margin: 5px;
+    padding: 10px;
+    background: #555;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  #controls button:hover {
+    background: #666;
+  }
+  

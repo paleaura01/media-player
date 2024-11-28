@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self';"
+  >
+  <title>Winamp-Inspired Media Player</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Include Howler.js via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+</head>
+<body>
+  <div id="player">
+    <h1>Media Player (Winamp Style)</h1>
+    <!-- Folder Selector -->
+    <button id="folder-selector">Select Folder</button>
+    <!-- Playlist Display -->
+    <div id="playlist"></div>
+    <!-- Playback Controls -->
+    <div id="controls">
+      <button id="play">Play</button>
+      <button id="pause">Pause</button>
+      <button id="stop">Stop</button>
+      <button id="prev">Previous</button>
+      <button id="next">Next</button>
+    </div>
+    <!-- Current Track Display -->
+    <div id="current-track">No track playing</div>
+  </div>
+  <!-- Include your renderer script -->
+  <script src="renderer.js"></script>
+</body>
+</html>
