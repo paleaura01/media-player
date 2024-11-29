@@ -66,29 +66,43 @@ export function setupUIListeners() {
   }
 }
 
-
-// Open the modal using class-based approach
+// Open the modal
 function openModal() {
   const modal = document.getElementById("modal");
-  modal.classList.remove("modal-hidden");
-  modal.classList.add("modal-visible");
-  console.log("Modal set to visible.");
+  if (modal) {
+    modal.classList.remove("modal-hidden");
+    modal.classList.add("modal-visible");
+    console.log("Modal set to visible.");
+  } else {
+    console.error("Modal element not found!");
+  }
 }
 
-// Close the modal and reset its state
+// Close the modal
 function closeModal() {
   const modal = document.getElementById("modal");
-  modal.classList.remove("modal-visible");
-  modal.classList.add("modal-hidden");
-  document.getElementById("playlist-name").value = ""; // Clear input field
-  console.log("Modal hidden and input field cleared.");
+  if (modal) {
+    modal.classList.remove("modal-visible");
+    modal.classList.add("modal-hidden");
+    const nameInput = document.getElementById("playlist-name");
+    if (nameInput) {
+      nameInput.value = ""; // Clear input field
+    }
+    console.log("Modal hidden and input field cleared.");
+  } else {
+    console.error("Modal element not found!");
+  }
 }
 
 // Create a new playlist
 function handleCreatePlaylist() {
   const nameInput = document.getElementById("playlist-name");
-  const name = nameInput.value.trim();
+  if (!nameInput) {
+    console.error("Playlist name input field not found!");
+    return;
+  }
 
+  const name = nameInput.value.trim();
   if (!name) {
     alert("Playlist name cannot be empty.");
     console.error("Failed to create playlist: name is empty.");
@@ -102,13 +116,18 @@ function handleCreatePlaylist() {
   }
 
   renderPlaylists();
-  closeModal();
+  closeModal(); // Close modal after creating playlist
   console.log(`Playlist "${name}" created successfully.`);
 }
 
 // Render playlists
 export function renderPlaylists() {
   const playlistPane = document.getElementById("playlists");
+  if (!playlistPane) {
+    console.error("Playlist pane not found!");
+    return;
+  }
+
   playlistPane.innerHTML = "";
 
   Object.keys(playlists).forEach((name) => {
@@ -145,6 +164,10 @@ export function renderPlaylists() {
 // Render tracks for the selected playlist
 function renderPlaylistTracks() {
   const playlistDiv = document.getElementById("playlist");
+  if (!playlistDiv) {
+    console.error("Playlist display area not found!");
+    return;
+  }
 
   if (!currentPlaylist) {
     playlistDiv.innerHTML = "No playlist selected.";

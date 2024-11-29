@@ -36,18 +36,23 @@ export async function renderLibraryTree() {
       node.classList.add(item.type === "directory" ? "folder-node" : "file-node");
       node.textContent = item.name;
     
+      // Add a unique data attribute for debugging
+      node.setAttribute("data-file-path", item.path);
+    
+      // Directory: Expand on click
       if (item.type === "directory") {
         node.addEventListener("click", async (e) => {
-          e.stopPropagation(); // Prevents multiple triggers
+          e.stopPropagation(); // Prevent parent nodes from triggering
           console.log(`Expanding folder: ${item.name}`);
           const subItems = await readDirectory(item.path);
           const subTree = renderSubTree(subItems);
           node.appendChild(subTree);
         });
       } else if (item.type === "file" && isAudioFile(item.path)) {
+        // File: Play the selected file
         node.addEventListener("click", (e) => {
           e.stopPropagation();
-          console.log(`Playing audio file: ${item.name}`);
+          console.log(`Playing audio file: ${item.path}`);
           loadTrack(item.path);
           playTrack();
         });
@@ -55,6 +60,7 @@ export async function renderLibraryTree() {
     
       libraryTree.appendChild(node);
     });
+    
     
 
     console.log("Library tree successfully rendered.");

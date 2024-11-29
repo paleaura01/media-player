@@ -1,6 +1,6 @@
 // renderer/player.js
 
-import { Howl } from 'howler';
+import { Howl } from "howler";
 
 let sound = null;
 
@@ -8,24 +8,30 @@ export function loadTrack(filePath) {
   if (sound) sound.unload(); // Unload the previous sound
   console.log(`Loading track: ${filePath}`);
 
+  // Convert the file path to use the `file://` protocol
+  const audioUrl = `file://${filePath.replace(/\\/g, "/")}`;
+
   sound = new Howl({
-    src: [filePath],
-    html5: true,
-    onplay: () => console.log(`Playing: ${filePath}`),
-    onend: () => console.log('Track ended.'),
-    onloaderror: (id, error) => console.error('Error loading audio:', error),
-    onplayerror: (id, error) => console.error('Error playing audio:', error),
+    src: [audioUrl],
+    html5: true, // Use HTML5 Audio for larger files
+    onplay: () => console.log(`Playing: ${audioUrl}`),
+    onend: () => console.log("Track ended."),
+    onloaderror: (id, error) => console.error("Error loading audio:", error),
+    onplayerror: (id, error) => console.error("Error playing audio:", error),
   });
+
+  sound.load();
 }
 
 export function playTrack() {
   if (sound) {
     sound.play();
-    console.log('Playback started.');
+    console.log("Playback started.");
   } else {
-    console.warn('No track loaded to play.');
+    console.warn("No track loaded to play.");
   }
 }
+
 
 
 export function pauseTrack() {
