@@ -1,8 +1,7 @@
-import { loadTrack, playTrack } from "./player.js";
-import { getPlaylist } from "./playlists.js";
-import { getCurrentPlaylist } from "./playlistManager.js";
+// renderer/trackManager.js
 
-let currentTrackIndex = -1;
+import { getPlaylist, updatePlaylist } from "./playlists.js";
+import { loadTrack, playTrack } from "./player.js"; // Ensure these are imported for playback
 
 export function renderPlaylistTracks(playlistName) {
   const playlistDiv = document.getElementById("playlist");
@@ -17,63 +16,45 @@ export function renderPlaylistTracks(playlistName) {
   }
 
   const tracks = getPlaylist(playlistName);
-  playlistDiv.innerHTML = tracks
-    .map(
-      (track, index) =>
-        `<div class="track" data-index="${index}" data-path="${track.path}">${track.name}</div>`
-    )
-    .join("");
+  playlistDiv.innerHTML = ""; // Clear the playlist container
 
-  playlistDiv.querySelectorAll(".track").forEach((trackElement) => {
+  tracks.forEach((track, index) => {
+    const trackElement = document.createElement("div");
+    trackElement.className = "track";
+
+    // Title Container
+    const titleContainer = document.createElement("div");
+    titleContainer.className = "track-title";
+    titleContainer.textContent = track.name;
+
+    // Add click listener to play the track
     trackElement.addEventListener("click", () => {
-      const trackPath = trackElement.getAttribute("data-path");
-      const trackIndex = parseInt(trackElement.getAttribute("data-index"), 10);
-
-      if (trackPath) {
-        window.electron.fileExists(trackPath).then((exists) => {
-          if (exists) {
-            currentTrackIndex = trackIndex;
-            console.log(`Playing track: ${trackPath}`);
-            loadTrack(trackPath);
-            playTrack();
-          } else {
-            alertForMissingFile(trackPath);
-            playNextTrack();
-          }
-        });
-      }
+      console.log(`Playing track: ${track.path}`);
+      loadTrack(track.path); // Load the track
+      playTrack(); // Start playback
     });
+
+    // Delete Button Container
+    const deleteContainer = document.createElement("div");
+    deleteContainer.className = "delete-container";
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "delete-track";
+    deleteButton.textContent = "X";
+
+    // Event listener for deleting the track
+    deleteButton.addEventListener("click", (e) => {
+      e.stopPropagation(); // Prevent triggering track play
+      tracks.splice(index, 1); // Remove the track from the playlist
+      updatePlaylist(playlistName, tracks); // Save the playlist changes
+      renderPlaylistTracks(playlistName); // Re-render the playlist
+    });
+
+    deleteContainer.appendChild(deleteButton);
+    trackElement.appendChild(titleContainer);
+    trackElement.appendChild(deleteContainer);
+    playlistDiv.appendChild(trackElement);
   });
 
   console.log(`Tracks rendered for playlist "${playlistName}":`, tracks);
-}
-
-function alertForMissingFile(filePath) {
-  const alertDiv = document.createElement("div");
-  alertDiv.classList.add("alert");
-  alertDiv.textContent = `File does not exist: ${filePath}`;
-  document.body.appendChild(alertDiv);
-
-  setTimeout(() => {
-    alertDiv.remove();
-  }, 2000);
-}
-
-export function playNextTrack() {
-  const playlistName = getCurrentPlaylist();
-  if (!playlistName) return;
-
-  const tracks = getPlaylist(playlistName);
-  if (currentTrackIndex === -1 || currentTrackIndex >= tracks.length - 1) {
-    console.log("No more tracks to play.");
-    return;
-  }
-
-  currentTrackIndex += 1;
-  const nextTrack = tracks[currentTrackIndex];
-  if (nextTrack) {
-    console.log(`Playing next track: ${nextTrack.path}`);
-    loadTrack(nextTrack.path);
-    playTrack();
-  }
 }

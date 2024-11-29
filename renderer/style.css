@@ -243,4 +243,52 @@ body, h1, h2, ul, li, p {
     border-radius: 3px;
   }
   
+  .track {
+    display: flex; /* Align title and button horizontally */
+    align-items: center; /* Center items vertically */
+    justify-content: space-between; /* Add space between title and button */
+    background-color: #333;
+    color: white;
+    padding: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #555;
+  }
+  
+  .track:hover {
+    background-color: #555;
+  }
+  
+  .track-title {
+    flex: 1; /* Allow the title to grow and take up remaining space */
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Show ellipsis for long text */
+  }
+  
+  .delete-container {
+    display: flex; /* Center the button horizontally/vertically */
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .delete-track {
+    width: 20px; /* Square dimensions */
+    height: 20px;
+    background: red; /* Red background for visibility */
+    color: white;
+    border: none;
+    display: flex; /* Flexbox to center content */
+    justify-content: center;
+    align-items: center;
+    font-size: 14px; /* Slightly larger text size for better visibility */
+    cursor: pointer;
+    padding: 0; /* Remove padding */
+    box-sizing: border-box;
+    margin-bottom: 4px; /* Remove any extra spacing */
+  }
+  
+  .delete-track:hover {
+    background: darkred;
+  }
+  
   

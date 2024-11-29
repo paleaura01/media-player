@@ -1,8 +1,15 @@
 // renderer/ui.js
 
-import { handleCreatePlaylist, renderPlaylists, loadLastUsedPlaylist } from "./playlistManager.js";
+import { 
+  handleCreatePlaylist, 
+  renderPlaylists, 
+  loadLastUsedPlaylist, 
+  getCurrentPlaylist 
+} from "./playlistManager.js"; // Added getCurrentPlaylist import
 import { renderLibraryTree } from "./libraryRenderer.js";
 import { setupDragAndDrop } from "./dragAndDrop.js";
+import { renderPlaylistTracks } from "./trackManager.js"; // Ensure this is imported
+import { savePlaylists, getPlaylist } from "./playlists.js"; // Ensure these are imported
 
 export function setupUIListeners() {
   try {
@@ -32,20 +39,28 @@ export function setupUIListeners() {
     });
 
     addToPlaylistBtn.addEventListener("click", async () => {
-      const selectedFiles = await window.electron.selectFiles();
-      if (selectedFiles && selectedFiles.length > 0) {
-        const playlist = getCurrentPlaylist();
-        if (playlist) {
+      try {
+        const selectedFiles = await window.electron.selectFiles();
+        if (selectedFiles && selectedFiles.length > 0) {
+          const currentPlaylist = getCurrentPlaylist(); // Get the currently selected playlist
+          if (!currentPlaylist) {
+            alert("Please select or create a playlist first.");
+            return;
+          }
+
+          const playlist = getPlaylist(currentPlaylist); // Fetch the current playlist
           selectedFiles.forEach((filePath) => {
+            // Check if the track is already in the playlist
             if (!playlist.some((track) => track.path === filePath)) {
               playlist.push({ name: filePath.split("\\").pop(), path: filePath });
             }
           });
-          savePlaylists();
-          renderPlaylistTracks();
-        } else {
-          alert("Please select or create a playlist first.");
+
+          savePlaylists(); // Save updated playlists to local storage
+          renderPlaylistTracks(currentPlaylist); // Re-render the updated playlist
         }
+      } catch (error) {
+        console.error("Error adding files to playlist:", error);
       }
     });
 

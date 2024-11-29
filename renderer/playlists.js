@@ -47,6 +47,6 @@ export function updatePlaylist(name, newTracks) {
     return;
   }
   playlists[name] = newTracks;
-  savePlaylists();
+  savePlaylists(); // Save updated playlists to localStorage
   console.log(`Playlist '${name}' updated.`);
 }
