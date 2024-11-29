@@ -1,4 +1,5 @@
 /* style.css */
+
 body, h1, h2, ul, li, p {
     margin: 0;
     padding: 0;
@@ -67,39 +68,12 @@ body, h1, h2, ul, li, p {
     flex-direction: column;
   }
   
-  #control-bar {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    background-color: #222;
-    border-bottom: 2px solid #555;
-  }
-  
-  #control-bar button {
-    margin-right: 5px;
-    padding: 10px 15px;
-    background-color: #444;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  #control-bar button:hover {
-    background-color: #555;
-  }
-  
-  #playlist-display {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-    background-color: #333;
-  }
-  
   #playlist {
     position: relative;
     border: 2px dashed #555;
     min-height: 200px;
     padding: 10px;
+    background-color: #333;
   }
   
   .track {
@@ -111,27 +85,51 @@ body, h1, h2, ul, li, p {
     background-color: #555;
   }
   
-  #add-files {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 40px;
-    height: 40px;
-    background-color: #444;
-    color: white;
-    font-size: 20px;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 40px;
+  /* File Tree Styles */
+  .folder-node {
+    margin-left: 10px;
+    padding: 5px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #333;
+  }
+  
+  .folder-label {
+    margin-left: 5px;
     cursor: pointer;
   }
   
-  #add-files:hover {
-    background-color: #555;
+  .file-node {
+    margin-left: 20px;
+    padding: 5px;
+    cursor: pointer;
   }
-
+  
+  .file-node:hover {
+    background-color: #444;
+  }
+  
+  .toggle-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+  
+  .toggle-btn:hover {
+    color: #ddd;
+  }
+  
   .hidden {
     display: none;
+  }
+  
+  .modal-hidden {
+    display: none !important;
+  }
+  .modal-visible {
+    display: flex !important;
   }
   
   #modal {
@@ -166,39 +164,47 @@ body, h1, h2, ul, li, p {
   .modal-actions button:hover {
     background-color: #666;
   }
-  
-  .folder-node {
-    margin-left: 10px;
-    padding: 5px;
-    border: 1px solid #444;
-    border-radius: 5px;
-    background-color: #333;
-  }
-  
-  .folder-label {
-    margin-left: 5px;
-    cursor: pointer;
-  }
-  
-  .file-node {
-    margin-left: 20px;
-    padding: 5px;
-    cursor: pointer;
-  }
-  
-  .file-node:hover {
+
+  /* Player Controls */
+#controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: #444;
+    padding: 10px;
+    border-bottom: 2px solid #555;
   }
   
-  .toggle-btn {
-    background: none;
-    border: none;
+  /* Adjust margins for the library section */
+  #library-tree-container {
+    margin-top: 10px;
+    background-color: #444;
     color: #fff;
-    cursor: pointer;
-    margin-right: 5px;
+    padding: 10px;
+    border-bottom: 2px solid #555;
   }
   
-  .toggle-btn:hover {
-    color: #ddd;
+  #library-tree {
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 5px;
+    background-color: #333;
+    border-radius: 5px;
+  }
+  
+  #library-tree-container.hidden {
+    display: none;
+  }
+  
+  .folder-node, .file-node {
+    margin: 5px 0;
+    padding: 5px;
+    cursor: pointer;
+    border: 1px solid #555;
+    border-radius: 3px;
+  }
+  
+  .folder-node:hover, .file-node:hover {
+    background-color: #555;
   }
   

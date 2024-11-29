@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
   <title>Media Player</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -17,10 +17,7 @@
     </div>
 
     <div id="main-area">
-      <div id="playlist"></div>
-      <button id="add-files">+</button>
-
-      <!-- Player Controls -->
+      <!-- Player Controls Section -->
       <div id="controls">
         <button id="play">Play</button>
         <button id="pause">Pause</button>
@@ -29,11 +26,21 @@
         <button id="shuffle">Shuffle Off</button>
         <button id="repeat">Repeat Off</button>
       </div>
+
+      <!-- Library Tree Section -->
+      <div id="library-tree-container" class="hidden">
+        <h2>Library</h2>
+        <div id="library-tree">No library selected.</div>
+      </div>
+
+      <!-- Playlist Section -->
+      <div id="playlist"></div>
+      <button id="add-files">+</button>
     </div>
   </div>
 
   <!-- Modal for Playlist Creation -->
-  <div id="modal" style="display: none;">
+  <div id="modal" class="modal-hidden">
     <div class="modal-content">
       <h3>Create a New Playlist</h3>
       <input type="text" id="playlist-name" placeholder="Playlist Name">
@@ -43,13 +50,7 @@
       </div>
     </div>
   </div>
-  
-  
-  
-  
 
   <script type="module" src="renderer/renderer.js"></script>
 </body>
 </html>
-
-
