@@ -154,7 +154,6 @@ body, h1, h2, ul, li, p {
     display: none; /* Keeps the modal hidden */
   }
   
-  
   .modal-content {
     background-color: #333;
     padding: 20px;
@@ -162,6 +161,7 @@ body, h1, h2, ul, li, p {
     text-align: center;
     color: white;
   }
+  
   
   
   .modal-actions button {

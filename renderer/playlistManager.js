@@ -5,6 +5,8 @@ import { playlists, addPlaylist, deletePlaylist, getPlaylist, savePlaylists } fr
 
 let currentPlaylist = null;
 
+
+
 export function loadLastUsedPlaylist() {
   const lastUsedPlaylist = localStorage.getItem("lastUsedPlaylist");
   if (lastUsedPlaylist && playlists[lastUsedPlaylist]) {
