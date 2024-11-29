@@ -1,9 +1,13 @@
 // renderer/ui.js
 
-import { playlists, addPlaylist, deletePlaylist, getPlaylist } from "./playlists.js";
+// renderer/ui.js
+
+import { playlists, addPlaylist, deletePlaylist, getPlaylist, savePlaylists } from "./playlists.js";
 import { renderLibraryTree } from "./libraryRenderer.js";
+import { loadTrack, playTrack } from "./player.js";
 
 let currentPlaylist = null;
+let currentTrackIndex = 0;
 
 export function setupUIListeners() {
   try {
@@ -30,29 +34,21 @@ export function setupUIListeners() {
 
     // Listener for adding tracks to playlist
     addToPlaylistBtn.addEventListener("click", async () => {
-      console.log("'Add to Playlist' button clicked");
       if (!currentPlaylist) {
         alert("Please select a playlist first!");
         return;
       }
-
-      try {
-        // Open file selection dialog
-        const selectedFiles = await window.electron.selectFiles(); // Use a dedicated file selection dialog
-        if (selectedFiles && selectedFiles.length > 0) {
-          const playlist = getPlaylist(currentPlaylist);
-          selectedFiles.forEach((filePath) => {
-            if (!playlist.some((track) => track.path === filePath)) {
-              playlist.push({ name: filePath.split("\\").pop(), path: filePath });
-            }
-          });
-          console.log(`Files added to playlist "${currentPlaylist}":`, selectedFiles);
-          renderPlaylistTracks();
-        } else {
-          console.log("No files selected.");
-        }
-      } catch (error) {
-        console.error("Error adding files to playlist:", error);
+      const selectedFiles = await window.electron.selectFiles(); // Use file selection dialog
+      if (selectedFiles && selectedFiles.length > 0) {
+        const playlist = getPlaylist(currentPlaylist);
+        selectedFiles.forEach((filePath) => {
+          if (!playlist.some((track) => track.path === filePath)) {
+            playlist.push({ name: filePath.split("\\").pop(), path: filePath });
+          }
+        });
+        savePlaylists(); // Save the updated playlists
+        renderPlaylistTracks();
+        console.log(`Files added to playlist "${currentPlaylist}":`, selectedFiles);
       }
     });
 
@@ -68,7 +64,6 @@ function openModal() {
   if (modal) {
     modal.classList.remove("modal-hidden");
     modal.classList.add("modal-visible");
-    console.log("Modal set to visible.");
   } else {
     console.error("Modal element not found!");
   }
@@ -81,10 +76,7 @@ function closeModal() {
     modal.classList.remove("modal-visible");
     modal.classList.add("modal-hidden");
     const nameInput = document.getElementById("playlist-name");
-    if (nameInput) {
-      nameInput.value = ""; // Clear input field
-    }
-    console.log("Modal hidden and input field cleared.");
+    if (nameInput) nameInput.value = ""; // Clear input field
   } else {
     console.error("Modal element not found!");
   }
@@ -101,28 +93,22 @@ function handleCreatePlaylist() {
   const name = nameInput.value.trim();
   if (!name) {
     alert("Playlist name cannot be empty.");
-    console.error("Failed to create playlist: name is empty.");
     return;
   }
 
   if (!addPlaylist(name)) {
     alert("Playlist name already exists.");
-    console.error("Failed to create playlist: name already exists.");
     return;
   }
 
   renderPlaylists();
-  closeModal(); // Close modal after creating playlist
-  console.log(`Playlist "${name}" created successfully.`);
+  closeModal();
 }
 
 // Render playlists
 export function renderPlaylists() {
   const playlistPane = document.getElementById("playlists");
-  if (!playlistPane) {
-    console.error("Playlist pane not found!");
-    return;
-  }
+  if (!playlistPane) return;
 
   playlistPane.innerHTML = "";
 
@@ -131,7 +117,6 @@ export function renderPlaylists() {
     li.textContent = name;
 
     li.addEventListener("click", () => {
-      console.log(`Playlist "${name}" selected.`);
       currentPlaylist = name;
       renderPlaylistTracks();
     });
@@ -142,7 +127,6 @@ export function renderPlaylists() {
     deleteBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       deletePlaylist(name);
-      console.log(`Playlist "${name}" deleted.`);
       renderPlaylists();
       if (currentPlaylist === name) {
         currentPlaylist = null;
@@ -153,8 +137,6 @@ export function renderPlaylists() {
     li.appendChild(deleteBtn);
     playlistPane.appendChild(li);
   });
-
-  console.log("Playlists rendered:", Object.keys(playlists));
 }
 
 // Render tracks for the selected playlist
@@ -167,7 +149,6 @@ function renderPlaylistTracks() {
 
   if (!currentPlaylist) {
     playlistDiv.innerHTML = "No playlist selected.";
-    console.warn("No playlist selected.");
     return;
   }
 
@@ -175,12 +156,56 @@ function renderPlaylistTracks() {
 
   if (tracks.length > 0) {
     playlistDiv.innerHTML = tracks
-      .map((track) => `<div class="track">${track.name}</div>`)
+      .map(
+        (track, index) =>
+          `<div class="track" data-index="${index}" data-path="${track.path}">${track.name}</div>`
+      )
       .join("");
-    console.log(`Tracks rendered for playlist "${currentPlaylist}":`, tracks);
+
+    playlistDiv.querySelectorAll(".track").forEach((trackElement) => {
+      trackElement.addEventListener("click", (e) => {
+        currentTrackIndex = parseInt(trackElement.getAttribute("data-index"), 10);
+        const trackPath = trackElement.getAttribute("data-path");
+
+        window.electron.fileExists(trackPath).then((exists) => {
+          if (!exists) {
+            alertUser("File does not exist. Skipping...");
+            skipToNextTrack();
+          } else {
+            console.log(`Playing track: ${trackPath}`);
+            loadTrack(trackPath);
+            playTrack();
+          }
+        });
+      });
+    });
   } else {
     playlistDiv.innerHTML = "No tracks in this playlist.";
-    console.warn(`No tracks found in playlist "${currentPlaylist}".`);
   }
 }
 
+function skipToNextTrack() {
+  const tracks = getPlaylist(currentPlaylist);
+  if (!tracks.length) return;
+
+  currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+  const nextTrack = tracks[currentTrackIndex];
+
+  window.electron.fileExists(nextTrack.path).then((exists) => {
+    if (!exists) {
+      skipToNextTrack(); // Recursively skip missing tracks
+    } else {
+      console.log(`Playing next track: ${nextTrack.path}`);
+      loadTrack(nextTrack.path);
+      playTrack();
+    }
+  });
+}
+
+function alertUser(message) {
+  const alertDiv = document.createElement("div");
+  alertDiv.className = "alert";
+  alertDiv.textContent = message;
+  document.body.appendChild(alertDiv);
+  setTimeout(() => alertDiv.remove(), 2000);
+}

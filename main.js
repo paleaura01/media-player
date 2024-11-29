@@ -47,11 +47,22 @@ ipcMain.handle("dialog:selectFiles", async () => {
 // Dialog for selecting folders or files
 ipcMain.handle("dialog:selectFolderOrFiles", async () => {
   const result = await dialog.showOpenDialog({
-    properties: ["openFile", "openDirectory", "multiSelections"], // Allow both files and folders
+    properties: ["openFile", "openDirectory", "multiSelections"],
   });
   return result.canceled ? null : result.filePaths;
 });
 
+// Check if file exists
+ipcMain.handle("fileExists", async (event, filePath) => {
+  try {
+    return fs.existsSync(filePath); // Returns true if the file exists, false otherwise
+  } catch (error) {
+    console.error(`Error checking if file exists: ${filePath}`, error);
+    return false;
+  }
+});
+
+// Read directory contents
 ipcMain.handle('readDirectory', async (event, folderPath) => {
   try {
     return fs.readdirSync(folderPath).map((fileName) => {

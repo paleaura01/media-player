@@ -40,3 +40,13 @@ export function deletePlaylist(name) {
 export function getPlaylist(name) {
   return playlists[name] || [];
 }
+
+export function updatePlaylist(name, newTracks) {
+  if (!playlists[name]) {
+    console.warn(`Playlist '${name}' does not exist.`);
+    return;
+  }
+  playlists[name] = newTracks;
+  savePlaylists();
+  console.log(`Playlist '${name}' updated.`);
+}
