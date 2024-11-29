@@ -1,3 +1,5 @@
+// renderer/ui.js
+
 import { playlists, addPlaylist, deletePlaylist, getPlaylist, savePlaylists } from "./playlists.js";
 import { renderLibraryTree } from "./libraryRenderer.js";
 

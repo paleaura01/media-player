@@ -1,37 +1,43 @@
 // renderer/player.js
 
-import { playlists } from "./playlists.js";
+import { Howl } from 'howler';
 
 let sound = null;
-let currentTrackIndex = 0;
-let shuffleMode = false;
-let repeatMode = false;
 
-export function loadTrack(playlistName, index) {
-  if (sound) sound.unload();
-  const track = playlists[playlistName][index];
+export function loadTrack(filePath) {
+  if (sound) sound.unload(); // Unload the previous sound
+  console.log(`Loading track: ${filePath}`);
+
   sound = new Howl({
-    src: [track.path],
+    src: [filePath],
     html5: true,
-    onend: () => {
-      if (repeatMode) {
-        loadTrack(playlistName, index);
-        playTrack();
-      } else {
-        nextTrack(playlistName);
-      }
-    },
+    onplay: () => console.log(`Playing: ${filePath}`),
+    onend: () => console.log('Track ended.'),
+    onloaderror: (id, error) => console.error('Error loading audio:', error),
+    onplayerror: (id, error) => console.error('Error playing audio:', error),
   });
-  currentTrackIndex = index;
 }
 
 export function playTrack() {
-  if (sound) sound.play();
+  if (sound) {
+    sound.play();
+    console.log('Playback started.');
+  } else {
+    console.warn('No track loaded to play.');
+  }
 }
 
+
 export function pauseTrack() {
-  if (sound) sound.pause();
+  if (sound) {
+    sound.pause();
+    console.log("Playback paused.");
+  } else {
+    console.warn("No track loaded to pause.");
+  }
 }
+
+
 
 export function nextTrack(playlistName) {
   const playlist = playlists[playlistName];

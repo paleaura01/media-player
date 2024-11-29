@@ -1,6 +1,7 @@
 // renderer/libraryRenderer.js
 
-import { readDirectory } from "./library.js";
+import { readDirectory, isAudioFile } from "./library.js";
+import { loadTrack, playTrack } from "./player.js";
 
 export async function renderLibraryTree() {
   const libraryContainer = document.getElementById("library-tree-container");
@@ -34,19 +35,27 @@ export async function renderLibraryTree() {
       const node = document.createElement("div");
       node.classList.add(item.type === "directory" ? "folder-node" : "file-node");
       node.textContent = item.name;
-
-      // If directory, allow expanding
+    
       if (item.type === "directory") {
-        node.addEventListener("click", async () => {
+        node.addEventListener("click", async (e) => {
+          e.stopPropagation(); // Prevents multiple triggers
           console.log(`Expanding folder: ${item.name}`);
           const subItems = await readDirectory(item.path);
           const subTree = renderSubTree(subItems);
           node.appendChild(subTree);
         });
+      } else if (item.type === "file" && isAudioFile(item.path)) {
+        node.addEventListener("click", (e) => {
+          e.stopPropagation();
+          console.log(`Playing audio file: ${item.name}`);
+          loadTrack(item.path);
+          playTrack();
+        });
       }
-
+    
       libraryTree.appendChild(node);
     });
+    
 
     console.log("Library tree successfully rendered.");
   } catch (error) {
@@ -70,6 +79,26 @@ function renderSubTree(items) {
     const subNode = document.createElement("div");
     subNode.classList.add(item.type === "directory" ? "folder-node" : "file-node");
     subNode.textContent = item.name;
+
+    // Directory: Expand on click
+    if (item.type === "directory") {
+      subNode.addEventListener("click", async () => {
+        console.log(`Expanding folder: ${item.name}`);
+        const subItems = await readDirectory(item.path);
+        const subSubTree = renderSubTree(subItems);
+        subNode.appendChild(subSubTree);
+      });
+    }
+
+    // File: Play audio if it's an MP3
+    if (item.type === "file" && isAudioFile(item.path)) {
+      subNode.addEventListener("click", () => {
+        console.log(`Playing audio file: ${item.name}`);
+        loadTrack(item.path);
+        playTrack();
+      });
+    }
+
     subTree.appendChild(subNode);
   });
 
