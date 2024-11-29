@@ -23,6 +23,10 @@ export async function renderLibraryTree() {
       const node = document.createElement('div');
       node.classList.add(item.type === 'directory' ? 'folder-node' : 'file-node');
       node.textContent = item.name;
+      if (item.type === 'file') {
+        node.setAttribute("draggable", "true"); // Make files draggable
+        node.dataset.path = item.path; // Store file path for drag-and-drop
+      }
 
       if (item.type === 'directory') {
         node.addEventListener('click', async (e) => {
@@ -34,9 +38,9 @@ export async function renderLibraryTree() {
       }
 
       if (item.type === 'file' && isAudioFile(item.path)) {
-        node.addEventListener('click', async (e) => {
+        node.addEventListener('click', (e) => {
           e.stopPropagation();
-          await loadTrack(item.path);
+          loadTrack(item.path);
           playTrack();
         });
       }
@@ -67,6 +71,11 @@ function createSubTree(items) {
     subNode.classList.add(item.type === 'directory' ? 'folder-node' : 'file-node');
     subNode.textContent = item.name;
 
+    if (item.type === 'file') {
+      subNode.setAttribute("draggable", "true"); // Make files draggable
+      subNode.dataset.path = item.path; // Store file path for drag-and-drop
+    }
+
     if (item.type === 'directory') {
       subNode.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -76,16 +85,9 @@ function createSubTree(items) {
       });
     }
 
-    if (item.type === 'file' && isAudioFile(item.path)) {
-      subNode.addEventListener('click', (e) => {
-        e.stopPropagation();
-        loadTrack(item.path);
-        playTrack();
-      });
-    }
-
     subTree.appendChild(subNode);
   });
 
   return subTree;
 }
+

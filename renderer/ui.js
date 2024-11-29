@@ -1,13 +1,11 @@
 // renderer/ui.js
 
-// renderer/ui.js
-
 import { playlists, addPlaylist, deletePlaylist, getPlaylist, savePlaylists } from "./playlists.js";
 import { renderLibraryTree } from "./libraryRenderer.js";
 import { loadTrack, playTrack } from "./player.js";
+import { setupDragAndDrop } from "./dragAndDrop.js";
 
 let currentPlaylist = null;
-let currentTrackIndex = 0;
 
 export function setupUIListeners() {
   try {
@@ -38,7 +36,8 @@ export function setupUIListeners() {
         alert("Please select a playlist first!");
         return;
       }
-      const selectedFiles = await window.electron.selectFiles(); // Use file selection dialog
+
+      const selectedFiles = await window.electron.selectFiles();
       if (selectedFiles && selectedFiles.length > 0) {
         const playlist = getPlaylist(currentPlaylist);
         selectedFiles.forEach((filePath) => {
@@ -46,15 +45,100 @@ export function setupUIListeners() {
             playlist.push({ name: filePath.split("\\").pop(), path: filePath });
           }
         });
-        savePlaylists(); // Save the updated playlists
+        savePlaylists();
         renderPlaylistTracks();
-        console.log(`Files added to playlist "${currentPlaylist}":`, selectedFiles);
       }
     });
 
+    // Initialize UI with the most recent playlist if available
+    const lastUsedPlaylist = localStorage.getItem("lastUsedPlaylist");
+    if (lastUsedPlaylist && playlists[lastUsedPlaylist]) {
+      currentPlaylist = lastUsedPlaylist;
+      console.log(`Loaded most recent playlist: ${currentPlaylist}`);
+      renderPlaylistTracks();
+    }
+
     renderPlaylists();
+    setupDragAndDrop(); // Initialize drag-and-drop
   } catch (error) {
     console.error("Error initializing UI listeners:", error);
+  }
+}
+
+export function renderPlaylists() {
+  const playlistPane = document.getElementById("playlists");
+  if (!playlistPane) {
+    console.error("Playlist pane not found!");
+    return;
+  }
+
+  playlistPane.innerHTML = "";
+
+  Object.keys(playlists).forEach((name) => {
+    const li = document.createElement("li");
+    li.textContent = name;
+
+    li.addEventListener("click", () => {
+      console.log(`Playlist "${name}" selected.`);
+      currentPlaylist = name;
+      localStorage.setItem("lastUsedPlaylist", name); // Save the selected playlist
+      renderPlaylistTracks();
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "X";
+    deleteBtn.className = "delete-btn";
+    deleteBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deletePlaylist(name);
+      console.log(`Playlist "${name}" deleted.`);
+      renderPlaylists();
+      if (currentPlaylist === name) {
+        currentPlaylist = null;
+        localStorage.removeItem("lastUsedPlaylist");
+        renderPlaylistTracks();
+      }
+    });
+
+    li.appendChild(deleteBtn);
+    playlistPane.appendChild(li);
+  });
+
+  console.log("Playlists rendered:", Object.keys(playlists));
+}
+
+export function renderPlaylistTracks() {
+  const playlistDiv = document.getElementById("playlist");
+  if (!playlistDiv) {
+    console.error("Playlist display area not found!");
+    return;
+  }
+
+  if (!currentPlaylist) {
+    playlistDiv.innerHTML = "No playlist selected.";
+    return;
+  }
+
+  const tracks = getPlaylist(currentPlaylist);
+
+  if (tracks.length > 0) {
+    playlistDiv.innerHTML = tracks
+      .map(
+        (track, index) =>
+          `<div class="track" data-index="${index}" data-path="${track.path}">${track.name}</div>`
+      )
+      .join("");
+
+    playlistDiv.querySelectorAll(".track").forEach((trackElement) => {
+      trackElement.addEventListener("click", () => {
+        const trackPath = trackElement.getAttribute("data-path");
+        console.log(`Playing track: ${trackPath}`);
+        loadTrack(trackPath);
+        playTrack();
+      });
+    });
+  } else {
+    playlistDiv.innerHTML = "No tracks in this playlist.";
   }
 }
 
@@ -64,6 +148,7 @@ function openModal() {
   if (modal) {
     modal.classList.remove("modal-hidden");
     modal.classList.add("modal-visible");
+    console.log("Modal set to visible.");
   } else {
     console.error("Modal element not found!");
   }
@@ -76,7 +161,10 @@ function closeModal() {
     modal.classList.remove("modal-visible");
     modal.classList.add("modal-hidden");
     const nameInput = document.getElementById("playlist-name");
-    if (nameInput) nameInput.value = ""; // Clear input field
+    if (nameInput) {
+      nameInput.value = ""; // Clear input field
+    }
+    console.log("Modal hidden and input field cleared.");
   } else {
     console.error("Modal element not found!");
   }
@@ -101,111 +189,9 @@ function handleCreatePlaylist() {
     return;
   }
 
+  currentPlaylist = name;
+  localStorage.setItem("lastUsedPlaylist", name); // Save the new playlist
   renderPlaylists();
+  renderPlaylistTracks();
   closeModal();
-}
-
-// Render playlists
-export function renderPlaylists() {
-  const playlistPane = document.getElementById("playlists");
-  if (!playlistPane) return;
-
-  playlistPane.innerHTML = "";
-
-  Object.keys(playlists).forEach((name) => {
-    const li = document.createElement("li");
-    li.textContent = name;
-
-    li.addEventListener("click", () => {
-      currentPlaylist = name;
-      renderPlaylistTracks();
-    });
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "X";
-    deleteBtn.className = "delete-btn";
-    deleteBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      deletePlaylist(name);
-      renderPlaylists();
-      if (currentPlaylist === name) {
-        currentPlaylist = null;
-        renderPlaylistTracks();
-      }
-    });
-
-    li.appendChild(deleteBtn);
-    playlistPane.appendChild(li);
-  });
-}
-
-// Render tracks for the selected playlist
-function renderPlaylistTracks() {
-  const playlistDiv = document.getElementById("playlist");
-  if (!playlistDiv) {
-    console.error("Playlist display area not found!");
-    return;
-  }
-
-  if (!currentPlaylist) {
-    playlistDiv.innerHTML = "No playlist selected.";
-    return;
-  }
-
-  const tracks = getPlaylist(currentPlaylist);
-
-  if (tracks.length > 0) {
-    playlistDiv.innerHTML = tracks
-      .map(
-        (track, index) =>
-          `<div class="track" data-index="${index}" data-path="${track.path}">${track.name}</div>`
-      )
-      .join("");
-
-    playlistDiv.querySelectorAll(".track").forEach((trackElement) => {
-      trackElement.addEventListener("click", (e) => {
-        currentTrackIndex = parseInt(trackElement.getAttribute("data-index"), 10);
-        const trackPath = trackElement.getAttribute("data-path");
-
-        window.electron.fileExists(trackPath).then((exists) => {
-          if (!exists) {
-            alertUser("File does not exist. Skipping...");
-            skipToNextTrack();
-          } else {
-            console.log(`Playing track: ${trackPath}`);
-            loadTrack(trackPath);
-            playTrack();
-          }
-        });
-      });
-    });
-  } else {
-    playlistDiv.innerHTML = "No tracks in this playlist.";
-  }
-}
-
-function skipToNextTrack() {
-  const tracks = getPlaylist(currentPlaylist);
-  if (!tracks.length) return;
-
-  currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
-  const nextTrack = tracks[currentTrackIndex];
-
-  window.electron.fileExists(nextTrack.path).then((exists) => {
-    if (!exists) {
-      skipToNextTrack(); // Recursively skip missing tracks
-    } else {
-      console.log(`Playing next track: ${nextTrack.path}`);
-      loadTrack(nextTrack.path);
-      playTrack();
-    }
-  });
-}
-
-function alertUser(message) {
-  const alertDiv = document.createElement("div");
-  alertDiv.className = "alert";
-  alertDiv.textContent = message;
-  document.body.appendChild(alertDiv);
-  setTimeout(() => alertDiv.remove(), 2000);
 }

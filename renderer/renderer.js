@@ -1,8 +1,10 @@
 // renderer/renderer.js
 
-import { loadPlaylists } from "./playlists.js";
-import { setupUIListeners, renderPlaylists } from "./ui.js";
+// renderer.js
+import { setupUIListeners } from "./ui.js";
+import { renderPlaylists } from "./playlistManager.js";
 import { renderLibraryTree } from "./libraryRenderer.js";
+import { loadPlaylists } from "./playlists.js";
 
 window.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM fully loaded and parsed. Running initialization...");
@@ -31,4 +33,3 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.error("Error during initialization:", error);
   }
 });
-
