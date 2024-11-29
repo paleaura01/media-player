@@ -100,14 +100,22 @@ body, h1, h2, ul, li, p {
   }
   
   .file-node {
+    display: block; /* Ensures it acts as a block element */
     margin-left: 20px;
     padding: 5px;
+    border: 1px solid #444;
+    border-radius: 3px;
+    overflow: hidden; /* Hide overflow */
+    white-space: nowrap; /* Prevent wrapping */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    max-width: 520px; /* Limit width to fit within the container */
     cursor: pointer;
   }
   
   .file-node:hover {
-    background-color: #444;
+    background-color: #666; /* Maintain hover functionality */
   }
+  
   
   .toggle-btn {
     background: none;
@@ -213,6 +221,7 @@ body, h1, h2, ul, li, p {
     padding: 5px;
     background-color: #333;
     border-radius: 5px;
+    
   }
   
   #library-tree-container.hidden {
@@ -244,51 +253,47 @@ body, h1, h2, ul, li, p {
   }
   
   .track {
-    display: flex; /* Align title and button horizontally */
+    display: flex; /* Align items horizontally */
     align-items: center; /* Center items vertically */
-    justify-content: space-between; /* Add space between title and button */
+    justify-content: space-between; /* Space between title and delete button */
     background-color: #333;
     color: white;
     padding: 5px;
     margin-bottom: 5px;
     border: 1px solid #555;
-  }
-  
-  .track:hover {
-    background-color: #555;
+    box-sizing: border-box; /* Ensure padding and borders are included in the size */
   }
   
   .track-title {
-    flex: 1; /* Allow the title to grow and take up remaining space */
-    white-space: nowrap; /* Prevent wrapping */
+    flex-grow: 1; /* Allow the title to take available space */
     overflow: hidden; /* Hide overflowing text */
-    text-overflow: ellipsis; /* Show ellipsis for long text */
+    white-space: nowrap; /* Prevent wrapping */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    margin-right: 10px; /* Add space between the title and delete button */
+    max-width: calc(100% - 250px); /* Ensure space for other elements */
+    min-width: 0; /* Required for proper truncation in flexbox */
   }
   
   .delete-container {
-    display: flex; /* Center the button horizontally/vertically */
+    display: flex;
     justify-content: center;
     align-items: center;
   }
   
   .delete-track {
-    width: 20px; /* Square dimensions */
+    width: 20px;
     height: 20px;
-    background: red; /* Red background for visibility */
+    background: red;
     color: white;
     border: none;
-    display: flex; /* Flexbox to center content */
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 14px; /* Slightly larger text size for better visibility */
-    cursor: pointer;
-    padding: 0; /* Remove padding */
-    box-sizing: border-box;
-    margin-bottom: 4px; /* Remove any extra spacing */
   }
   
   .delete-track:hover {
-    background: darkred;
+    background-color: darkred;
   }
-  
   
