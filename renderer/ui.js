@@ -1,43 +1,71 @@
 // renderer/ui.js
 
-import { playlists, addPlaylist, deletePlaylist, getPlaylist, savePlaylists } from "./playlists.js";
+import { playlists, addPlaylist, deletePlaylist, getPlaylist } from "./playlists.js";
 import { renderLibraryTree } from "./libraryRenderer.js";
 
 let currentPlaylist = null;
 
 // Initialize UI Listeners
 export function setupUIListeners() {
-  const modal = document.getElementById("modal");
-  const createButton = document.getElementById("create-playlist");
-  const cancelButton = document.getElementById("cancel-playlist");
+  try {
+    const modal = document.getElementById("modal");
+    const createButton = document.getElementById("create-playlist");
+    const cancelButton = document.getElementById("cancel-playlist");
 
-  document.getElementById("new-playlist").addEventListener("click", () => {
-    openModal();
-    console.log("Modal opened.");
-  });
-
-  createButton.addEventListener("click", handleCreatePlaylist);
-
-  cancelButton.addEventListener("click", () => {
-    closeModal();
-    console.log("Modal closed via cancel.");
-  });
-
-  modal.classList.add("modal-hidden"); // Ensure modal starts hidden
-
-  // Updated: Attach library tree rendering to the "+" button
-  document.getElementById("add-files").addEventListener("click", async () => {
-    console.log("Add files button clicked.");
-    try {
-      await renderLibraryTree();
-    } catch (error) {
-      console.error("Error rendering library tree:", error);
+    // Attach listener for "New Playlist"
+    const newPlaylistBtn = document.getElementById("new-playlist");
+    if (newPlaylistBtn) {
+      newPlaylistBtn.addEventListener("click", () => {
+        console.log("'New Playlist' button clicked");
+        openModal();
+      });
+      console.log("'New Playlist' button listener attached");
+    } else {
+      console.error("Could not find 'New Playlist' button");
     }
-  });
 
-  renderPlaylists();
-  console.log("UI listeners initialized.");
+    // Attach listener for "Create Playlist"
+    if (createButton) {
+      createButton.addEventListener("click", handleCreatePlaylist);
+      console.log("'Create Playlist' button listener attached");
+    } else {
+      console.error("Could not find 'Create Playlist' button");
+    }
+
+    // Attach listener for "Cancel Playlist"
+    if (cancelButton) {
+      cancelButton.addEventListener("click", () => {
+        console.log("'Cancel Playlist' button clicked");
+        closeModal();
+      });
+      console.log("'Cancel Playlist' button listener attached");
+    } else {
+      console.error("Could not find 'Cancel Playlist' button");
+    }
+
+    // Attach listener for "Add Files"
+    const addFilesBtn = document.getElementById("add-files");
+    if (addFilesBtn) {
+      addFilesBtn.addEventListener("click", async () => {
+        console.log("'Add Files' button clicked");
+        try {
+          await renderLibraryTree();
+        } catch (error) {
+          console.error("Error rendering library tree:", error);
+        }
+      });
+      console.log("'Add Files' button listener attached");
+    } else {
+      console.error("Could not find 'Add Files' button");
+    }
+
+    renderPlaylists();
+    console.log("UI listeners initialized successfully");
+  } catch (error) {
+    console.error("Error initializing UI listeners:", error);
+  }
 }
+
 
 // Open the modal using class-based approach
 function openModal() {
@@ -88,7 +116,7 @@ export function renderPlaylists() {
     li.textContent = name;
 
     li.addEventListener("click", () => {
-      console.log(`Playlist selected: ${name}`);
+      console.log(`Playlist "${name}" selected.`);
       currentPlaylist = name;
       renderPlaylistTracks();
     });
@@ -99,7 +127,7 @@ export function renderPlaylists() {
     deleteBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       deletePlaylist(name);
-      console.log(`Playlist deleted: ${name}`);
+      console.log(`Playlist "${name}" deleted.`);
       renderPlaylists();
       if (currentPlaylist === name) {
         currentPlaylist = null;
@@ -111,7 +139,7 @@ export function renderPlaylists() {
     playlistPane.appendChild(li);
   });
 
-  console.log("Playlists rendered:", playlists);
+  console.log("Playlists rendered:", Object.keys(playlists));
 }
 
 // Render tracks for the selected playlist
@@ -130,9 +158,9 @@ function renderPlaylistTracks() {
     playlistDiv.innerHTML = tracks
       .map((track) => `<div class="track">${track.name}</div>`)
       .join("");
-    console.log(`Tracks rendered for playlist: ${currentPlaylist}`);
+    console.log(`Tracks rendered for playlist "${currentPlaylist}":`, tracks);
   } else {
     playlistDiv.innerHTML = "No tracks in this playlist.";
-    console.warn(`No tracks found in playlist: ${currentPlaylist}`);
+    console.warn(`No tracks found in playlist "${currentPlaylist}".`);
   }
 }

@@ -5,17 +5,11 @@
 <head>
   <meta charset="UTF-8">
   <meta
-  http-equiv="Content-Security-Policy"
-  content="
-    default-src 'self';
-    style-src 'self' 'unsafe-inline';
-    script-src 'self' 'unsafe-inline';
-    connect-src 'self' http://localhost:3000;
-    img-src 'self' data:;
-    media-src 'self';
-  "
-/>
-  <link rel="stylesheet" href="/style.css">
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';"
+  />
+  <title>Media Player</title>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <div id="app">
@@ -42,7 +36,6 @@
     </div>
   </div>
 
-  <script type="module" src="/ui.js"></script> <!-- Use Vite's module system -->
+  <script type="module" src="./renderer.js"></script> <!-- Update script path -->
 </body>
 </html>
-
