@@ -28,23 +28,32 @@ export function setupUIListeners() {
       }
     });
 
-    // Listener for adding to playlist
+    // Listener for adding tracks to playlist
     addToPlaylistBtn.addEventListener("click", async () => {
       console.log("'Add to Playlist' button clicked");
       if (!currentPlaylist) {
         alert("Please select a playlist first!");
         return;
       }
-      const selectedFolders = await window.electron.selectFolderOrFiles();
-      if (selectedFolders && selectedFolders.length > 0) {
-        const playlist = getPlaylist(currentPlaylist);
-        selectedFolders.forEach((filePath) => {
-          if (playlist.find((track) => track.path === filePath)) return; // Avoid duplicates
-          playlist.push({ name: filePath.split("\\").pop(), path: filePath });
-        });
-        console.log(`Files added to playlist "${currentPlaylist}"`);
+
+      try {
+        // Open file selection dialog
+        const selectedFiles = await window.electron.selectFiles(); // Use a dedicated file selection dialog
+        if (selectedFiles && selectedFiles.length > 0) {
+          const playlist = getPlaylist(currentPlaylist);
+          selectedFiles.forEach((filePath) => {
+            if (!playlist.some((track) => track.path === filePath)) {
+              playlist.push({ name: filePath.split("\\").pop(), path: filePath });
+            }
+          });
+          console.log(`Files added to playlist "${currentPlaylist}":`, selectedFiles);
+          renderPlaylistTracks();
+        } else {
+          console.log("No files selected.");
+        }
+      } catch (error) {
+        console.error("Error adding files to playlist:", error);
       }
-      renderPlaylistTracks();
     });
 
     renderPlaylists();
@@ -52,7 +61,6 @@ export function setupUIListeners() {
     console.error("Error initializing UI listeners:", error);
   }
 }
-
 
 // Open the modal
 function openModal() {
@@ -175,3 +183,4 @@ function renderPlaylistTracks() {
     console.warn(`No tracks found in playlist "${currentPlaylist}".`);
   }
 }
+
