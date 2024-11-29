@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "A simple media player app",
   "main": "main.js",
-"scripts": {
-  "dev": "vite",
-  "start": "cross-env NODE_ENV=development electron .",
-  "build": "vite build",
-  "start:prod": "cross-env NODE_ENV=production electron ."
-}
-,
+  "scripts": {
+    "dev": "vite --config vite.config.mjs",
+    "start": "cross-env NODE_ENV=development electron .",
+    "build": "vite build --config vite.config.mjs",
+    "start:prod": "cross-env NODE_ENV=production electron .",
+    "preview": "vite preview --config vite.config.mjs"
+  },
   "devDependencies": {
     "cross-env": "^7.0.3",
     "electron": "^25.0.0",

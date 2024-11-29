@@ -1,47 +1,50 @@
 // main.js
 
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, protocol } = require('electron');
 const path = require('path');
+const fs = require('fs');
+
+const isDev = process.env.NODE_ENV === 'development';
 
 let mainWindow;
 
 app.on('ready', () => {
+  protocol.registerFileProtocol('local', (request, callback) => {
+    const url = request.url.replace(/^local:\/\//, '');
+    callback({ path: decodeURIComponent(url) });
+  });
+  
+
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
-      enableRemoteModule: false,
+      nodeIntegration: false,
     },
   });
 
-  if (process.env.NODE_ENV === 'development') {
-    // Load the Vite dev server during development
-    mainWindow.loadURL('http://localhost:3000');
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:3000'); // Use Vite dev server
   } else {
-    // Load the built renderer files in production
-    const indexPath = path.join(__dirname, 'dist', 'index.html');
-    mainWindow.loadFile(indexPath);
+    mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
   }
 
-  mainWindow.webContents.openDevTools(); // Optional: Remove in production
+  if (isDev) {
+    mainWindow.webContents.openDevTools(); // Enable DevTools in development
+  }
 });
 
-// Dialog and file system handlers
 ipcMain.handle('dialog:selectFolderOrFiles', async () => {
   const result = await dialog.showOpenDialog({
     properties: ['openFile', 'openDirectory', 'multiSelections'],
     filters: [{ name: 'Audio Files', extensions: ['mp3', 'wav', 'ogg', 'opus'] }],
   });
-  return result.canceled ? null : result.filePaths.map((filePath) => ({
-    name: path.basename(filePath),
-    path: filePath,
-  }));
+  return result.canceled ? null : result.filePaths;
 });
 
 ipcMain.handle('readDirectory', async (event, folderPath) => {
-  const fs = require('fs');
   try {
     return fs.readdirSync(folderPath).map((fileName) => {
       const filePath = path.join(folderPath, fileName);

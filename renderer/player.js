@@ -1,47 +1,43 @@
 // renderer/player.js
 
-import { Howl } from "howler";
+import { Howl } from 'howler';
 
 let sound = null;
 
 export function loadTrack(filePath) {
-  if (sound) sound.unload(); // Unload the previous sound
-  console.log(`Loading track: ${filePath}`);
+  if (sound) sound.unload();
 
-  // Convert the file path to use the `file://` protocol
-  const audioUrl = `file://${filePath.replace(/\\/g, "/")}`;
+  const localUrl = `local://${filePath}`; // Convert file path to local protocol URL
+
+  console.log('Loading track:', localUrl);
 
   sound = new Howl({
-    src: [audioUrl],
-    html5: true, // Use HTML5 Audio for larger files
-    onplay: () => console.log(`Playing: ${audioUrl}`),
-    onend: () => console.log("Track ended."),
-    onloaderror: (id, error) => console.error("Error loading audio:", error),
-    onplayerror: (id, error) => console.error("Error playing audio:", error),
+    src: [localUrl],
+    html5: true, // Ensures compatibility for large files and Electron
+    onload: () => console.log('Track loaded:', localUrl),
+    onplay: () => console.log('Playing track...'),
+    onend: () => console.log('Track ended.'),
+    onloaderror: (id, error) => console.error('Load error:', error),
+    onplayerror: (id, error) => console.error('Play error:', error),
   });
-
-  sound.load();
 }
 
 export function playTrack() {
   if (sound) {
     sound.play();
-    console.log("Playback started.");
   } else {
-    console.warn("No track loaded to play.");
+    console.warn('No track loaded.');
   }
 }
-
-
 
 export function pauseTrack() {
   if (sound) {
     sound.pause();
-    console.log("Playback paused.");
   } else {
-    console.warn("No track loaded to pause.");
+    console.warn('No track loaded to pause.');
   }
 }
+
 
 
 
