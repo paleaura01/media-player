@@ -188,6 +188,24 @@ body, h1, h2, ul, li, p {
     padding: 10px;
     border-bottom: 2px solid #555;
   }
+
+  /* Adjust styles for new buttons */
+#library-tree-container button,
+#playlist-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #444;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+#library-tree-container button:hover,
+#playlist-container button:hover {
+  background-color: #555;
+}
+
   
   #library-tree {
     max-height: 150px;

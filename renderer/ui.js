@@ -5,66 +5,54 @@ import { renderLibraryTree } from "./libraryRenderer.js";
 
 let currentPlaylist = null;
 
-// Initialize UI Listeners
 export function setupUIListeners() {
   try {
     const modal = document.getElementById("modal");
     const createButton = document.getElementById("create-playlist");
     const cancelButton = document.getElementById("cancel-playlist");
+    const addLibraryBtn = document.getElementById("add-library");
+    const addToPlaylistBtn = document.getElementById("add-to-playlist");
 
-    // Attach listener for "New Playlist"
-    const newPlaylistBtn = document.getElementById("new-playlist");
-    if (newPlaylistBtn) {
-      newPlaylistBtn.addEventListener("click", () => {
-        console.log("'New Playlist' button clicked");
-        openModal();
-      });
-      console.log("'New Playlist' button listener attached");
-    } else {
-      console.error("Could not find 'New Playlist' button");
-    }
+    // Listener for "New Playlist"
+    document.getElementById("new-playlist").addEventListener("click", openModal);
+    createButton.addEventListener("click", handleCreatePlaylist);
+    cancelButton.addEventListener("click", closeModal);
 
-    // Attach listener for "Create Playlist"
-    if (createButton) {
-      createButton.addEventListener("click", handleCreatePlaylist);
-      console.log("'Create Playlist' button listener attached");
-    } else {
-      console.error("Could not find 'Create Playlist' button");
-    }
+    // Listener for adding to library
+    addLibraryBtn.addEventListener("click", async () => {
+      console.log("'Add to Library' button clicked");
+      try {
+        await renderLibraryTree();
+      } catch (error) {
+        console.error("Error rendering library tree:", error);
+      }
+    });
 
-    // Attach listener for "Cancel Playlist"
-    if (cancelButton) {
-      cancelButton.addEventListener("click", () => {
-        console.log("'Cancel Playlist' button clicked");
-        closeModal();
-      });
-      console.log("'Cancel Playlist' button listener attached");
-    } else {
-      console.error("Could not find 'Cancel Playlist' button");
-    }
-
-    // Attach listener for "Add Files"
-    const addFilesBtn = document.getElementById("add-files");
-    if (addFilesBtn) {
-      addFilesBtn.addEventListener("click", async () => {
-        console.log("'Add Files' button clicked");
-        try {
-          await renderLibraryTree();
-        } catch (error) {
-          console.error("Error rendering library tree:", error);
-        }
-      });
-      console.log("'Add Files' button listener attached");
-    } else {
-      console.error("Could not find 'Add Files' button");
-    }
+    // Listener for adding to playlist
+    addToPlaylistBtn.addEventListener("click", async () => {
+      console.log("'Add to Playlist' button clicked");
+      if (!currentPlaylist) {
+        alert("Please select a playlist first!");
+        return;
+      }
+      const selectedFolders = await window.electron.selectFolderOrFiles();
+      if (selectedFolders && selectedFolders.length > 0) {
+        const playlist = getPlaylist(currentPlaylist);
+        selectedFolders.forEach((filePath) => {
+          if (playlist.find((track) => track.path === filePath)) return; // Avoid duplicates
+          playlist.push({ name: filePath.split("\\").pop(), path: filePath });
+        });
+        console.log(`Files added to playlist "${currentPlaylist}"`);
+      }
+      renderPlaylistTracks();
+    });
 
     renderPlaylists();
-    console.log("UI listeners initialized successfully");
   } catch (error) {
     console.error("Error initializing UI listeners:", error);
   }
 }
+
 
 // Open the modal
 function openModal() {

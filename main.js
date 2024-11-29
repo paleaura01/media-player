@@ -13,11 +13,10 @@ app.on('ready', () => {
     const url = request.url.replace(/^local:\/\//, '');
     callback({ path: decodeURIComponent(url) });
   });
-  
 
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 600,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -36,10 +35,19 @@ app.on('ready', () => {
   }
 });
 
-ipcMain.handle('dialog:selectFolderOrFiles', async () => {
+// Dialog for selecting files
+ipcMain.handle("dialog:selectFiles", async () => {
   const result = await dialog.showOpenDialog({
-    properties: ['openFile', 'openDirectory', 'multiSelections'],
-    filters: [{ name: 'Audio Files', extensions: ['mp3', 'wav', 'ogg', 'opus'] }],
+    properties: ["openFile", "multiSelections"], // File selection only
+    filters: [{ name: "Audio Files", extensions: ["mp3", "wav", "ogg", "opus"] }],
+  });
+  return result.canceled ? null : result.filePaths;
+});
+
+// Dialog for selecting folders or files
+ipcMain.handle("dialog:selectFolderOrFiles", async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openFile", "openDirectory", "multiSelections"], // Allow both files and folders
   });
   return result.canceled ? null : result.filePaths;
 });

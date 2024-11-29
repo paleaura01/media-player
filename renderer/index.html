@@ -4,13 +4,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-
   <meta
-  http-equiv="Content-Security-Policy"
-  content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; media-src 'self' file: local:;"
-/>
-
-
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; media-src 'self' file: local:;"
+  />
   <title>Media Player</title>
   <link rel="stylesheet" href="./style.css">
 </head>
@@ -22,18 +19,17 @@
       <ul id="playlists"></ul>
     </div>
 
-<!-- Modal for Playlist Creation -->
-<div id="modal" class="modal-hidden">
-  <div class="modal-content">
-    <h3>Create a New Playlist</h3>
-    <input type="text" id="playlist-name" placeholder="Playlist Name" />
-    <div class="modal-actions">
-      <button id="create-playlist">Create</button>
-      <button id="cancel-playlist">Cancel</button>
+    <!-- Modal for Playlist Creation -->
+    <div id="modal" class="modal-hidden">
+      <div class="modal-content">
+        <h3>Create a New Playlist</h3>
+        <input type="text" id="playlist-name" placeholder="Playlist Name" />
+        <div class="modal-actions">
+          <button id="create-playlist">Create</button>
+          <button id="cancel-playlist">Cancel</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-
 
     <div id="main-area">
       <div id="controls">
@@ -44,15 +40,17 @@
         <button id="shuffle">Shuffle Off</button>
         <button id="repeat">Repeat Off</button>
       </div>
-      <div id="library-tree-container" class="hidden">
+      <div id="library-tree-container">
         <h2>Library</h2>
         <div id="library-tree">No library selected.</div>
+        <button id="add-library">+</button> <!-- New button for adding to library -->
       </div>
-      <div id="playlist"></div>
-      <button id="add-files">+</button>
+      <div id="playlist-container">
+        <div id="playlist"></div>
+        <button id="add-to-playlist">+</button> <!-- New button for adding to playlist -->
+      </div>
     </div>
   </div>
-
-  <script type="module" src="./renderer.js"></script> <!-- Update script path -->
+  <script type="module" src="./renderer.js"></script>
 </body>
 </html>
