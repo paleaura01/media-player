@@ -37,8 +37,8 @@ export async function loadTrack(filePath) {
   activeSessionId = sessionId;
 
   if (isPlaying) {
-    console.warn("Already playing, stopping first.");
-    await stopPlayback();
+    console.warn("Stopping current playback...");
+    await stopPlayback(); // Wait for the previous playback to stop completely
   }
 
   const speakerConfig = {
@@ -49,49 +49,51 @@ export async function loadTrack(filePath) {
 
   currentTrackPath = filePath;
 
-  window.audioPlayer
-    .playTrack(filePath, speakerConfig)
-    .then(() => {
-      if (activeSessionId !== sessionId) {
-        console.warn("Playback session outdated, skipping playback.");
-        return;
-      }
+  const track = currentPlaylist.find((t) => t.path === filePath);
+  const trackTitleElement = document.getElementById("track-title");
 
-      isPlaying = true;
-      console.log("Playback started for:", filePath);
+  // Update the UI immediately to reflect the track being loaded
+  if (track && trackTitleElement) {
+    trackTitleElement.textContent = `Loading: ${track.name}`;
+  }
 
-      const track = currentPlaylist.find((t) => t.path === filePath);
-      const trackTitle = document.getElementById("track-title");
-      if (trackTitle && track) {
-        trackTitle.textContent = track.name;
-      }
+  try {
+    await window.audioPlayer.playTrack(filePath, speakerConfig);
 
-      highlightCurrentTrack();
-      startProgressUpdater();
-    })
-    .catch((err) => {
-      console.error("Error during playback:", err.message);
-    });
+    // Ensure the session is still valid after playback starts
+    if (activeSessionId !== sessionId) {
+      console.warn("Session mismatch detected. Ignoring outdated session playback.");
+      return;
+    }
+
+    isPlaying = true;
+    console.log(`Playback started for: ${filePath}`);
+
+    if (track && trackTitleElement) {
+      trackTitleElement.textContent = track.name; // Update to show the actual track name
+    }
+
+    highlightCurrentTrack();
+    startProgressUpdater();
+  } catch (err) {
+    console.error("Error starting playback:", err.message);
+
+    // Revert to "No track playing" if playback fails
+    if (trackTitleElement) {
+      trackTitleElement.textContent = "No track playing";
+    }
+  }
 }
+
 
 export async function stopPlayback() {
+  console.log("Stopping playback...");
   isPlaying = false;
 
-  return window.audioPlayer
-    .stopPlayback()
-    .then(() => {
-      console.log("Playback stopped.");
-      clearProgressUpdater();
-
-      const trackTitle = document.getElementById("track-title");
-      if (trackTitle) {
-        trackTitle.textContent = "No track playing";
-      }
-    })
-    .catch((err) => {
-      console.error("Error stopping playback:", err.message);
-    });
+  await window.audioPlayer.stopPlayback(activeSessionId); // Ensure the audio is flushed
+  console.log("Playback stopped.");
 }
+
 
 export function restoreLastTrack() {
   const currentTrackInfo = JSON.parse(localStorage.getItem("currentTrackInfo"));
