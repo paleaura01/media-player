@@ -26,7 +26,17 @@ export function renderPlaylistTracks(playlistName) {
     // Title Container
     const titleContainer = document.createElement("div");
     titleContainer.className = "track-title";
-    titleContainer.textContent = track.name;
+
+    // Track Name
+    const trackName = document.createElement("span");
+    trackName.textContent = track.name;
+    titleContainer.appendChild(trackName);
+
+    // Play Count
+    const playCount = document.createElement("span");
+    playCount.className = "play-count";
+    playCount.textContent = ` (Played ${track.playCount || 0} times)`;
+    titleContainer.appendChild(playCount);
 
     // Add click listener to play the track
     trackElement.addEventListener("click", () => {

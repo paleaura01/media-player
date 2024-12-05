@@ -50,3 +50,20 @@ export function updatePlaylist(name, newTracks) {
   savePlaylists(); // Save updated playlists to localStorage
   console.log(`Playlist '${name}' updated.`);
 }
+
+// Modify the addTrackToPlaylist function to initialize playCount and lastPosition
+export function addTrackToPlaylist(playlistName, track) {
+  if (!playlists[playlistName]) {
+    playlists[playlistName] = [];
+  }
+
+  // Check if the track already exists in the playlist
+  const existingTrack = playlists[playlistName].find((t) => t.path === track.path);
+  if (existingTrack) {
+    return false; // Track already exists
+  }
+
+  // Initialize playCount to 0 and lastPosition to 0 when adding a new track
+  playlists[playlistName].push({ ...track, playCount: 0, lastPosition: 0 });
+  return true;
+}

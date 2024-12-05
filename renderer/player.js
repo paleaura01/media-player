@@ -1,7 +1,8 @@
 // renderer/player.js
 
 import { Howl } from 'howler';
-import { getPlaylist } from './playlists.js';
+import { getPlaylist, updatePlaylist } from './playlists.js';
+import { renderPlaylistTracks } from './trackManager.js';
 
 let sound = null;
 let currentPlaylistName = null;
@@ -11,17 +12,47 @@ let shuffleMode = false;
 let repeatMode = false;
 let progressInterval = null;
 
-// Variable to store the current track path
 let currentTrackPath = null;
+
+// Shuffle management variables
+let currentMinPlayCount = 0;
+let shuffledTracks = [];
+
+// Store original playlist order
+let originalPlaylistOrder = [];
 
 export function setCurrentPlaylist(playlistName) {
   currentPlaylistName = playlistName;
   currentPlaylist = playlistName ? getPlaylist(playlistName) : [];
   currentTrackIndex = 0;
+
+  // Initialize shuffle variables if shuffle mode is on
+  if (shuffleMode) {
+    // Save original playlist order
+    originalPlaylistOrder = currentPlaylist.slice();
+    shuffleCurrentPlaylist();
+    // Reset currentMinPlayCount
+    currentMinPlayCount = 0;
+    // Update playlist display
+    renderPlaylistTracks(currentPlaylistName);
+  }
 }
 
 export function setCurrentTrackIndex(index) {
   currentTrackIndex = index;
+}
+
+function shuffleCurrentPlaylist() {
+  currentPlaylist = shuffleArray(currentPlaylist);
+}
+
+function shuffleArray(array) {
+  const shuffled = array.slice(); // Create a shallow copy
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
 
 export function loadTrack(filePath) {
@@ -31,8 +62,16 @@ export function loadTrack(filePath) {
   }
 
   const localUrl = `local://${filePath}`;
-
   console.log('Loading track:', localUrl);
+
+  // Get the track from the current playlist
+  let track = null;
+  if (currentPlaylist) {
+    track = currentPlaylist.find((t) => t.path === filePath);
+    if (track && typeof track.lastPosition !== 'number') {
+      track.lastPosition = 0; // Initialize if undefined
+    }
+  }
 
   sound = new Howl({
     src: [localUrl],
@@ -41,9 +80,14 @@ export function loadTrack(filePath) {
       console.log('Track loaded:', localUrl);
       updateTrackTitle(filePath);
       updateTimeDisplay();
-      startProgressUpdater();
       currentTrackPath = filePath; // Update the current track path
-      highlightCurrentTrack(); // Highlight the track
+      highlightCurrentTrack();
+
+      // Seek to lastPosition if available
+      if (track && track.lastPosition > 0) {
+        sound.seek(track.lastPosition);
+      }
+      startProgressUpdater();
     },
     onplay: () => {
       console.log('Playing track...');
@@ -52,10 +96,19 @@ export function loadTrack(filePath) {
     onpause: () => {
       console.log('Track paused.');
       clearInterval(progressInterval);
+      // Update lastPosition
+      const seek = sound.seek();
+      updateLastPosition(seek);
     },
     onend: () => {
       console.log('Track ended.');
       clearInterval(progressInterval);
+      // Reset lastPosition to 0
+      updateLastPosition(0);
+
+      // Increment play count here, since the track has finished playing
+      incrementPlayCount(filePath);
+
       if (repeatMode) {
         playTrack();
       } else {
@@ -70,6 +123,35 @@ export function loadTrack(filePath) {
     onloaderror: (id, error) => console.error('Load error:', error),
     onplayerror: (id, error) => console.error('Play error:', error),
   });
+}
+
+function incrementPlayCount(filePath) {
+  if (currentPlaylist && currentTrackPath) {
+    const trackIndex = currentPlaylist.findIndex((t) => t.path === currentTrackPath);
+    if (trackIndex !== -1) {
+      const track = currentPlaylist[trackIndex];
+      if (typeof track.playCount !== 'number') {
+        track.playCount = 0; // Initialize if undefined
+      }
+      track.playCount += 1;
+      currentPlaylist[trackIndex] = track;
+      updatePlaylist(currentPlaylistName, currentPlaylist); // Save the updated playlist
+
+      // Re-render the playlist to update play counts
+      renderPlaylistTracks(currentPlaylistName);
+    }
+  }
+}
+
+function updateLastPosition(position) {
+  if (currentPlaylist && currentTrackPath) {
+    const trackIndex = currentPlaylist.findIndex((t) => t.path === currentTrackPath);
+    if (trackIndex !== -1) {
+      currentPlaylist[trackIndex].lastPosition = position;
+      // Update the playlist
+      updatePlaylist(currentPlaylistName, currentPlaylist);
+    }
+  }
 }
 
 export function playTrack() {
@@ -95,14 +177,30 @@ export function nextTrack() {
   }
 
   if (shuffleMode) {
-    currentTrackIndex = Math.floor(Math.random() * currentPlaylist.length);
+    currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+    const nextTrack = currentPlaylist[currentTrackIndex];
+    loadTrack(nextTrack.path);
+    playTrack();
+
+    // Check if we've completed a full iteration
+    if (currentTrackIndex === 0) {
+      // Increment currentMinPlayCount
+      currentMinPlayCount++;
+
+      console.log(`All tracks have been played ${currentMinPlayCount} times. Reshuffling playlist.`);
+
+      // Reshuffle currentPlaylist
+      shuffleCurrentPlaylist();
+
+      // Update playlist display
+      renderPlaylistTracks(currentPlaylistName);
+    }
   } else {
     currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+    const nextTrack = currentPlaylist[currentTrackIndex];
+    loadTrack(nextTrack.path);
+    playTrack();
   }
-
-  const nextTrack = currentPlaylist[currentTrackIndex];
-  loadTrack(nextTrack.path);
-  playTrack();
 }
 
 export function prevTrack() {
@@ -112,19 +210,37 @@ export function prevTrack() {
   }
 
   if (shuffleMode) {
-    currentTrackIndex = Math.floor(Math.random() * currentPlaylist.length);
+    // Previous track functionality is not implemented in shuffle mode
+    console.warn('Previous track not available in shuffle mode.');
   } else {
     currentTrackIndex =
       (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+    const prevTrack = currentPlaylist[currentTrackIndex];
+    loadTrack(prevTrack.path);
+    playTrack();
   }
-
-  const prevTrack = currentPlaylist[currentTrackIndex];
-  loadTrack(prevTrack.path);
-  playTrack();
 }
 
 export function toggleShuffle() {
   shuffleMode = !shuffleMode;
+  if (shuffleMode) {
+    // Save original playlist order
+    originalPlaylistOrder = currentPlaylist.slice();
+    // Shuffle currentPlaylist
+    shuffleCurrentPlaylist();
+    // Reset currentMinPlayCount
+    currentMinPlayCount = 0;
+    // Update playlist display
+    renderPlaylistTracks(currentPlaylistName);
+  } else {
+    // Restore original playlist order
+    currentPlaylist = originalPlaylistOrder.slice();
+    // Reset shuffle variables
+    currentMinPlayCount = 0;
+    currentTrackIndex = 0;
+    // Update playlist display
+    renderPlaylistTracks(currentPlaylistName);
+  }
   return shuffleMode;
 }
 
@@ -166,6 +282,9 @@ function startProgressUpdater() {
       const currentTime = formatTime(seek);
       const totalTime = formatTime(duration);
       timeDisplay.textContent = `${currentTime} / ${totalTime}`;
+
+      // Update lastPosition for the current track
+      updateLastPosition(seek);
     }, 1000);
   }
 }
