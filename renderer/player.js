@@ -14,37 +14,14 @@ let progressInterval = null;
 
 let currentTrackPath = null;
 
-// For improved shuffle logic
-let shufflePool = [];
-let currentMinPlayCount = 0;
-
 export function setCurrentPlaylist(playlistName) {
   currentPlaylistName = playlistName;
   currentPlaylist = playlistName ? getPlaylist(playlistName) : [];
   currentTrackIndex = 0;
-  resetShufflePool();
 }
 
 export function setCurrentTrackIndex(index) {
   currentTrackIndex = index;
-}
-
-function resetShufflePool() {
-  if (shuffleMode && currentPlaylist.length > 0) {
-    // Find the minimum play count
-    currentMinPlayCount = Math.min(...currentPlaylist.map(track => track.playCount || 0));
-
-    // Get all tracks with the minimum play count
-    shufflePool = currentPlaylist.filter(
-      track => (track.playCount || 0) === currentMinPlayCount
-    );
-
-    // Shuffle the shufflePool using Fisher-Yates algorithm
-    for (let i = shufflePool.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shufflePool[i], shufflePool[j]] = [shufflePool[j], shufflePool[i]];
-    }
-  }
 }
 
 export function loadTrack(filePath) {
@@ -59,7 +36,7 @@ export function loadTrack(filePath) {
   // Get the track from the current playlist
   let track = null;
   if (currentPlaylist) {
-    track = currentPlaylist.find(t => t.path === filePath);
+    track = currentPlaylist.find((t) => t.path === filePath);
     if (track && typeof track.lastPosition !== 'number') {
       track.lastPosition = 0; // Initialize if undefined
     }
@@ -119,7 +96,7 @@ export function loadTrack(filePath) {
 
 function incrementPlayCount(filePath) {
   if (currentPlaylist && currentTrackPath) {
-    const trackIndex = currentPlaylist.findIndex(t => t.path === currentTrackPath);
+    const trackIndex = currentPlaylist.findIndex((t) => t.path === currentTrackPath);
     if (trackIndex !== -1) {
       const track = currentPlaylist[trackIndex];
       if (typeof track.playCount !== 'number') {
@@ -131,26 +108,44 @@ function incrementPlayCount(filePath) {
 
       // Re-render the playlist to update play counts
       renderPlaylistTracks(currentPlaylistName);
-
-      // After incrementing play count, check if we need to reset the shuffle pool
-      if (shuffleMode) {
-        // Check if all tracks have surpassed the previous minimum play count
-        const newMinPlayCount = Math.min(...currentPlaylist.map(t => t.playCount || 0));
-        if (newMinPlayCount > currentMinPlayCount) {
-          resetShufflePool();
-        }
-      }
     }
   }
 }
 
 function updateLastPosition(position) {
   if (currentPlaylist && currentTrackPath) {
-    const trackIndex = currentPlaylist.findIndex(t => t.path === currentTrackPath);
+    const trackIndex = currentPlaylist.findIndex((t) => t.path === currentTrackPath);
     if (trackIndex !== -1) {
       currentPlaylist[trackIndex].lastPosition = position;
       // Update the playlist
       updatePlaylist(currentPlaylistName, currentPlaylist);
+
+      // Save current track info to localStorage
+      const currentTrackInfo = {
+        playlistName: currentPlaylistName,
+        trackPath: currentTrackPath,
+        position: position,
+      };
+      localStorage.setItem('currentTrackInfo', JSON.stringify(currentTrackInfo));
+    }
+  }
+}
+
+export function restoreLastTrack() {
+  const currentTrackInfo = JSON.parse(localStorage.getItem('currentTrackInfo'));
+  if (currentTrackInfo) {
+    console.log('Restoring last playing track:', currentTrackInfo);
+    setCurrentPlaylist(currentTrackInfo.playlistName);
+    const trackIndex = currentPlaylist.findIndex((t) => t.path === currentTrackInfo.trackPath);
+    if (trackIndex !== -1) {
+      setCurrentTrackIndex(trackIndex);
+      loadTrack(currentTrackInfo.trackPath);
+      if (sound) {
+        sound.seek(currentTrackInfo.position);
+        sound.play();
+      }
+    } else {
+      console.warn('Track not found in the playlist.');
     }
   }
 }
@@ -160,6 +155,16 @@ export function playTrack() {
     sound.play();
   } else {
     console.warn('No track loaded.');
+    // Try to load and play the first track in the current playlist
+    if (currentPlaylist && currentPlaylist.length > 0) {
+      currentTrackIndex = 0;
+      loadTrack(currentPlaylist[currentTrackIndex].path);
+      if (sound) {
+        sound.play();
+      }
+    } else {
+      console.warn('No tracks available to play.');
+    }
   }
 }
 
@@ -178,28 +183,23 @@ export function nextTrack() {
   }
 
   if (shuffleMode) {
-    if (shufflePool.length === 0) {
-      // All tracks at currentMinPlayCount have been played, reset the shuffle pool
-      resetShufflePool();
-    }
+    // Implement new shuffle logic
+    // 1. Find the minimum playCount among all tracks
+    const minPlayCount = Math.min(...currentPlaylist.map(track => track.playCount || 0));
 
-    if (shufflePool.length > 0) {
-      // Get the next track from the shufflePool
-      const nextTrack = shufflePool.shift();
+    // 2. Get all tracks with the minimum playCount
+    const tracksWithMinPlayCount = currentPlaylist.filter(track => (track.playCount || 0) === minPlayCount);
 
-      // Update currentTrackIndex to point to the selected track
-      currentTrackIndex = currentPlaylist.findIndex(t => t.path === nextTrack.path);
+    // 3. Randomly select a track from tracksWithMinPlayCount
+    const randomIndex = Math.floor(Math.random() * tracksWithMinPlayCount.length);
+    const nextTrack = tracksWithMinPlayCount[randomIndex];
 
-      // Load and play the selected track
-      loadTrack(nextTrack.path);
-      playTrack();
-    } else {
-      // No tracks available (should not happen), default to normal next track
-      currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
-      const nextTrack = currentPlaylist[currentTrackIndex];
-      loadTrack(nextTrack.path);
-      playTrack();
-    }
+    // 4. Update currentTrackIndex to point to the selected track
+    currentTrackIndex = currentPlaylist.findIndex(t => t.path === nextTrack.path);
+
+    // 5. Load and play the selected track
+    loadTrack(nextTrack.path);
+    playTrack();
   } else {
     currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
     const nextTrack = currentPlaylist[currentTrackIndex];
@@ -228,9 +228,6 @@ export function prevTrack() {
 
 export function toggleShuffle() {
   shuffleMode = !shuffleMode;
-  if (shuffleMode) {
-    resetShufflePool();
-  }
   return shuffleMode;
 }
 
@@ -289,7 +286,7 @@ function formatTime(seconds) {
 export function highlightCurrentTrack() {
   // Highlight in playlist
   const playlistTracks = document.querySelectorAll('#playlist .track');
-  playlistTracks.forEach(trackElement => {
+  playlistTracks.forEach((trackElement) => {
     if (trackElement.dataset.path === currentTrackPath) {
       trackElement.classList.add('selected');
     } else {
@@ -299,7 +296,7 @@ export function highlightCurrentTrack() {
 
   // Highlight in library
   const libraryTracks = document.querySelectorAll('#library-tree-container .file-node');
-  libraryTracks.forEach(trackElement => {
+  libraryTracks.forEach((trackElement) => {
     if (trackElement.dataset.path === currentTrackPath) {
       trackElement.classList.add('selected');
     } else {
@@ -311,7 +308,7 @@ export function highlightCurrentTrack() {
 // Make progress bar clickable
 const progressBarContainer = document.getElementById('progress-bar-container');
 if (progressBarContainer) {
-  progressBarContainer.addEventListener('click', e => {
+  progressBarContainer.addEventListener('click', (e) => {
     if (sound) {
       const rect = progressBarContainer.getBoundingClientRect();
       const clickX = e.clientX - rect.left;

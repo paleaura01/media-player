@@ -4,6 +4,7 @@ import { setupUIListeners } from "./ui.js";
 import { renderPlaylists } from "./playlistManager.js";
 import { renderLibraryTree } from "./libraryRenderer.js";
 import { loadPlaylists } from "./playlists.js";
+import { restoreLastTrack } from "./player.js"; // Import the function
 
 window.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM fully loaded and parsed. Running initialization...");
@@ -28,6 +29,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     } else {
       console.log("No previous library path found.");
     }
+
+    // Restore the last playing track
+    restoreLastTrack();
+
   } catch (error) {
     console.error("Error during initialization:", error);
   }

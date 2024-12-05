@@ -10,13 +10,24 @@ export function renderPlaylistTracks(playlistName) {
     return;
   }
 
+  const playlistHeader = document.getElementById("playlist-header");
+  if (!playlistHeader) {
+    console.error("Playlist header not found!");
+    return;
+  }
+
   if (!playlistName) {
     playlistDiv.innerHTML = "No playlist selected.";
+    playlistHeader.innerHTML = "<h2>Playlist</h2>";
     return;
   }
 
   const tracks = getPlaylist(playlistName);
   playlistDiv.innerHTML = ""; // Clear the playlist container
+
+  // Update the header to include the playlist name and number of tracks
+  const numTracks = tracks.length;
+  playlistHeader.innerHTML = `<h2>${playlistName} (${numTracks} tracks)</h2>`;
 
   tracks.forEach((track, index) => {
     const trackElement = document.createElement("div");
