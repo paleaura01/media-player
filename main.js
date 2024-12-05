@@ -12,6 +12,9 @@ let playbackStartTime = 0;
 let trackDuration = 0;
 let isPlaying = false;
 
+// Track playback progress
+let currentPlaybackTime = 0;
+
 // Stop playback function
 async function stopPlayback() {
   if (speaker) {
@@ -37,6 +40,7 @@ async function stopPlayback() {
 
   playbackStartTime = 0;
   trackDuration = 0;
+  currentPlaybackTime = 0;
   isPlaying = false;
 }
 
@@ -64,16 +68,38 @@ function startPlayback(filePath, config) {
 
       ffmpegChildProcess.stdout.pipe(speaker);
 
-      ffmpegChildProcess.stdout.on("data", () => {
-        if (!isPlaying) {
-          playbackStartTime = Date.now();
-          isPlaying = true;
-          console.log(`[PLAYBACK] Audio stream started for: ${filePath}`);
-        }
-      });
-
+      // Listen to FFmpeg logs for playback progress
       ffmpegChildProcess.stderr.on("data", (data) => {
-        console.error(`[FFmpeg STDERR] ${data}`);
+        const output = data.toString();
+
+        // Extract duration and playback time
+        const timeMatch = output.match(/time=(\d+):(\d+):(\d+\.\d+)/);
+        if (timeMatch) {
+          const [, hours, minutes, seconds] = timeMatch;
+          currentPlaybackTime =
+            parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseFloat(seconds);
+
+          if (!isPlaying) {
+            playbackStartTime = Date.now();
+            isPlaying = true;
+            console.log("[PLAYBACK] Audio stream started.");
+          }
+
+          // Send current playback time to renderer
+          mainWindow.webContents.send("audio:updateProgress", {
+            currentTime: currentPlaybackTime,
+            duration: trackDuration,
+          });
+        }
+
+        // Extract track duration
+        const durationMatch = output.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
+        if (durationMatch) {
+          const [, hours, minutes, seconds] = durationMatch;
+          trackDuration =
+            parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseFloat(seconds);
+          console.log(`[DURATION] Track duration: ${trackDuration} seconds`);
+        }
       });
 
       ffmpegChildProcess.on("close", (code) => {
@@ -81,7 +107,7 @@ function startPlayback(filePath, config) {
         stopPlayback();
       });
 
-      console.log(`[PLAYBACK] Playback initialization completed.`);
+      console.log("[PLAYBACK] Playback initialization completed.");
     } catch (err) {
       console.error(`[PLAYBACK] Error starting playback: ${err.message}`);
       stopPlayback();
@@ -91,22 +117,7 @@ function startPlayback(filePath, config) {
 
 // Handle playTrack request
 ipcMain.handle("audio:playTrack", async (event, filePath, config) => {
-  const ffmpegProcess = spawn("ffmpeg", ["-i", filePath, "-f", "null", "-"]);
-  ffmpegProcess.stderr.on("data", (data) => {
-    const output = data.toString();
-    const durationMatch = output.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
-    if (durationMatch) {
-      const [, hours, minutes, seconds] = durationMatch;
-      trackDuration =
-        parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseFloat(seconds);
-      console.log(`[DURATION] Track duration: ${trackDuration} seconds`);
-    }
-  });
-
-  ffmpegProcess.on("close", (code) => {
-    console.log("[DURATION] FFmpeg duration extraction complete.");
-    startPlayback(filePath, config);
-  });
+  startPlayback(filePath, config);
 });
 
 // Handle stopPlayback request
@@ -117,15 +128,8 @@ ipcMain.handle("audio:stopPlayback", async () => {
 
 // Handle getCurrentTime request
 ipcMain.handle("audio:getCurrentTime", async () => {
-  if (!isPlaying || !playbackStartTime || !trackDuration) {
-    console.warn("[GET TIME] Playback not started or track duration unavailable.");
-    return { currentTime: 0, duration: trackDuration || 0 };
-  }
-
-  const elapsedTime = (Date.now() - playbackStartTime) / 1000;
-  console.log(`[GET TIME] Elapsed time: ${elapsedTime.toFixed(2)} seconds, Duration: ${trackDuration} seconds.`);
   return {
-    currentTime: Math.min(elapsedTime, trackDuration),
+    currentTime: currentPlaybackTime,
     duration: trackDuration,
   };
 });
@@ -136,15 +140,15 @@ app.on("ready", () => {
     width: 800,
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      contextIsolation: true,
-      nodeIntegration: false,
+      preload: path.join(__dirname, "preload.js"), // Ensure the correct preload script path
+      contextIsolation: true, // Keep isolation enabled
+      nodeIntegration: false, // Ensure Node.js is not directly accessible in the renderer
     },
   });
+  
 
   const startUrl = `file://${path.join(__dirname, "renderer/index.html")}`;
   mainWindow.loadURL(startUrl);
 
   mainWindow.webContents.openDevTools();
 });
-

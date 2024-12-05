@@ -11,7 +11,7 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname, "./renderer/index.html"),
       },
-      external: ["speaker", "fluent-ffmpeg"],
+      external: ["electron"], // Prevent Electron modules from being bundled
     },
   },
   server: {
@@ -24,9 +24,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ["howler"],
-    esbuildOptions: {
-      target: "es2020",
-    },
+    exclude: ["electron"], // Exclude Electron from dependency optimization
   },
 });

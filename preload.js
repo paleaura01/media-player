@@ -3,13 +3,17 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("audioPlayer", {
-  playTrack: (filePath, config, seekTime = 0) =>
-    ipcRenderer.invoke("audio:playTrack", filePath, config, seekTime),
-  stopPlayback: (sessionId) =>
-    ipcRenderer.invoke("audio:stopPlayback", sessionId), // Accept sessionId
+  playTrack: (filePath, config) => ipcRenderer.invoke("audio:playTrack", filePath, config),
+  stopPlayback: () => ipcRenderer.invoke("audio:stopPlayback"),
   getCurrentTime: () => ipcRenderer.invoke("audio:getCurrentTime"),
-  seekTo: (seekTime) => ipcRenderer.invoke("audio:seekTo", seekTime),
+  on: (channel, listener) => {
+    const validChannels = ["audio:updateProgress"];
+    if (validChannels.includes(channel)) {
+      ipcRenderer.on(channel, listener);
+    }
+  },
 });
+
 
 
 contextBridge.exposeInMainWorld("electron", {
