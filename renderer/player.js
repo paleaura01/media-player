@@ -33,12 +33,12 @@ export function setCurrentTrackIndex(index) {
 }
 
 export async function loadTrack(filePath) {
-  const sessionId = Date.now(); // Unique session ID for this playback
+  const sessionId = Date.now(); // Unique session ID
   activeSessionId = sessionId;
 
   if (isPlaying) {
-    console.warn("Stopping current playback...");
-    await stopPlayback(); // Wait for the previous playback to stop completely
+    console.log("Stopping current playback...");
+    await stopPlayback(activeSessionId);
   }
 
   const speakerConfig = {
@@ -49,49 +49,28 @@ export async function loadTrack(filePath) {
 
   currentTrackPath = filePath;
 
-  const track = currentPlaylist.find((t) => t.path === filePath);
-  const trackTitleElement = document.getElementById("track-title");
-
-  // Update the UI immediately to reflect the track being loaded
-  if (track && trackTitleElement) {
-    trackTitleElement.textContent = `Loading: ${track.name}`;
-  }
-
   try {
-    await window.audioPlayer.playTrack(filePath, speakerConfig);
+    await window.audioPlayer.playTrack(filePath, speakerConfig, sessionId);
 
-    // Ensure the session is still valid after playback starts
     if (activeSessionId !== sessionId) {
-      console.warn("Session mismatch detected. Ignoring outdated session playback.");
+      console.warn("Session mismatch. Ignoring playback.");
       return;
     }
 
     isPlaying = true;
     console.log(`Playback started for: ${filePath}`);
-
-    if (track && trackTitleElement) {
-      trackTitleElement.textContent = track.name; // Update to show the actual track name
-    }
-
-    highlightCurrentTrack();
     startProgressUpdater();
   } catch (err) {
     console.error("Error starting playback:", err.message);
-
-    // Revert to "No track playing" if playback fails
-    if (trackTitleElement) {
-      trackTitleElement.textContent = "No track playing";
-    }
   }
 }
 
 
-export async function stopPlayback() {
+export async function stopPlayback(requestedSessionId = null) {
   console.log("Stopping playback...");
   isPlaying = false;
 
-  await window.audioPlayer.stopPlayback(activeSessionId); // Ensure the audio is flushed
-  console.log("Playback stopped.");
+  await window.audioPlayer.stopPlayback(requestedSessionId || activeSessionId);
 }
 
 
@@ -139,17 +118,23 @@ export function prevTrack() {
 
 function startProgressUpdater() {
   clearProgressUpdater();
+
   progressInterval = setInterval(async () => {
-    const { currentTime, duration } = await window.audioPlayer.getCurrentTime();
-    const progressBar = document.getElementById("progress-bar");
-    const timeDisplay = document.getElementById("time-display");
+    try {
+      const { currentTime, duration } = await window.audioPlayer.getCurrentTime();
 
-    if (progressBar && timeDisplay) {
-      const formattedCurrentTime = formatTime(currentTime);
-      const formattedDuration = formatTime(duration);
+      const progressBar = document.getElementById("progress-bar");
+      const timeDisplay = document.getElementById("time-display");
 
-      progressBar.style.width = `${(currentTime / duration) * 100}%`;
-      timeDisplay.textContent = `${formattedCurrentTime} / ${formattedDuration}`;
+      if (progressBar && timeDisplay && duration > 0) {
+        progressBar.style.width = `${(currentTime / duration) * 100}%`;
+        timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+        document.getElementById("track-title").textContent = `Playing: ${currentTrackPath}`;
+      } else {
+        console.log("[PROGRESS UPDATER] Timer and progress bar not initialized.");
+      }
+    } catch (error) {
+      console.error("Error updating progress:", error.message);
     }
   }, 500);
 }
@@ -164,8 +149,9 @@ function formatTime(seconds) {
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 }
 
+
 function highlightCurrentTrack() {
-  const playlistTracks = document.querySelectorAll("#playlist .track");
+  const playlistTracks = document.querySelectorAll(".track");
   playlistTracks.forEach((trackElement) => {
     if (trackElement.dataset.path === currentTrackPath) {
       trackElement.classList.add("selected");

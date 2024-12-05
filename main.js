@@ -1,132 +1,136 @@
 // main.js
 
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const { spawn } = require("child_process");
 const Speaker = require("speaker");
 const path = require("path");
-const { v4: uuidv4 } = require("uuid");
 
 let mainWindow;
 let speaker = null;
 let ffmpegChildProcess = null;
-let playbackSessionId = null;
 let playbackStartTime = 0;
 let trackDuration = 0;
+let isPlaying = false;
 
-function isSpeakerSilent(speaker) {
-  return new Promise((resolve) => {
-    const bufferCheckInterval = 100; // Interval to check for silence (ms)
-    const silenceThreshold = 0.001; // Threshold to consider silence
-    let silent = true;
-
-    const silenceChecker = setInterval(() => {
-      if (!speaker || !speaker._writableState || !speaker._writableState.bufferedRequest) {
-        clearInterval(silenceChecker);
-        resolve(true); // No active audio stream means silent
-        return;
-      }
-
-      // Check if the speaker buffer is under the threshold
-      if (speaker._writableState.bufferedRequestSize > silenceThreshold) {
-        silent = false;
-      }
-
-      if (silent) {
-        clearInterval(silenceChecker);
-        resolve(true);
-      }
-    }, bufferCheckInterval);
-  });
-}
-
+// Stop playback function
 async function stopPlayback() {
   if (speaker) {
     try {
-      console.log("Stopping speaker...");
       speaker.end();
       speaker = null;
+      console.log("[STOP] Speaker stopped.");
     } catch (err) {
-      console.error("Error stopping speaker:", err.message);
+      console.error("[STOP] Error stopping speaker:", err.message);
     }
   }
 
   if (ffmpegChildProcess) {
     try {
-      if (ffmpegChildProcess.stdout) {
-        ffmpegChildProcess.stdout.unpipe();
-      }
+      if (ffmpegChildProcess.stdout) ffmpegChildProcess.stdout.unpipe();
       ffmpegChildProcess.kill("SIGKILL");
       ffmpegChildProcess = null;
-      console.log("FFmpeg process killed successfully.");
+      console.log("[STOP] FFmpeg process killed.");
     } catch (err) {
-      console.error("Error killing FFmpeg process:", err.message);
+      console.error("[STOP] Error killing FFmpeg process:", err.message);
     }
   }
+
+  playbackStartTime = 0;
+  trackDuration = 0;
+  isPlaying = false;
 }
 
+// Start playback function
 function startPlayback(filePath, config) {
-  const sessionId = uuidv4();
-  playbackSessionId = sessionId;
+  console.log(`[PLAYBACK] Starting playback for file: ${filePath}`);
 
-  stopPlayback().then(async () => {
-    // Wait for silence before starting the next track
-    const silent = await isSpeakerSilent(speaker);
-    if (!silent) {
-      console.log("Speaker is not yet silent, delaying playback...");
-      return;
-    }
-
+  stopPlayback().then(() => {
     try {
       speaker = new Speaker(config);
 
       ffmpegChildProcess = spawn("ffmpeg", [
-        "-i", filePath,
-        "-f", "s16le",
-        "-acodec", "pcm_s16le",
-        "-ar", config.sampleRate,
-        "-ac", config.channels,
+        "-i",
+        filePath,
+        "-f",
+        "s16le",
+        "-acodec",
+        "pcm_s16le",
+        "-ar",
+        config.sampleRate,
+        "-ac",
+        config.channels,
         "pipe:1",
       ]);
 
       ffmpegChildProcess.stdout.pipe(speaker);
 
-      ffmpegChildProcess.stderr.on("data", (data) => {
-        console.error(`FFmpeg stderr: ${data}`);
-      });
-
-      ffmpegChildProcess.on("close", (code) => {
-        console.log(`FFmpeg process closed with code ${code}`);
-        if (playbackSessionId === sessionId) {
-          stopPlayback();
+      ffmpegChildProcess.stdout.on("data", () => {
+        if (!isPlaying) {
+          playbackStartTime = Date.now();
+          isPlaying = true;
+          console.log(`[PLAYBACK] Audio stream started for: ${filePath}`);
         }
       });
 
-      playbackStartTime = Date.now();
-      console.log(`Playback started successfully for: ${filePath}`);
+      ffmpegChildProcess.stderr.on("data", (data) => {
+        console.error(`[FFmpeg STDERR] ${data}`);
+      });
+
+      ffmpegChildProcess.on("close", (code) => {
+        console.log(`[FFmpeg] Process closed with code ${code}`);
+        stopPlayback();
+      });
+
+      console.log(`[PLAYBACK] Playback initialization completed.`);
     } catch (err) {
-      console.error("Error starting playback:", err.message);
+      console.error(`[PLAYBACK] Error starting playback: ${err.message}`);
       stopPlayback();
     }
   });
 }
 
+// Handle playTrack request
 ipcMain.handle("audio:playTrack", async (event, filePath, config) => {
-  startPlayback(filePath, config);
+  const ffmpegProcess = spawn("ffmpeg", ["-i", filePath, "-f", "null", "-"]);
+  ffmpegProcess.stderr.on("data", (data) => {
+    const output = data.toString();
+    const durationMatch = output.match(/Duration: (\d+):(\d+):(\d+\.\d+)/);
+    if (durationMatch) {
+      const [, hours, minutes, seconds] = durationMatch;
+      trackDuration =
+        parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseFloat(seconds);
+      console.log(`[DURATION] Track duration: ${trackDuration} seconds`);
+    }
+  });
+
+  ffmpegProcess.on("close", (code) => {
+    console.log("[DURATION] FFmpeg duration extraction complete.");
+    startPlayback(filePath, config);
+  });
 });
 
+// Handle stopPlayback request
 ipcMain.handle("audio:stopPlayback", async () => {
+  console.log("[REQUEST] Stop playback request received.");
   await stopPlayback();
 });
 
+// Handle getCurrentTime request
 ipcMain.handle("audio:getCurrentTime", async () => {
-  if (!playbackStartTime || !trackDuration) {
-    return { currentTime: 0, duration: trackDuration };
+  if (!isPlaying || !playbackStartTime || !trackDuration) {
+    console.warn("[GET TIME] Playback not started or track duration unavailable.");
+    return { currentTime: 0, duration: trackDuration || 0 };
   }
 
-  const currentTime = (Date.now() - playbackStartTime) / 2000;
-  return { currentTime: Math.min(currentTime, trackDuration), duration: trackDuration };
+  const elapsedTime = (Date.now() - playbackStartTime) / 1000;
+  console.log(`[GET TIME] Elapsed time: ${elapsedTime.toFixed(2)} seconds, Duration: ${trackDuration} seconds.`);
+  return {
+    currentTime: Math.min(elapsedTime, trackDuration),
+    duration: trackDuration,
+  };
 });
 
+// Electron app setup
 app.on("ready", () => {
   mainWindow = new BrowserWindow({
     width: 800,
@@ -143,3 +147,4 @@ app.on("ready", () => {
 
   mainWindow.webContents.openDevTools();
 });
+
