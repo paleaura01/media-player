@@ -25,7 +25,7 @@ export async function renderLibraryTree() {
       node.textContent = item.name;
       if (item.type === 'file') {
         node.setAttribute("draggable", "true"); // Make files draggable
-        node.dataset.path = item.path; // Store file path for drag-and-drop
+        node.dataset.path = item.path; // Store file path for highlighting
       }
 
       if (item.type === 'directory') {
@@ -72,10 +72,9 @@ function createSubTree(items) {
     const subNode = document.createElement('div');
     subNode.classList.add(item.type === 'directory' ? 'folder-node' : 'file-node');
     subNode.textContent = item.name;
-
     if (item.type === 'file') {
       subNode.setAttribute("draggable", "true"); // Make files draggable
-      subNode.dataset.path = item.path; // Store file path for drag-and-drop
+      subNode.dataset.path = item.path; // Store file path for highlighting
     }
 
     if (item.type === 'directory') {

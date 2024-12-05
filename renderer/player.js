@@ -11,6 +11,9 @@ let shuffleMode = false;
 let repeatMode = false;
 let progressInterval = null;
 
+// Variable to store the current track path
+let currentTrackPath = null;
+
 export function setCurrentPlaylist(playlistName) {
   currentPlaylistName = playlistName;
   currentPlaylist = playlistName ? getPlaylist(playlistName) : [];
@@ -39,6 +42,8 @@ export function loadTrack(filePath) {
       updateTrackTitle(filePath);
       updateTimeDisplay();
       startProgressUpdater();
+      currentTrackPath = filePath; // Update the current track path
+      highlightCurrentTrack(); // Highlight the track
     },
     onplay: () => {
       console.log('Playing track...');
@@ -55,6 +60,11 @@ export function loadTrack(filePath) {
         playTrack();
       } else {
         nextTrack();
+        // If no next track, clear the current track path and highlight
+        if (!sound || !sound.playing()) {
+          currentTrackPath = null;
+          highlightCurrentTrack();
+        }
       }
     },
     onloaderror: (id, error) => console.error('Load error:', error),
@@ -164,6 +174,29 @@ function formatTime(seconds) {
   const minutes = Math.floor(seconds / 60) || 0;
   const secs = Math.floor(seconds % 60) || 0;
   return `${minutes < 10 ? '0' : ''}${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
+// Function to highlight the current track
+export function highlightCurrentTrack() {
+  // Highlight in playlist
+  const playlistTracks = document.querySelectorAll('#playlist .track');
+  playlistTracks.forEach((trackElement) => {
+    if (trackElement.dataset.path === currentTrackPath) {
+      trackElement.classList.add('selected');
+    } else {
+      trackElement.classList.remove('selected');
+    }
+  });
+
+  // Highlight in library
+  const libraryTracks = document.querySelectorAll('#library-tree-container .file-node');
+  libraryTracks.forEach((trackElement) => {
+    if (trackElement.dataset.path === currentTrackPath) {
+      trackElement.classList.add('selected');
+    } else {
+      trackElement.classList.remove('selected');
+    }
+  });
 }
 
 // Make progress bar clickable

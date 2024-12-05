@@ -2,17 +2,17 @@
 
 import { renderPlaylistTracks as renderTracks } from "./trackManager.js";
 import { playlists, addPlaylist, deletePlaylist, getPlaylist, savePlaylists } from "./playlists.js";
+import { setCurrentPlaylist } from './player.js';
 
 let currentPlaylist = null;
-
-
 
 export function loadLastUsedPlaylist() {
   const lastUsedPlaylist = localStorage.getItem("lastUsedPlaylist");
   if (lastUsedPlaylist && playlists[lastUsedPlaylist]) {
     currentPlaylist = lastUsedPlaylist;
     console.log(`Loaded last used playlist: "${currentPlaylist}"`);
-    renderTracks(currentPlaylist); // Render using the proper function
+    renderTracks(currentPlaylist);
+    setCurrentPlaylist(currentPlaylist);
   } else {
     console.log("No last used playlist found or it does not exist.");
     currentPlaylist = null;
@@ -61,7 +61,6 @@ export function renderPlaylists() {
       renderTracks(currentPlaylist);
       setCurrentPlaylist(name);
     });
-  
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "X";
@@ -75,6 +74,7 @@ export function renderPlaylists() {
         currentPlaylist = null;
         localStorage.removeItem("lastUsedPlaylist");
         renderTracks(null);
+        setCurrentPlaylist(null);
       }
     });
 

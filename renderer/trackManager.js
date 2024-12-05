@@ -21,6 +21,7 @@ export function renderPlaylistTracks(playlistName) {
   tracks.forEach((track, index) => {
     const trackElement = document.createElement("div");
     trackElement.className = "track";
+    trackElement.dataset.path = track.path; // Store the track's path
 
     // Title Container
     const titleContainer = document.createElement("div");
