@@ -1,10 +1,7 @@
 // renderer/trackManager.js
 
 import { getPlaylist, updatePlaylist } from "./playlists.js";
-import {   setCurrentPlaylist, 
-  setCurrentTrackIndex, 
-  loadTrack, 
-  playTrack  } from "./player.js"; // Ensure these are imported for playback
+import { loadTrack, playTrack, setCurrentPlaylist, setCurrentTrackIndex } from "./player.js";
 
 export function renderPlaylistTracks(playlistName) {
   const playlistDiv = document.getElementById("playlist");
@@ -22,7 +19,6 @@ export function renderPlaylistTracks(playlistName) {
   playlistDiv.innerHTML = ""; // Clear the playlist container
 
   tracks.forEach((track, index) => {
-    
     const trackElement = document.createElement("div");
     trackElement.className = "track";
 
@@ -55,8 +51,6 @@ export function renderPlaylistTracks(playlistName) {
       updatePlaylist(playlistName, tracks); // Save the playlist changes
       renderPlaylistTracks(playlistName); // Re-render the playlist
     });
-
-
 
     deleteContainer.appendChild(deleteButton);
     trackElement.appendChild(titleContainer);

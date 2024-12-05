@@ -1,23 +1,56 @@
-<!--renderer/index.html-->
+<!-- renderer/index.html -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta
-  http-equiv="Content-Security-Policy"
-  content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; media-src 'self' file: local:;"
-/>
-
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; media-src 'self' file: local:;"
+  />
   <title>Media Player</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <div id="app">
-    <div id="playlist-pane">
-      <h2>Playlists</h2>
-      <button id="new-playlist">New Playlist</button>
-      <ul id="playlists"></ul>
+    <!-- Container for visualizer and controls -->
+    <div id="visualizer-container">
+      <div id="track-title">No track playing</div>
+      <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+      </div>
+      <div id="time-display">00:00 / 00:00</div>
+      <div id="controls">
+        <button id="prev">Prev</button>
+        <button id="play">Play</button>
+        <button id="pause">Pause</button>
+        <button id="next">Next</button>
+        <button id="shuffle">Shuffle Off</button>
+        <button id="repeat">Repeat Off</button>
+      </div>
+    </div>
+
+    <!-- Main area containing library and playlists -->
+    <div id="main-area">
+      <!-- Playlist Pane on the left -->
+      <div id="playlist-pane">
+        <h2>Playlists</h2>
+        <button id="new-playlist">New Playlist</button>
+        <ul id="playlists"></ul>
+      </div>
+
+      <!-- Library and Playlist Container on the right -->
+      <div id="content-area">
+        <div id="library-tree-container">
+          <h2>Library</h2>
+          <div id="library-tree">No library selected.</div>
+          <button id="add-library">+</button>
+        </div>
+        <div id="playlist-container">
+          <div id="playlist"></div>
+          <button id="add-to-playlist">+</button>
+        </div>
+      </div>
     </div>
 
     <!-- Modal for Playlist Creation -->
@@ -30,29 +63,8 @@
           <button id="cancel-playlist">Cancel</button>
         </div>
       </div>
-    </div>    
-
-    
-
-    <div id="main-area">
-      <div id="controls">
-        <button id="play">Play</button>
-        <button id="pause">Pause</button>
-        <button id="prev">Prev</button>
-        <button id="next">Next</button>
-        <button id="shuffle">Shuffle Off</button>
-        <button id="repeat">Repeat Off</button>
-      </div>
-      <div id="library-tree-container">
-        <h2>Library</h2>
-        <div id="library-tree">No library selected.</div>
-        <button id="add-library">+</button> <!-- New button for adding to library -->
-      </div>
-      <div id="playlist-container">
-        <div id="playlist"></div>
-        <button id="add-to-playlist">+</button> <!-- New button for adding to playlist -->
-      </div>
     </div>
+
   </div>
   <script type="module" src="./renderer.js"></script>
 </body>

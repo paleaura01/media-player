@@ -6,6 +6,12 @@ import {
   loadLastUsedPlaylist, 
   getCurrentPlaylist 
 } from "./playlistManager.js";
+import { renderLibraryTree } from "./libraryRenderer.js";
+import { setupDragAndDrop } from "./dragAndDrop.js";
+import { renderPlaylistTracks } from "./trackManager.js";
+import { savePlaylists, getPlaylist } from "./playlists.js";
+
+// Import playback functions
 import { 
   playTrack, 
   pauseTrack, 
@@ -15,40 +21,34 @@ import {
   toggleRepeat 
 } from './player.js';
 
-import { renderLibraryTree } from "./libraryRenderer.js";
-import { setupDragAndDrop } from "./dragAndDrop.js";
-import { renderPlaylistTracks } from "./trackManager.js";
-import { savePlaylists, getPlaylist } from "./playlists.js";
-
 export function setupUIListeners() {
   try {
+    // Event listeners for player controls
+    document.getElementById("play").addEventListener("click", () => {
+      playTrack();
+    });
 
-      // Event listeners for player controls
-  document.getElementById("play").addEventListener("click", () => {
-    playTrack();
-  });
+    document.getElementById("pause").addEventListener("click", () => {
+      pauseTrack();
+    });
 
-  document.getElementById("pause").addEventListener("click", () => {
-    pauseTrack();
-  });
+    document.getElementById("next").addEventListener("click", () => {
+      nextTrack();
+    });
 
-  document.getElementById("next").addEventListener("click", () => {
-    nextTrack();
-  });
+    document.getElementById("prev").addEventListener("click", () => {
+      prevTrack();
+    });
 
-  document.getElementById("prev").addEventListener("click", () => {
-    prevTrack();
-  });
+    document.getElementById("shuffle").addEventListener("click", (e) => {
+      const shuffleOn = toggleShuffle();
+      e.target.textContent = shuffleOn ? "Shuffle On" : "Shuffle Off";
+    });
 
-  document.getElementById("shuffle").addEventListener("click", (e) => {
-    const shuffleOn = toggleShuffle();
-    e.target.textContent = shuffleOn ? "Shuffle On" : "Shuffle Off";
-  });
-
-  document.getElementById("repeat").addEventListener("click", (e) => {
-    const repeatOn = toggleRepeat();
-    e.target.textContent = repeatOn ? "Repeat On" : "Repeat Off";
-  });
+    document.getElementById("repeat").addEventListener("click", (e) => {
+      const repeatOn = toggleRepeat();
+      e.target.textContent = repeatOn ? "Repeat On" : "Repeat Off";
+    });
 
     // Reference DOM elements
     const modal = document.getElementById("modal");
@@ -56,12 +56,6 @@ export function setupUIListeners() {
     const cancelButton = document.getElementById("cancel-playlist");
     const addLibraryBtn = document.getElementById("add-library");
     const addToPlaylistBtn = document.getElementById("add-to-playlist");
-
-    // Debugging: Ensure buttons are being properly selected
-    console.log("Initializing UI listeners...");
-    console.log("Modal:", modal);
-    console.log("Add Library Button:", addLibraryBtn);
-    console.log("Add to Playlist Button:", addToPlaylistBtn);
 
     // Open modal when clicking the "New Playlist" button
     document.getElementById("new-playlist").addEventListener("click", () => {

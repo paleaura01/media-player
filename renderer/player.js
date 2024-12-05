@@ -9,10 +9,11 @@ let currentPlaylist = [];
 let currentTrackIndex = 0;
 let shuffleMode = false;
 let repeatMode = false;
+let progressInterval = null;
 
 export function setCurrentPlaylist(playlistName) {
   currentPlaylistName = playlistName;
-  currentPlaylist = getPlaylist(playlistName);
+  currentPlaylist = playlistName ? getPlaylist(playlistName) : [];
   currentTrackIndex = 0;
 }
 
@@ -21,7 +22,10 @@ export function setCurrentTrackIndex(index) {
 }
 
 export function loadTrack(filePath) {
-  if (sound) sound.unload();
+  if (sound) {
+    sound.unload();
+    clearInterval(progressInterval); // Clear previous interval
+  }
 
   const localUrl = `local://${filePath}`;
 
@@ -30,10 +34,23 @@ export function loadTrack(filePath) {
   sound = new Howl({
     src: [localUrl],
     html5: true,
-    onload: () => console.log('Track loaded:', localUrl),
-    onplay: () => console.log('Playing track...'),
+    onload: () => {
+      console.log('Track loaded:', localUrl);
+      updateTrackTitle(filePath);
+      updateTimeDisplay();
+      startProgressUpdater();
+    },
+    onplay: () => {
+      console.log('Playing track...');
+      startProgressUpdater();
+    },
+    onpause: () => {
+      console.log('Track paused.');
+      clearInterval(progressInterval);
+    },
     onend: () => {
       console.log('Track ended.');
+      clearInterval(progressInterval);
       if (repeatMode) {
         playTrack();
       } else {
@@ -63,7 +80,7 @@ export function pauseTrack() {
 
 export function nextTrack() {
   if (!currentPlaylist || currentPlaylist.length === 0) {
-    console.warn('No playlist loaded.');
+    console.warn('No playlist loaded or playlist is empty.');
     return;
   }
 
@@ -80,7 +97,7 @@ export function nextTrack() {
 
 export function prevTrack() {
   if (!currentPlaylist || currentPlaylist.length === 0) {
-    console.warn('No playlist loaded.');
+    console.warn('No playlist loaded or playlist is empty.');
     return;
   }
 
@@ -104,4 +121,63 @@ export function toggleShuffle() {
 export function toggleRepeat() {
   repeatMode = !repeatMode;
   return repeatMode;
+}
+
+// New functions for updating the UI
+
+function updateTrackTitle(filePath) {
+  const trackTitleElement = document.getElementById('track-title');
+  if (trackTitleElement) {
+    const fileName = filePath.split('\\').pop().split('/').pop();
+    trackTitleElement.textContent = fileName;
+  }
+}
+
+function updateTimeDisplay() {
+  const timeDisplay = document.getElementById('time-display');
+  if (timeDisplay && sound) {
+    const duration = formatTime(sound.duration());
+    timeDisplay.textContent = `00:00 / ${duration}`;
+  }
+}
+
+function startProgressUpdater() {
+  const progressBar = document.getElementById('progress-bar');
+  const timeDisplay = document.getElementById('time-display');
+
+  if (progressBar && timeDisplay && sound) {
+    clearInterval(progressInterval);
+    progressInterval = setInterval(() => {
+      const seek = sound.seek();
+      const duration = sound.duration();
+      const progressPercent = (seek / duration) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+
+      const currentTime = formatTime(seek);
+      const totalTime = formatTime(duration);
+      timeDisplay.textContent = `${currentTime} / ${totalTime}`;
+    }, 1000);
+  }
+}
+
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60) || 0;
+  const secs = Math.floor(seconds % 60) || 0;
+  return `${minutes < 10 ? '0' : ''}${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
+// Make progress bar clickable
+const progressBarContainer = document.getElementById('progress-bar-container');
+if (progressBarContainer) {
+  progressBarContainer.addEventListener('click', (e) => {
+    if (sound) {
+      const rect = progressBarContainer.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const width = rect.width;
+      const percentage = clickX / width;
+      const newTime = sound.duration() * percentage;
+      sound.seek(newTime);
+      startProgressUpdater(); // Restart the interval to ensure proper updates
+    }
+  });
 }

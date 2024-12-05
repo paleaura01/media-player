@@ -1,7 +1,7 @@
 // renderer/libraryRenderer.js
 
 import { readDirectory, isAudioFile } from './library.js';
-import { loadTrack, playTrack } from './player.js';
+import { loadTrack, playTrack, setCurrentPlaylist, setCurrentTrackIndex } from './player.js';
 
 export async function renderLibraryTree() {
   const libraryContainer = document.getElementById('library-tree-container');
@@ -40,6 +40,8 @@ export async function renderLibraryTree() {
       if (item.type === 'file' && isAudioFile(item.path)) {
         node.addEventListener('click', (e) => {
           e.stopPropagation();
+          setCurrentPlaylist(null); // No playlist
+          setCurrentTrackIndex(0); // Index is 0
           loadTrack(item.path);
           playTrack();
         });
@@ -85,9 +87,18 @@ function createSubTree(items) {
       });
     }
 
+    if (item.type === 'file' && isAudioFile(item.path)) {
+      subNode.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setCurrentPlaylist(null); // No playlist
+        setCurrentTrackIndex(0); // Index is 0
+        loadTrack(item.path);
+        playTrack();
+      });
+    }
+
     subTree.appendChild(subNode);
   });
 
   return subTree;
 }
-
