@@ -1,18 +1,17 @@
-// vite.config.mjs
-
-import { defineConfig } from 'vite';
-import path from 'path';
+import { defineConfig } from "vite";
+import path from "path";
 
 export default defineConfig({
-  root: './renderer',
-  base: './',
+  root: "./renderer",
+  base: "./",
   build: {
-    outDir: '../dist',
+    outDir: "../dist",
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, './renderer/index.html'),
+        main: path.resolve(__dirname, "./renderer/index.html"),
       },
+      external: ["speaker", "fluent-ffmpeg"],
     },
   },
   server: {
@@ -21,13 +20,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './renderer'),
+      "@": path.resolve(__dirname, "./renderer"),
     },
   },
   optimizeDeps: {
-    include: ['howler'], // Pre-bundle Howler.js
+    include: ["howler"],
     esbuildOptions: {
-      target: 'es2020', // Ensure compatibility with modern ES modules
+      target: "es2020",
     },
   },
 });

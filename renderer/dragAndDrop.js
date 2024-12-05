@@ -4,35 +4,32 @@ import { getCurrentPlaylist } from "./playlistManager.js";
 import { getPlaylist, savePlaylists } from "./playlists.js";
 import { renderPlaylistTracks } from "./trackManager.js";
 
+// Utility: Check if a file is an audio file
+function isAudioFile(fileName) {
+  const audioExtensions = [".mp3", ".wav", ".ogg", ".opus", ".flac", ".aac", ".mp4"];
+  return audioExtensions.includes(fileName.slice(fileName.lastIndexOf(".")).toLowerCase());
+}
+
 export function setupDragAndDrop() {
-  const libraryTree = document.getElementById("library-tree");
   const playlistDiv = document.getElementById("playlist");
 
-  if (!libraryTree || !playlistDiv) {
-    console.error("Drag-and-drop setup failed: missing library or playlist elements.");
+  if (!playlistDiv) {
+    console.error("Drag-and-drop setup failed: missing playlist element.");
     return;
   }
-
-  // Enable dragging from the library
-  libraryTree.addEventListener("dragstart", (event) => {
-    const target = event.target;
-    if (target && target.classList.contains("file-node")) {
-      event.dataTransfer.setData("text/plain", target.getAttribute("data-path"));
-      console.log(`Dragging file: ${target.getAttribute("data-path")}`);
-    }
-  });
 
   // Enable dropping into the playlist
   playlistDiv.addEventListener("dragover", (event) => {
     event.preventDefault();
   });
 
-  playlistDiv.addEventListener("drop", (event) => {
+  playlistDiv.addEventListener("drop", async (event) => {
     event.preventDefault();
-    const filePath = event.dataTransfer.getData("text/plain");
-    console.log(`Dropped file: ${filePath}`);
+    // Get the file paths of the dropped files
+    const files = event.dataTransfer.files;
+    console.log(`Dropped files:`, files);
 
-    if (!filePath) return;
+    if (!files || files.length === 0) return;
 
     const currentPlaylist = getCurrentPlaylist();
     if (!currentPlaylist) {
@@ -41,11 +38,20 @@ export function setupDragAndDrop() {
     }
 
     const playlist = getPlaylist(currentPlaylist);
-    if (!playlist.some((track) => track.path === filePath)) {
-      playlist.push({ name: filePath.split("\\").pop(), path: filePath });
-      console.log(`Added "${filePath}" to playlist "${currentPlaylist}".`);
-      savePlaylists(); // Save playlists to ensure persistence
-      renderPlaylistTracks(currentPlaylist); // Re-render playlist tracks
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      // Only accept audio files
+      if (isAudioFile(file.name)) {
+        const filePath = file.path;
+        if (!playlist.some((track) => track.path === filePath)) {
+          playlist.push({ name: file.name, path: filePath });
+          console.log(`Added "${filePath}" to playlist "${currentPlaylist}".`);
+        }
+      }
     }
+
+    savePlaylists(); // Save playlists to ensure persistence
+    renderPlaylistTracks(currentPlaylist); // Re-render playlist tracks
   });
 }

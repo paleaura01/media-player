@@ -6,15 +6,11 @@ import {
   loadLastUsedPlaylist,
   getCurrentPlaylist,
 } from "./playlistManager.js";
-import { renderLibraryTree } from "./libraryRenderer.js";
 import { setupDragAndDrop } from "./dragAndDrop.js";
 import { renderPlaylistTracks } from "./trackManager.js";
-import { savePlaylists, getPlaylist } from "./playlists.js";
-
-// Import playback functions
+import { savePlaylists, getPlaylist, addTrackToPlaylist } from "./playlists.js";
 import {
   playTrack,
-  pauseTrack,
   nextTrack,
   prevTrack,
   toggleShuffle,
@@ -24,21 +20,9 @@ import {
 export function setupUIListeners() {
   try {
     // Event listeners for player controls
-    document.getElementById("play").addEventListener("click", () => {
-      playTrack();
-    });
-
-    document.getElementById("pause").addEventListener("click", () => {
-      pauseTrack();
-    });
-
-    document.getElementById("next").addEventListener("click", () => {
-      nextTrack();
-    });
-
-    document.getElementById("prev").addEventListener("click", () => {
-      prevTrack();
-    });
+    document.getElementById("play").addEventListener("click", playTrack);
+    document.getElementById("next").addEventListener("click", nextTrack);
+    document.getElementById("prev").addEventListener("click", prevTrack);
 
     document.getElementById("shuffle").addEventListener("click", (e) => {
       const shuffleOn = toggleShuffle();
@@ -50,220 +34,82 @@ export function setupUIListeners() {
       e.target.textContent = repeatOn ? "Repeat On" : "Repeat Off";
     });
 
-    // Reference DOM elements
+    // Modal and playlist actions
     const modal = document.getElementById("modal");
     const createButton = document.getElementById("create-playlist");
     const cancelButton = document.getElementById("cancel-playlist");
-    const addLibraryBtn = document.getElementById("add-library");
     const addToPlaylistBtn = document.getElementById("add-to-playlist");
-    const closeLibraryBtn = document.getElementById("close-library");
 
-    // Open modal when clicking the "New Playlist" button
-    document.getElementById("new-playlist").addEventListener("click", () => {
-      console.log("'New Playlist' button clicked.");
-      openModal();
-    });
+    document.getElementById("new-playlist").addEventListener("click", openModal);
+    cancelButton.addEventListener("click", closeModal);
+    createButton.addEventListener("click", createNewPlaylist);
 
-    // Close modal when clicking the Cancel button
-    cancelButton.addEventListener("click", () => {
-      console.log("'Cancel' button clicked.");
-      closeModal();
-    });
+    addToPlaylistBtn.addEventListener("click", addFilesToPlaylist);
 
-    // Create a new playlist when clicking the Create button
-    createButton.addEventListener("click", () => {
-      console.log("'Create Playlist' button clicked.");
-      const nameInput = document.getElementById("playlist-name");
-      if (nameInput) {
-        const playlistName = nameInput.value.trim();
-        if (playlistName) {
-          handleCreatePlaylist(playlistName);
-          closeModal();
-        } else {
-          alert("Playlist name cannot be empty!");
-        }
-      }
-    });
-
-    // Handle Library Button functionality
-    addLibraryBtn.addEventListener("click", async () => {
-      console.log("'Add to Library' button clicked.");
-      try {
-        await renderLibraryTree();
-        console.log("Library tree rendered successfully.");
-
-        // Show the library tree
-        const libraryTreeContainer = document.getElementById("library-tree-container");
-        libraryTreeContainer.classList.remove("hidden");
-
-        // Adjust the library container
-        const libraryContainer = document.getElementById("library-container");
-        libraryContainer.style.flex = "1";
-      } catch (error) {
-        console.error("Error rendering library tree:", error);
-      }
-    });
-
-    // Handle Close Library Button functionality
-    closeLibraryBtn.addEventListener("click", () => {
-      console.log("'Close Library' button clicked.");
-      const libraryTreeContainer = document.getElementById("library-tree-container");
-      libraryTreeContainer.classList.add("hidden");
-
-      // Adjust the library container height
-      const libraryContainer = document.getElementById("library-container");
-      libraryContainer.style.flex = "0 0 auto";
-    });
-
-    // Handle Add to Playlist Button functionality
-    addToPlaylistBtn.addEventListener("click", async () => {
-      console.log("'Add to Playlist' button clicked.");
-      try {
-        const selectedFiles = await window.electron.selectFiles();
-        if (selectedFiles && selectedFiles.length > 0) {
-          const currentPlaylist = getCurrentPlaylist();
-          if (!currentPlaylist) {
-            alert("Please select or create a playlist first.");
-            return;
-          }
-
-          const playlist = getPlaylist(currentPlaylist);
-          selectedFiles.forEach((filePath) => {
-            if (!playlist.some((track) => track.path === filePath)) {
-              playlist.push({ name: filePath.split("\\").pop(), path: filePath });
-            }
-          });
-
-          savePlaylists();
-          renderPlaylistTracks(currentPlaylist);
-          console.log("Tracks added to playlist successfully.");
-        }
-      } catch (error) {
-        console.error("Error adding files to playlist:", error);
-      }
-    });
-
-    // Initialize last used playlist and drag-and-drop functionality
+    // Initialize playlists and drag-and-drop functionality
     loadLastUsedPlaylist();
     renderPlaylists();
     setupDragAndDrop();
-
-    // Initialize splitters
-    setupSplitters();
   } catch (error) {
     console.error("Error initializing UI listeners:", error);
   }
 }
 
-// Open the modal
 function openModal() {
   const modal = document.getElementById("modal");
-  if (modal) {
-    modal.classList.remove("modal-hidden");
-    modal.classList.add("modal-visible");
-    console.log("Modal opened.");
-  } else {
-    console.error("Modal element not found!");
-  }
+  modal?.classList.replace("modal-hidden", "modal-visible");
 }
 
-// Close the modal
 function closeModal() {
   const modal = document.getElementById("modal");
-  if (modal) {
-    modal.classList.remove("modal-visible");
-    modal.classList.add("modal-hidden");
-    const nameInput = document.getElementById("playlist-name");
-    if (nameInput) nameInput.value = ""; // Clear input
-    console.log("Modal closed.");
+  modal?.classList.replace("modal-visible", "modal-hidden");
+}
+
+function createNewPlaylist() {
+  const nameInput = document.getElementById("playlist-name");
+  const playlistName = nameInput?.value.trim();
+  if (playlistName) {
+    handleCreatePlaylist(playlistName);
+    closeModal();
   } else {
-    console.error("Modal element not found!");
+    alert("Playlist name cannot be empty!");
   }
 }
 
-// Function to initialize splitters
-function setupSplitters() {
-  // Vertical Splitter between Playlist Pane and Content Area
-  const verticalSplitter = document.getElementById("vertical-splitter");
-  const playlistPane = document.getElementById("playlist-pane");
-  const contentArea = document.getElementById("content-area");
+async function addFilesToPlaylist() {
+  try {
+    console.log("'Add to Playlist' button clicked.");
 
-  let isResizingVertical = false;
+    // Open file selection dialog
+    const selectedFiles = await window.electron.selectFiles();
 
-  verticalSplitter.addEventListener("mousedown", () => {
-    isResizingVertical = true;
-    document.body.style.cursor = 'col-resize';
-  });
-
-  document.addEventListener("mousemove", (e) => {
-    if (isResizingVertical) {
-      const minPlaylistPaneWidth = 150; // Minimum width for playlist pane
-      const maxPlaylistPaneWidth = 400; // Maximum width for playlist pane
-
-      let newWidth = e.clientX - playlistPane.offsetLeft;
-
-      // Enforce minimum and maximum widths
-      if (newWidth < minPlaylistPaneWidth) {
-        newWidth = minPlaylistPaneWidth;
-      } else if (newWidth > maxPlaylistPaneWidth) {
-        newWidth = maxPlaylistPaneWidth;
-      }
-
-      playlistPane.style.width = `${newWidth}px`;
+    if (!selectedFiles || selectedFiles.length === 0) {
+      console.warn("No files selected.");
+      return;
     }
-  });
 
-  document.addEventListener("mouseup", () => {
-    isResizingVertical = false;
-    document.body.style.cursor = 'default';
-  });
-
-  // Horizontal Splitter between Library and Playlist Containers
-  const horizontalSplitter = document.getElementById("horizontal-splitter");
-  const libraryContainer = document.getElementById("library-container");
-  const playlistContainer = document.getElementById("playlist-container");
-  const libraryPlaylistContainer = document.getElementById("library-playlist-container");
-
-  let isResizingHorizontal = false;
-
-  horizontalSplitter.addEventListener("mousedown", () => {
-    isResizingHorizontal = true;
-    document.body.style.cursor = 'row-resize';
-  });
-
-  document.addEventListener("mousemove", (e) => {
-    if (isResizingHorizontal) {
-      const containerOffsetTop = libraryPlaylistContainer.getBoundingClientRect().top;
-      const totalHeight = libraryPlaylistContainer.clientHeight;
-
-      let newHeight = e.clientY - containerOffsetTop;
-
-      // Get the heights of the '+' buttons
-      const addLibraryBtn = document.getElementById("add-library");
-      const addToPlaylistBtn = document.getElementById("add-to-playlist");
-      const addLibraryBtnHeight = addLibraryBtn ? addLibraryBtn.offsetHeight : 0;
-      const addToPlaylistBtnHeight = addToPlaylistBtn ? addToPlaylistBtn.offsetHeight : 0;
-
-      // Minimum heights for library and playlist containers
-      const minLibraryHeight = addLibraryBtnHeight + 50; // Adjust as necessary
-      const minPlaylistHeight = addToPlaylistBtnHeight + 50; // Adjust as necessary
-
-      // Enforce minimum and maximum heights
-      if (newHeight < minLibraryHeight) {
-        newHeight = minLibraryHeight;
-      } else if (newHeight > totalHeight - minPlaylistHeight - horizontalSplitter.offsetHeight) {
-        newHeight = totalHeight - minPlaylistHeight - horizontalSplitter.offsetHeight;
-      }
-
-      const remainingHeight = totalHeight - newHeight - horizontalSplitter.offsetHeight;
-
-      libraryContainer.style.height = `${newHeight}px`;
-      playlistContainer.style.height = `${remainingHeight}px`;
+    const currentPlaylist = getCurrentPlaylist();
+    if (!currentPlaylist) {
+      alert("Please select or create a playlist first.");
+      return;
     }
-  });
 
-  document.addEventListener("mouseup", () => {
-    isResizingHorizontal = false;
-    document.body.style.cursor = 'default';
-  });
+    const playlist = getPlaylist(currentPlaylist);
+
+    // Add files to the playlist
+    selectedFiles.forEach((filePath) => {
+      const track = { name: filePath.split("\\").pop(), path: filePath };
+      if (addTrackToPlaylist(currentPlaylist, track)) {
+        console.log(`Added track to playlist: ${track.name}`);
+      } else {
+        console.warn(`Track already exists in the playlist: ${track.name}`);
+      }
+    });
+
+    savePlaylists();
+    renderPlaylistTracks(currentPlaylist);
+    console.log("Tracks added to playlist successfully.");
+  } catch (error) {
+    console.error("Error adding files to playlist:", error);
+  }
 }
