@@ -192,39 +192,78 @@ function setupSplitters() {
 
   verticalSplitter.addEventListener("mousedown", () => {
     isResizingVertical = true;
+    document.body.style.cursor = 'col-resize';
   });
 
   document.addEventListener("mousemove", (e) => {
     if (isResizingVertical) {
-      const newWidth = e.clientX - playlistPane.offsetLeft;
+      const minPlaylistPaneWidth = 150; // Minimum width for playlist pane
+      const maxPlaylistPaneWidth = 400; // Maximum width for playlist pane
+
+      let newWidth = e.clientX - playlistPane.offsetLeft;
+
+      // Enforce minimum and maximum widths
+      if (newWidth < minPlaylistPaneWidth) {
+        newWidth = minPlaylistPaneWidth;
+      } else if (newWidth > maxPlaylistPaneWidth) {
+        newWidth = maxPlaylistPaneWidth;
+      }
+
       playlistPane.style.width = `${newWidth}px`;
     }
   });
 
   document.addEventListener("mouseup", () => {
     isResizingVertical = false;
+    document.body.style.cursor = 'default';
   });
 
   // Horizontal Splitter between Library and Playlist Containers
   const horizontalSplitter = document.getElementById("horizontal-splitter");
   const libraryContainer = document.getElementById("library-container");
   const playlistContainer = document.getElementById("playlist-container");
+  const libraryPlaylistContainer = document.getElementById("library-playlist-container");
 
   let isResizingHorizontal = false;
 
   horizontalSplitter.addEventListener("mousedown", () => {
     isResizingHorizontal = true;
+    document.body.style.cursor = 'row-resize';
   });
 
   document.addEventListener("mousemove", (e) => {
     if (isResizingHorizontal) {
-      const containerOffsetTop = libraryContainer.parentElement.offsetTop;
-      const newHeight = e.clientY - containerOffsetTop;
+      const containerOffsetTop = libraryPlaylistContainer.getBoundingClientRect().top;
+      const totalHeight = libraryPlaylistContainer.clientHeight;
+
+      let newHeight = e.clientY - containerOffsetTop;
+
+      // Get the heights of the '+' buttons
+      const addLibraryBtn = document.getElementById("add-library");
+      const addToPlaylistBtn = document.getElementById("add-to-playlist");
+      const addLibraryBtnHeight = addLibraryBtn ? addLibraryBtn.offsetHeight : 0;
+      const addToPlaylistBtnHeight = addToPlaylistBtn ? addToPlaylistBtn.offsetHeight : 0;
+
+      // Minimum heights for library and playlist containers
+      const minLibraryHeight = addLibraryBtnHeight + 50; // Adjust as necessary
+      const minPlaylistHeight = addToPlaylistBtnHeight + 50; // Adjust as necessary
+
+      // Enforce minimum and maximum heights
+      if (newHeight < minLibraryHeight) {
+        newHeight = minLibraryHeight;
+      } else if (newHeight > totalHeight - minPlaylistHeight - horizontalSplitter.offsetHeight) {
+        newHeight = totalHeight - minPlaylistHeight - horizontalSplitter.offsetHeight;
+      }
+
+      const remainingHeight = totalHeight - newHeight - horizontalSplitter.offsetHeight;
+
       libraryContainer.style.height = `${newHeight}px`;
+      playlistContainer.style.height = `${remainingHeight}px`;
     }
   });
 
   document.addEventListener("mouseup", () => {
     isResizingHorizontal = false;
+    document.body.style.cursor = 'default';
   });
 }
