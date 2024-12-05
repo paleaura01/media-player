@@ -39,7 +39,7 @@ app.on('ready', () => {
 ipcMain.handle("dialog:selectFiles", async () => {
   const result = await dialog.showOpenDialog({
     properties: ["openFile", "multiSelections"], // File selection only
-    filters: [{ name: "Audio Files", extensions: ["mp3", "wav", "ogg", "opus"] }],
+    filters: [{ name: "Audio Files", extensions: ["mp3", "wav", "ogg", "opus"] }], // Added 'opus'
   });
   return result.canceled ? null : result.filePaths;
 });

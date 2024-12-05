@@ -93,11 +93,8 @@ export function setupUIListeners() {
         console.log("Library tree rendered successfully.");
 
         // Show the library tree
-        const libraryTree = document.getElementById("library-tree");
-        libraryTree.classList.remove("hidden");
-
-        // Hide the '+' button when the library tree is visible
-        addLibraryBtn.style.display = "none";
+        const libraryTreeContainer = document.getElementById("library-tree-container");
+        libraryTreeContainer.classList.remove("hidden");
 
         // Adjust the library container
         const libraryContainer = document.getElementById("library-container");
@@ -110,11 +107,8 @@ export function setupUIListeners() {
     // Handle Close Library Button functionality
     closeLibraryBtn.addEventListener("click", () => {
       console.log("'Close Library' button clicked.");
-      const libraryTree = document.getElementById("library-tree");
-      libraryTree.classList.add("hidden");
-
-      // Show the '+' button when the library tree is hidden
-      addLibraryBtn.style.display = "block";
+      const libraryTreeContainer = document.getElementById("library-tree-container");
+      libraryTreeContainer.classList.add("hidden");
 
       // Adjust the library container height
       const libraryContainer = document.getElementById("library-container");

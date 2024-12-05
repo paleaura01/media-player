@@ -1,7 +1,7 @@
 // renderer/libraryRenderer.js
 
 import { readDirectory, isAudioFile } from './library.js';
-import { loadTrack, playTrack, setCurrentPlaylist, setCurrentTrackIndex } from './player.js';
+import { loadTrack, playTrack } from './player.js';
 
 export async function renderLibraryTree() {
   const libraryContainer = document.getElementById('library-tree-container');
@@ -25,7 +25,7 @@ export async function renderLibraryTree() {
       node.textContent = item.name;
       if (item.type === 'file') {
         node.setAttribute("draggable", "true"); // Make files draggable
-        node.dataset.path = item.path; // Store file path for highlighting
+        node.dataset.path = item.path; // Store file path for drag-and-drop
       }
 
       if (item.type === 'directory') {
@@ -40,8 +40,6 @@ export async function renderLibraryTree() {
       if (item.type === 'file' && isAudioFile(item.path)) {
         node.addEventListener('click', (e) => {
           e.stopPropagation();
-          setCurrentPlaylist(null); // No playlist
-          setCurrentTrackIndex(0); // Index is 0
           loadTrack(item.path);
           playTrack();
         });
@@ -72,9 +70,10 @@ function createSubTree(items) {
     const subNode = document.createElement('div');
     subNode.classList.add(item.type === 'directory' ? 'folder-node' : 'file-node');
     subNode.textContent = item.name;
+
     if (item.type === 'file') {
       subNode.setAttribute("draggable", "true"); // Make files draggable
-      subNode.dataset.path = item.path; // Store file path for highlighting
+      subNode.dataset.path = item.path; // Store file path for drag-and-drop
     }
 
     if (item.type === 'directory') {
@@ -86,18 +85,9 @@ function createSubTree(items) {
       });
     }
 
-    if (item.type === 'file' && isAudioFile(item.path)) {
-      subNode.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setCurrentPlaylist(null); // No playlist
-        setCurrentTrackIndex(0); // Index is 0
-        loadTrack(item.path);
-        playTrack();
-      });
-    }
-
     subTree.appendChild(subNode);
   });
 
   return subTree;
 }
+
