@@ -228,8 +228,9 @@ export function toggleShuffle() {
     originalPlaylistOrder = currentPlaylist.slice();
     // Shuffle currentPlaylist
     shuffleCurrentPlaylist();
-    // Reset currentMinPlayCount
+    // Reset shuffle variables
     currentMinPlayCount = 0;
+    currentTrackIndex = 0;
     // Update playlist display
     renderPlaylistTracks(currentPlaylistName);
   } else {

@@ -1,10 +1,10 @@
 // renderer/ui.js
 
-import { 
-  handleCreatePlaylist, 
-  renderPlaylists, 
-  loadLastUsedPlaylist, 
-  getCurrentPlaylist 
+import {
+  handleCreatePlaylist,
+  renderPlaylists,
+  loadLastUsedPlaylist,
+  getCurrentPlaylist,
 } from "./playlistManager.js";
 import { renderLibraryTree } from "./libraryRenderer.js";
 import { setupDragAndDrop } from "./dragAndDrop.js";
@@ -12,14 +12,14 @@ import { renderPlaylistTracks } from "./trackManager.js";
 import { savePlaylists, getPlaylist } from "./playlists.js";
 
 // Import playback functions
-import { 
-  playTrack, 
-  pauseTrack, 
-  nextTrack, 
-  prevTrack, 
-  toggleShuffle, 
-  toggleRepeat 
-} from './player.js';
+import {
+  playTrack,
+  pauseTrack,
+  nextTrack,
+  prevTrack,
+  toggleShuffle,
+  toggleRepeat,
+} from "./player.js";
 
 export function setupUIListeners() {
   try {
@@ -56,6 +56,7 @@ export function setupUIListeners() {
     const cancelButton = document.getElementById("cancel-playlist");
     const addLibraryBtn = document.getElementById("add-library");
     const addToPlaylistBtn = document.getElementById("add-to-playlist");
+    const closeLibraryBtn = document.getElementById("close-library");
 
     // Open modal when clicking the "New Playlist" button
     document.getElementById("new-playlist").addEventListener("click", () => {
@@ -90,9 +91,34 @@ export function setupUIListeners() {
       try {
         await renderLibraryTree();
         console.log("Library tree rendered successfully.");
+
+        // Show the library tree
+        const libraryTree = document.getElementById("library-tree");
+        libraryTree.classList.remove("hidden");
+
+        // Hide the '+' button when the library tree is visible
+        addLibraryBtn.style.display = "none";
+
+        // Adjust the library container
+        const libraryContainer = document.getElementById("library-container");
+        libraryContainer.style.flex = "1";
       } catch (error) {
         console.error("Error rendering library tree:", error);
       }
+    });
+
+    // Handle Close Library Button functionality
+    closeLibraryBtn.addEventListener("click", () => {
+      console.log("'Close Library' button clicked.");
+      const libraryTree = document.getElementById("library-tree");
+      libraryTree.classList.add("hidden");
+
+      // Show the '+' button when the library tree is hidden
+      addLibraryBtn.style.display = "block";
+
+      // Adjust the library container height
+      const libraryContainer = document.getElementById("library-container");
+      libraryContainer.style.flex = "0 0 auto";
     });
 
     // Handle Add to Playlist Button functionality
@@ -127,6 +153,9 @@ export function setupUIListeners() {
     loadLastUsedPlaylist();
     renderPlaylists();
     setupDragAndDrop();
+
+    // Initialize splitters
+    setupSplitters();
   } catch (error) {
     console.error("Error initializing UI listeners:", error);
   }
@@ -156,4 +185,52 @@ function closeModal() {
   } else {
     console.error("Modal element not found!");
   }
+}
+
+// Function to initialize splitters
+function setupSplitters() {
+  // Vertical Splitter between Playlist Pane and Content Area
+  const verticalSplitter = document.getElementById("vertical-splitter");
+  const playlistPane = document.getElementById("playlist-pane");
+  const contentArea = document.getElementById("content-area");
+
+  let isResizingVertical = false;
+
+  verticalSplitter.addEventListener("mousedown", () => {
+    isResizingVertical = true;
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (isResizingVertical) {
+      const newWidth = e.clientX - playlistPane.offsetLeft;
+      playlistPane.style.width = `${newWidth}px`;
+    }
+  });
+
+  document.addEventListener("mouseup", () => {
+    isResizingVertical = false;
+  });
+
+  // Horizontal Splitter between Library and Playlist Containers
+  const horizontalSplitter = document.getElementById("horizontal-splitter");
+  const libraryContainer = document.getElementById("library-container");
+  const playlistContainer = document.getElementById("playlist-container");
+
+  let isResizingHorizontal = false;
+
+  horizontalSplitter.addEventListener("mousedown", () => {
+    isResizingHorizontal = true;
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (isResizingHorizontal) {
+      const containerOffsetTop = libraryContainer.parentElement.offsetTop;
+      const newHeight = e.clientY - containerOffsetTop;
+      libraryContainer.style.height = `${newHeight}px`;
+    }
+  });
+
+  document.addEventListener("mouseup", () => {
+    isResizingHorizontal = false;
+  });
 }
