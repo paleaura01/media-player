@@ -58,8 +58,10 @@ export function renderPlaylists() {
       console.log(`Playlist "${name}" selected.`);
       currentPlaylist = name;
       saveCurrentPlaylist(name);
-      renderTracks(currentPlaylist); // Render using the proper function
+      renderTracks(currentPlaylist);
+      setCurrentPlaylist(name);
     });
+  
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "X";

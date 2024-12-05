@@ -1,22 +1,45 @@
 // renderer/player.js
 
 import { Howl } from 'howler';
+import { getPlaylist } from './playlists.js';
 
 let sound = null;
+let currentPlaylistName = null;
+let currentPlaylist = [];
+let currentTrackIndex = 0;
+let shuffleMode = false;
+let repeatMode = false;
+
+export function setCurrentPlaylist(playlistName) {
+  currentPlaylistName = playlistName;
+  currentPlaylist = getPlaylist(playlistName);
+  currentTrackIndex = 0;
+}
+
+export function setCurrentTrackIndex(index) {
+  currentTrackIndex = index;
+}
 
 export function loadTrack(filePath) {
   if (sound) sound.unload();
 
-  const localUrl = `local://${filePath}`; // Convert file path to local protocol URL
+  const localUrl = `local://${filePath}`;
 
   console.log('Loading track:', localUrl);
 
   sound = new Howl({
     src: [localUrl],
-    html5: true, // Ensures compatibility for large files and Electron
+    html5: true,
     onload: () => console.log('Track loaded:', localUrl),
     onplay: () => console.log('Playing track...'),
-    onend: () => console.log('Track ended.'),
+    onend: () => {
+      console.log('Track ended.');
+      if (repeatMode) {
+        playTrack();
+      } else {
+        nextTrack();
+      }
+    },
     onloaderror: (id, error) => console.error('Load error:', error),
     onplayerror: (id, error) => console.error('Play error:', error),
   });
@@ -38,23 +61,38 @@ export function pauseTrack() {
   }
 }
 
+export function nextTrack() {
+  if (!currentPlaylist || currentPlaylist.length === 0) {
+    console.warn('No playlist loaded.');
+    return;
+  }
 
+  if (shuffleMode) {
+    currentTrackIndex = Math.floor(Math.random() * currentPlaylist.length);
+  } else {
+    currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
+  }
 
-
-export function nextTrack(playlistName) {
-  const playlist = playlists[playlistName];
-  currentTrackIndex = shuffleMode
-    ? Math.floor(Math.random() * playlist.length)
-    : (currentTrackIndex + 1) % playlist.length;
-  loadTrack(playlistName, currentTrackIndex);
+  const nextTrack = currentPlaylist[currentTrackIndex];
+  loadTrack(nextTrack.path);
   playTrack();
 }
 
-export function prevTrack(playlistName) {
-  const playlist = playlists[playlistName];
-  currentTrackIndex =
-    (currentTrackIndex - 1 + playlist.length) % playlist.length;
-  loadTrack(playlistName, currentTrackIndex);
+export function prevTrack() {
+  if (!currentPlaylist || currentPlaylist.length === 0) {
+    console.warn('No playlist loaded.');
+    return;
+  }
+
+  if (shuffleMode) {
+    currentTrackIndex = Math.floor(Math.random() * currentPlaylist.length);
+  } else {
+    currentTrackIndex =
+      (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+  }
+
+  const prevTrack = currentPlaylist[currentTrackIndex];
+  loadTrack(prevTrack.path);
   playTrack();
 }
 

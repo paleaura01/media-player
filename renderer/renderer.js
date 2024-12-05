@@ -1,6 +1,5 @@
 // renderer/renderer.js
 
-// renderer.js
 import { setupUIListeners } from "./ui.js";
 import { renderPlaylists } from "./playlistManager.js";
 import { renderLibraryTree } from "./libraryRenderer.js";

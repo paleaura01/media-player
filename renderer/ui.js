@@ -6,6 +6,15 @@ import {
   loadLastUsedPlaylist, 
   getCurrentPlaylist 
 } from "./playlistManager.js";
+import { 
+  playTrack, 
+  pauseTrack, 
+  nextTrack, 
+  prevTrack, 
+  toggleShuffle, 
+  toggleRepeat 
+} from './player.js';
+
 import { renderLibraryTree } from "./libraryRenderer.js";
 import { setupDragAndDrop } from "./dragAndDrop.js";
 import { renderPlaylistTracks } from "./trackManager.js";
@@ -13,6 +22,34 @@ import { savePlaylists, getPlaylist } from "./playlists.js";
 
 export function setupUIListeners() {
   try {
+
+      // Event listeners for player controls
+  document.getElementById("play").addEventListener("click", () => {
+    playTrack();
+  });
+
+  document.getElementById("pause").addEventListener("click", () => {
+    pauseTrack();
+  });
+
+  document.getElementById("next").addEventListener("click", () => {
+    nextTrack();
+  });
+
+  document.getElementById("prev").addEventListener("click", () => {
+    prevTrack();
+  });
+
+  document.getElementById("shuffle").addEventListener("click", (e) => {
+    const shuffleOn = toggleShuffle();
+    e.target.textContent = shuffleOn ? "Shuffle On" : "Shuffle Off";
+  });
+
+  document.getElementById("repeat").addEventListener("click", (e) => {
+    const repeatOn = toggleRepeat();
+    e.target.textContent = repeatOn ? "Repeat On" : "Repeat Off";
+  });
+
     // Reference DOM elements
     const modal = document.getElementById("modal");
     const createButton = document.getElementById("create-playlist");
