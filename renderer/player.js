@@ -14,6 +14,9 @@ let progressInterval = null;
 
 let currentTrackPath = null;
 
+// Remove unplayedTracks array since we're changing the shuffle logic
+// let unplayedTracks = [];
+
 export function setCurrentPlaylist(playlistName) {
   currentPlaylistName = playlistName;
   currentPlaylist = playlistName ? getPlaylist(playlistName) : [];
@@ -185,17 +188,19 @@ export function nextTrack() {
   if (shuffleMode) {
     // Implement new shuffle logic
     // 1. Find the minimum playCount among all tracks
-    const minPlayCount = Math.min(...currentPlaylist.map(track => track.playCount || 0));
+    const minPlayCount = Math.min(...currentPlaylist.map((track) => track.playCount || 0));
 
     // 2. Get all tracks with the minimum playCount
-    const tracksWithMinPlayCount = currentPlaylist.filter(track => (track.playCount || 0) === minPlayCount);
+    const tracksWithMinPlayCount = currentPlaylist.filter(
+      (track) => (track.playCount || 0) === minPlayCount
+    );
 
     // 3. Randomly select a track from tracksWithMinPlayCount
     const randomIndex = Math.floor(Math.random() * tracksWithMinPlayCount.length);
     const nextTrack = tracksWithMinPlayCount[randomIndex];
 
     // 4. Update currentTrackIndex to point to the selected track
-    currentTrackIndex = currentPlaylist.findIndex(t => t.path === nextTrack.path);
+    currentTrackIndex = currentPlaylist.findIndex((t) => t.path === nextTrack.path);
 
     // 5. Load and play the selected track
     loadTrack(nextTrack.path);
@@ -289,6 +294,8 @@ export function highlightCurrentTrack() {
   playlistTracks.forEach((trackElement) => {
     if (trackElement.dataset.path === currentTrackPath) {
       trackElement.classList.add('selected');
+      // Scroll into view
+      trackElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
       trackElement.classList.remove('selected');
     }
@@ -299,6 +306,8 @@ export function highlightCurrentTrack() {
   libraryTracks.forEach((trackElement) => {
     if (trackElement.dataset.path === currentTrackPath) {
       trackElement.classList.add('selected');
+      // Scroll into view
+      trackElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
       trackElement.classList.remove('selected');
     }

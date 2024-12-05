@@ -1,5 +1,6 @@
 /* renderer/style.css */
 
+/* General Styles */
 body, h1, h2, ul, li, p {
   margin: 0;
   padding: 0;
@@ -416,4 +417,3 @@ body {
 #horizontal-splitter:hover {
   background-color: #666;
 }
-  
