@@ -1,6 +1,7 @@
 // renderer/player.js
 
-import { getPlaylist, updatePlaylist } from "./playlists.js";
+import { getPlaylist } from "./playlists.js";
+import { generateUUID } from "./uuid.js";
 
 let currentPlaylistName = null;
 let currentPlaylist = [];
@@ -9,20 +10,21 @@ let currentTrackPath = null;
 let repeatMode = false;
 let shuffleMode = false;
 let isPlaying = false;
-let activeSessionId = null;
 let progressInterval = null;
+let activeSessionId = null;
+let isLoading = false; // Prevent overlapping track loads
 
 const { audioPlayer } = window;
 
 export function toggleRepeat() {
   repeatMode = !repeatMode;
-  console.log(`[TOGGLE REPEAT] Repeat mode is now ${repeatMode ? "ON" : "OFF"}.`);
+  logWithTimestamp(`[TOGGLE REPEAT] Repeat mode is now ${repeatMode ? "ON" : "OFF"}.`);
   return repeatMode;
 }
 
 export function toggleShuffle() {
   shuffleMode = !shuffleMode;
-  console.log(`[TOGGLE SHUFFLE] Shuffle mode is now ${shuffleMode ? "ON" : "OFF"}.`);
+  logWithTimestamp(`[TOGGLE SHUFFLE] Shuffle mode is now ${shuffleMode ? "ON" : "OFF"}.`);
   return shuffleMode;
 }
 
@@ -30,112 +32,152 @@ export function setCurrentPlaylist(playlistName) {
   currentPlaylistName = playlistName;
   currentPlaylist = playlistName ? getPlaylist(playlistName) : [];
   currentTrackIndex = 0;
-  console.log(`[SET PLAYLIST] Playlist set to "${playlistName}" with ${currentPlaylist.length} tracks.`);
+  logWithTimestamp(`[SET PLAYLIST] Playlist set to "${playlistName}" with ${currentPlaylist.length} tracks.`);
 }
 
 export function setCurrentTrackIndex(index) {
   currentTrackIndex = index;
-  console.log(`[SET TRACK INDEX] Track index set to ${index}.`);
+  logWithTimestamp(`[SET TRACK INDEX] Track index set to ${index}.`);
 }
 
 export async function loadTrack(filePath) {
-  const sessionId = Date.now(); // Unique session ID
-  activeSessionId = sessionId;
-
-  console.log(`[LOAD TRACK] Loading track: ${filePath}`);
-
-  if (isPlaying) {
-    console.log(`[LOAD TRACK] Stopping current playback before loading new track.`);
-    await stopPlayback(activeSessionId);
+  if (isLoading) {
+    logWithTimestamp(`[LOAD TRACK] Another load operation is already in progress.`);
+    return;
   }
 
-  const speakerConfig = {
-    channels: 2,
-    bitDepth: 16,
-    sampleRate: 44100,
-  };
-
-  currentTrackPath = filePath;
+  const sessionId = generateUUID();
+  logWithTimestamp(`[LOAD TRACK] Attempting to load track: ${filePath} with session ID: ${sessionId}`);
+  isLoading = true;
 
   try {
-    console.log(`[LOAD TRACK] Requesting playback for: ${filePath}`);
-    await audioPlayer.playTrack(filePath, speakerConfig, sessionId);
+    if (isPlaying) {
+      logWithTimestamp(`[LOAD TRACK] Stopping current playback (Active Session: ${activeSessionId}).`);
+      await stopPlayback(activeSessionId);
+    }
+
+    activeSessionId = sessionId;
+    currentTrackPath = filePath;
+
+    const speakerConfig = {
+      channels: 2,
+      bitDepth: 16,
+      sampleRate: 44100,
+    };
+
+    const { success, trackDuration } = await audioPlayer.playTrack(filePath, speakerConfig, sessionId);
+
+    if (!success) {
+      logWithTimestamp(`[LOAD TRACK] Playback failed for: ${filePath}`);
+      return;
+    }
 
     if (activeSessionId !== sessionId) {
-      console.warn(`[LOAD TRACK] Session mismatch detected. Ignoring playback request.`);
+      logWithTimestamp(`[LOAD TRACK] Session mismatch. Stopping playback for session ID: ${sessionId}`);
+      await stopPlayback(sessionId);
       return;
     }
 
     isPlaying = true;
-    console.log(`[LOAD TRACK] Playback started for: ${filePath}`);
-    await startProgressUpdater();
-    highlightCurrentTrack();
+    logWithTimestamp(`[LOAD TRACK] Playback started successfully for: ${filePath}`);
     updateTrackScroller(filePath);
-  } catch (err) {
-    console.error(`[LOAD TRACK] Error starting playback: ${err.message}`);
+
+    if (trackDuration > 0) {
+      logWithTimestamp(`[LOAD TRACK] Track duration set to ${trackDuration}s.`);
+    } else {
+      logWithTimestamp(`[LOAD TRACK] Track duration is unavailable.`);
+    }
+
+    await startProgressUpdater(trackDuration); // Pass track duration to progress updater
+  } catch (error) {
+    logWithTimestamp(`[LOAD TRACK] Error: ${error.message}`);
+  } finally {
+    isLoading = false;
   }
 }
 
+
 export async function stopPlayback(requestedSessionId = null) {
-  console.log(`[STOP PLAYBACK] Stopping playback for session: ${requestedSessionId || activeSessionId}`);
+  logWithTimestamp(`[STOP PLAYBACK] Stop requested for session: ${requestedSessionId}`);
+
+  if (requestedSessionId && requestedSessionId !== activeSessionId) {
+    logWithTimestamp(`[STOP PLAYBACK] Ignoring stop request for non-active session: ${requestedSessionId}`);
+    return;
+  }
+
+  logWithTimestamp(`[STOP PLAYBACK] Stopping playback for active session: ${activeSessionId}`);
   isPlaying = false;
 
-  clearProgressUpdater();
-
   try {
-    await audioPlayer.stopPlayback(requestedSessionId || activeSessionId);
-    console.log(`[STOP PLAYBACK] Playback successfully stopped.`);
+    await audioPlayer.stopPlayback();
+    logWithTimestamp(`[STOP PLAYBACK] Playback stopped successfully for session: ${activeSessionId}`);
   } catch (err) {
-    console.error(`[STOP PLAYBACK] Error stopping playback: ${err.message}`);
+    logWithTimestamp(`[STOP PLAYBACK] Error stopping playback: ${err.message}`);
+  } finally {
+    if (requestedSessionId === activeSessionId || requestedSessionId === null) {
+      logWithTimestamp(`[STOP PLAYBACK] Clearing active session: ${activeSessionId}`);
+      activeSessionId = null;
+    }
   }
+}
+
+function logWithTimestamp(message) {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${message}`);
 }
 
 export function restoreLastTrack() {
   const currentTrackInfo = JSON.parse(localStorage.getItem("currentTrackInfo"));
 
   if (currentTrackInfo) {
-    console.log(`[RESTORE TRACK] Restoring track:`, currentTrackInfo);
+    logWithTimestamp(`[RESTORE TRACK] Restoring track: ${JSON.stringify(currentTrackInfo)}`);
     setCurrentPlaylist(currentTrackInfo.playlistName);
 
     const trackIndex = currentPlaylist.findIndex((t) => t.path === currentTrackInfo.trackPath);
     if (trackIndex !== -1) {
       setCurrentTrackIndex(trackIndex);
-      loadTrack(currentTrackInfo.trackPath);
+      loadTrack(currentTrackInfo.trackPath).catch((err) => {
+        logWithTimestamp(`[RESTORE TRACK] Error restoring track: ${err.message}`);
+      });
     } else {
-      console.warn(`[RESTORE TRACK] Track not found in playlist.`);
+      logWithTimestamp(`[RESTORE TRACK] Track not found in playlist.`);
     }
   }
 }
 
-export function playTrack(filePath) {
-  console.log(`[PLAY TRACK] Playing track: ${filePath}`);
-  loadTrack(filePath);
+export function playTrack() {
+  if (currentTrackPath) {
+    logWithTimestamp(`[PLAY TRACK] Resuming track: ${currentTrackPath}`);
+    loadTrack(currentTrackPath);
+  } else {
+    logWithTimestamp("[PLAY TRACK] No track is currently selected.");
+  }
 }
 
 export function stopTrack() {
-  console.log(`[STOP TRACK] Stopping track.`);
+  logWithTimestamp(`[STOP TRACK] Stopping track.`);
   stopPlayback();
 }
 
 export function nextTrack() {
   if (!currentPlaylist.length) {
-    console.warn(`[NEXT TRACK] No playlist loaded.`);
+    logWithTimestamp(`[NEXT TRACK] No playlist loaded.`);
     return;
   }
 
   currentTrackIndex = (currentTrackIndex + 1) % currentPlaylist.length;
-  console.log(`[NEXT TRACK] Switching to track index ${currentTrackIndex}.`);
+  logWithTimestamp(`[NEXT TRACK] Switching to track index ${currentTrackIndex}.`);
   loadTrack(currentPlaylist[currentTrackIndex].path);
 }
 
 export function prevTrack() {
   if (!currentPlaylist.length) {
-    console.warn(`[PREV TRACK] No playlist loaded.`);
+    logWithTimestamp(`[PREV TRACK] No playlist loaded.`);
     return;
   }
 
   currentTrackIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-  console.log(`[PREV TRACK] Switching to track index ${currentTrackIndex}.`);
+  logWithTimestamp(`[PREV TRACK] Switching to track index ${currentTrackIndex}.`);
   loadTrack(currentPlaylist[currentTrackIndex].path);
 }
 
@@ -145,28 +187,14 @@ function formatTime(seconds) {
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 }
 
-async function startProgressUpdater() {
+async function startProgressUpdater(trackDuration) {
   clearProgressUpdater();
-  console.log(`[PROGRESS UPDATER] Starting progress updater for: ${currentTrackPath}`);
-
-  for (let retries = 0; retries < 10; retries++) {
-    const progressBar = document.getElementById("progress-bar");
-    const timeDisplay = document.getElementById("time-display");
-
-    if (progressBar && timeDisplay) {
-      console.log("[PROGRESS UPDATER] DOM elements ready.");
-      break;
-    }
-
-    console.warn(`[PROGRESS UPDATER] DOM elements not ready. Retrying... (${retries + 1}/10)`);
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
 
   const progressBar = document.getElementById("progress-bar");
   const timeDisplay = document.getElementById("time-display");
 
   if (!progressBar || !timeDisplay) {
-    console.error("[PROGRESS UPDATER] Failed to initialize: Required DOM elements not found.");
+    logWithTimestamp("[PROGRESS UPDATER] Required DOM elements not found.");
     return;
   }
 
@@ -174,29 +202,39 @@ async function startProgressUpdater() {
     try {
       const { currentTime, duration } = await audioPlayer.getCurrentTime();
 
-      if (progressBar && timeDisplay && duration > 0) {
-        progressBar.style.width = `${(currentTime / duration) * 100}%`;
-        timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-        console.log(`[PROGRESS UPDATER] Updated progress: ${currentTime} / ${duration}`);
+      // Use passed trackDuration as a fallback if duration is unavailable
+      const effectiveDuration = duration > 0 ? duration : trackDuration;
+
+      if (effectiveDuration > 0) {
+        const progressPercent = (currentTime / effectiveDuration) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+        timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(effectiveDuration)}`;
+        logWithTimestamp(
+          `[PROGRESS UPDATER] Progress: ${currentTime.toFixed(2)}s / ${effectiveDuration.toFixed(2)}s`
+        );
       } else {
-        console.warn("[PROGRESS UPDATER] Timer and progress bar not initialized.");
+        timeDisplay.textContent = "00:00 / 00:00";
+        progressBar.style.width = "0%";
+        logWithTimestamp("[PROGRESS UPDATER] Duration unavailable, showing default.");
       }
     } catch (error) {
-      console.error(`[PROGRESS UPDATER] Error updating progress: ${error.message}`);
+      logWithTimestamp(`[PROGRESS UPDATER] Error updating progress: ${error.message}`);
     }
   }, 500);
 }
 
+
+
+
 function clearProgressUpdater() {
   if (progressInterval) {
-    console.log(`[PROGRESS UPDATER] Clearing existing progress updater.`);
     clearInterval(progressInterval);
     progressInterval = null;
   }
 }
 
 function highlightCurrentTrack() {
-  console.log(`[HIGHLIGHT TRACK] Highlighting track: ${currentTrackPath}`);
+  logWithTimestamp(`[HIGHLIGHT TRACK] Highlighting track: ${currentTrackPath}`);
   const playlistTracks = document.querySelectorAll(".track");
   playlistTracks.forEach((trackElement) => {
     if (trackElement.dataset.path === currentTrackPath) {
@@ -210,10 +248,26 @@ function highlightCurrentTrack() {
 
 function updateTrackScroller(filePath) {
   const scroller = document.getElementById("track-scroller");
+  const trackTitle = document.getElementById("track-title");
+
   if (scroller) {
-    scroller.textContent = `Playing: ${filePath.split("\\").pop()}`;
-    console.log(`[TRACK SCROLLER] Updated scroller with: ${filePath}`);
+    const trackName = filePath.split("\\").pop();
+    scroller.textContent = `Playing: ${trackName}`;
+    logWithTimestamp(`[TRACK SCROLLER] Updated scroller with: ${trackName}`);
   } else {
-    console.warn("[TRACK SCROLLER] Scroller element not found.");
+    logWithTimestamp("[TRACK SCROLLER] Scroller element not found.");
   }
+
+  if (trackTitle) {
+    trackTitle.textContent = filePath ? `Now Playing: ${filePath.split("\\").pop()}` : "No track playing";
+    logWithTimestamp(`[TRACK TITLE] Updated track title to: ${trackTitle.textContent}`);
+  }
+}
+
+export function getCurrentTrackPath() {
+  return currentTrackPath;
+}
+
+export function getIsPlaying() {
+  return isPlaying;
 }

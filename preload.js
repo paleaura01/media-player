@@ -3,7 +3,7 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("audioPlayer", {
-  playTrack: (filePath, config) => ipcRenderer.invoke("audio:playTrack", filePath, config),
+  playTrack: (filePath, config, sessionId) => ipcRenderer.invoke("audio:playTrack", filePath, config, sessionId),
   stopPlayback: () => ipcRenderer.invoke("audio:stopPlayback"),
   getCurrentTime: () => ipcRenderer.invoke("audio:getCurrentTime"),
   on: (channel, listener) => {
@@ -13,7 +13,6 @@ contextBridge.exposeInMainWorld("audioPlayer", {
     }
   },
 });
-
 
 
 contextBridge.exposeInMainWorld("electron", {
