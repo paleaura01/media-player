@@ -1,0 +1,42 @@
+cmake_minimum_required(VERSION 3.10)
+project(media_player)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -O2")
+
+# If you didn't integrate vcpkg, you'd pass -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg.cmake when invoking cmake
+# For example:
+# cmake -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg.cmake -A x64 ..
+
+# Find SDL2 and FFmpeg using find_package or find_library. vcpkg provides SDL2 config:
+find_package(SDL2 CONFIG REQUIRED)
+
+# FFmpeg might need manual linking. After vcpkg install ffmpeg, you can find libs like:
+# Use pkg-config on Linux or manually specify on Windows:
+find_library(AVFORMAT_LIB avformat)
+find_library(AVCODEC_LIB avcodec)
+find_library(AVUTIL_LIB avutil)
+find_library(SWSCALE_LIB swscale)
+find_library(SWRESAMPLE_LIB swresample)
+
+include_directories(${SDL2_INCLUDE_DIRS})
+
+add_executable(media_player 
+    src/main.cpp
+    src/player.cpp 
+    src/player.h
+    src/state_manager.cpp 
+    src/state_manager.h
+    src/bluetooth_server.cpp
+    src/bluetooth_server.h
+    src/protocol.cpp
+    src/protocol.h
+)
+
+target_link_libraries(media_player PRIVATE SDL2::SDL2 ${AVFORMAT_LIB} ${AVCODEC_LIB} ${AVUTIL_LIB} ${SWSCALE_LIB} ${SWRESAMPLE_LIB})
+
+# On Linux, set RPATH so that .so files in "lib" directory next to the executable can be found:
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
+
+install(TARGETS media_player RUNTIME DESTINATION .)
