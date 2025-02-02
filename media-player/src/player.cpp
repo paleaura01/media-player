@@ -102,6 +102,30 @@ void Player::update() {
         else if (event.type == SDL_MOUSEBUTTONDOWN) {
             handleMouseClick(event.button.x, event.button.y);
         }
+        else if (event.type == SDL_DROPFILE) {
+            handleFileDrop(event.drop.file);
+            SDL_free(event.drop.file);  // Free the file path
+        }
+        else if (event.type == SDL_TEXTINPUT && isRenaming) {
+            renameBuffer += event.text.text;
+        }
+        else if (event.type == SDL_KEYDOWN && isRenaming) {
+            if (event.key.keysym.sym == SDLK_RETURN) {
+                // Save the new name
+                if (renameIndex >= 0 && renameIndex < (int)playlists.size()) {
+                    playlists[renameIndex].name = renameBuffer;
+                }
+                isRenaming = false;
+                SDL_StopTextInput();
+            }
+            else if (event.key.keysym.sym == SDLK_BACKSPACE && !renameBuffer.empty()) {
+                renameBuffer.pop_back();
+            }
+            else if (event.key.keysym.sym == SDLK_ESCAPE) {
+                isRenaming = false;
+                SDL_StopTextInput();
+            }
+        }
     }
 
     // Update current time
@@ -109,11 +133,11 @@ void Player::update() {
         currentTime = lastPTS.load(std::memory_order_relaxed);
 
         // === Detect end of song ===
-if ((currentTime >= totalDuration && totalDuration > 0) || reachedEOF.load(std::memory_order_relaxed)) {
-    std::cout << "[Debug] Track finished. Moving to next song...\n";
-    reachedEOF.store(false, std::memory_order_relaxed);  // Reset the flag
-    playNextTrack();
-}
+        if ((currentTime >= totalDuration && totalDuration > 0) || reachedEOF.load(std::memory_order_relaxed)) {
+            std::cout << "[Debug] Track finished. Moving to next song...\n";
+            reachedEOF.store(false, std::memory_order_relaxed);  // Reset the flag
+            playNextTrack();
+        }
     }
 
     // UI Rendering
