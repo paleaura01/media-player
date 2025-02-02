@@ -7,6 +7,15 @@
     <ClCompile Include="D:\Github\media-player\media-player\src\player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Github\media-player\media-player\src\player_ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Github\media-player\media-player\src\player_playlists.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Github\media-player\media-player\src\player_audio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="D:\Github\media-player\media-player\src\bluetooth_server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

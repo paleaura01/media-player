@@ -1,62 +1,48 @@
+#CMakeLists.txt
 cmake_minimum_required(VERSION 3.10)
 project(media_player)
 
-# Set the C++ standard.
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set warning and optimization flags.
-if(MSVC)
-    add_compile_options(/W4 /O2)
-else()
-    add_compile_options(-Wall -Wextra -O2)
-endif()
-
-# --- vcpkg integration ---
+# If using vcpkg or another dependency manager, ensure everything is found:
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 find_package(SDL2_mixer CONFIG REQUIRED)
 
-# Optionally find FFmpeg libraries.
+# Locate FFmpeg libraries
 find_library(AVFORMAT_LIB avformat)
 find_library(AVCODEC_LIB avcodec)
 find_library(AVUTIL_LIB avutil)
 find_library(SWSCALE_LIB swscale)
 find_library(SWRESAMPLE_LIB swresample)
 
-if(NOT AVFORMAT_LIB)
-    message(WARNING "FFmpeg avformat library not found; ensure FFmpeg is installed if needed.")
-endif()
-
-# Create the executable target.
-add_executable(media_player 
+add_executable(media_player
     src/main.cpp
-    src/player.cpp 
+    src/player.cpp            # The "orchestrator"
+    src/player_ui.cpp         # UI code
+    src/player_playlists.cpp  # Playlist code
+    src/player_audio.cpp      # Audio code
     src/bluetooth_server.cpp
     src/protocol.cpp
     src/state_manager.cpp
 )
 
-# For a GUI application, force the Windows subsystem.
+# On Windows, we can hide the console if desired.
 if(MSVC)
     set_target_properties(media_player PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
-target_link_libraries(media_player PRIVATE 
-    SDL2::SDL2 
-    SDL2_ttf::SDL2_ttf 
-    SDL2_mixer::SDL2_mixer 
-    ${AVFORMAT_LIB} 
-    ${AVCODEC_LIB} 
-    ${AVUTIL_LIB} 
-    ${SWSCALE_LIB} 
+target_link_libraries(media_player PRIVATE
+    SDL2::SDL2
+    SDL2_ttf::SDL2_ttf
+    SDL2_mixer::SDL2_mixer
+    ${AVFORMAT_LIB}
+    ${AVCODEC_LIB}
+    ${AVUTIL_LIB}
+    ${SWSCALE_LIB}
     ${SWRESAMPLE_LIB}
 )
-
-if(UNIX)
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
-endif()
 
 install(TARGETS media_player RUNTIME DESTINATION .)
