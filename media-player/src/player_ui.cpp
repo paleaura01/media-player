@@ -80,12 +80,14 @@ void Player::drawControls() {
     // === PLAY BUTTON ("Play")
     SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
     SDL_RenderFillRect(renderer, &playButton);
-    {
-        SDL_Texture* playLabel = renderText("Play", white);
-        if (playLabel) {
-            renderButtonText(playLabel, playButton);
-            SDL_DestroyTexture(playLabel);
-        }
+    // Decide label
+    const char* label = (playingAudio) ? "Pause" : "Play";
+
+    // Render text
+    SDL_Texture* playLabel = renderText(label, white);
+    if (playLabel) {
+        renderButtonText(playLabel, playButton);
+        SDL_DestroyTexture(playLabel);
     }
 
     // === NEXT BUTTON (">>")
@@ -96,17 +98,6 @@ void Player::drawControls() {
         if (nextTxt) {
             renderButtonText(nextTxt, nextButton);
             SDL_DestroyTexture(nextTxt);
-        }
-    }
-
-    // === STOP BUTTON ("Stop")
-    SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
-    SDL_RenderFillRect(renderer, &stopButton);
-    {
-        SDL_Texture* stopLabel = renderText("Stop", white);
-        if (stopLabel) {
-            renderButtonText(stopLabel, stopButton);
-            SDL_DestroyTexture(stopLabel);
         }
     }
 

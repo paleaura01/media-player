@@ -17,13 +17,12 @@ Player::Player()
     timeBar = { 10, 10, 780, 20 };
     // Transport buttons
     prevButton    = { 10,  40, 40, 40 };
-    playButton    = { 60,  40, 80, 40 };
-    nextButton    = { 145, 40, 40, 40 };
-    stopButton    = { 190, 40, 80, 40 };
-    shuffleButton = { 275, 40, 80, 40 };
-    muteButton    = { 360, 40, 80, 40 };
-    rewindButton  = { 445, 40, 40, 40 };
-    forwardButton = { 490, 40, 40, 40 };
+    playButton    = { 55,  40, 80, 40 };
+    nextButton    = { 140, 40, 40, 40 };
+    shuffleButton = { 235, 40, 80, 40 };
+    muteButton    = { 320, 40, 80, 40 };
+    rewindButton  = { 405, 40, 40, 40 };
+    forwardButton = { 450, 40, 40, 40 };
     volumeBar     = { 545, 40, 240, 40 };
 
     // Panels

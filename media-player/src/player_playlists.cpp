@@ -263,9 +263,20 @@ void Player::handleMouseClick(int x, int y) {
             }
         }
     }
+    } else if (x >= playButton.x && x <= playButton.x + playButton.w) {
+    // Toggle Play/Pause if we have a file loaded
+    if (!loadedFile.empty()) {
+        if (playingAudio) {
+            // If currently playing, pause
+            stopAudio();  // we can reuse "stopAudio()" to pause
+        } else {
+            // If currently paused/stopped, resume or start playing
+            playAudio();
+        }
+    }
 
-        } else if (x >= stopButton.x && x <= stopButton.x + stopButton.w) {
-            stopAudio();
+
+
         } else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
             isShuffled = !isShuffled;
         } else if (x >= muteButton.x && x <= muteButton.x + muteButton.w) {

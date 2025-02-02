@@ -126,11 +126,14 @@ void Player::playAudio() {
 }
 
 void Player::stopAudio() {
+    // "Pause" audio
     if (audioDev != 0 && playingAudio) {
         SDL_PauseAudioDevice(audioDev, 1);
         playingAudio = false;
     }
 }
+
+
 
 void Player::sdlAudioCallback(void* userdata, Uint8* stream, int len) {
     Player* player = static_cast<Player*>(userdata);

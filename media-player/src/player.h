@@ -43,7 +43,6 @@ private:
     SDL_Rect prevButton;
     SDL_Rect playButton;
     SDL_Rect nextButton;
-    SDL_Rect stopButton;
     SDL_Rect shuffleButton;
     SDL_Rect muteButton;
     SDL_Rect newPlaylistButton;
