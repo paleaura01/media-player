@@ -54,6 +54,7 @@ private:
     std::vector<Playlist> playlists;
     std::vector<SDL_Rect> playlistRects;
     std::vector<SDL_Rect> playlistDeleteRects;
+    std::vector<SDL_Rect> songRects;
     int activePlaylist;
     void savePlaylistState();
     void loadPlaylistState();

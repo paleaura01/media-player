@@ -74,7 +74,7 @@ void Player::handleFileDrop(const char* filePath) {
 }
 
 void Player::handleMouseClick(int x, int y) {
-    // 1) Check if clicked "New Playlist"
+    // 1) Check the “New Playlist” button
     if (x >= newPlaylistButton.x && x <= newPlaylistButton.x + newPlaylistButton.w &&
         y >= newPlaylistButton.y && y <= newPlaylistButton.y + newPlaylistButton.h) 
     {
@@ -82,50 +82,61 @@ void Player::handleMouseClick(int x, int y) {
         return;
     }
 
-    // 2) Check if we clicked any existing playlist row or "X" button
+    // 2) Check if we clicked a playlist row or "X"
     for (size_t i = 0; i < playlists.size(); i++) {
-        // The delete "X" button for this playlist
         SDL_Rect del = playlistDeleteRects[i];
         if (x >= del.x && x <= del.x + del.w &&
             y >= del.y && y <= del.y + del.h)
         {
-            // Delete this playlist
+            // Deleting a playlist
             playlists.erase(playlists.begin() + i);
             playlistRects.erase(playlistRects.begin() + i);
             playlistDeleteRects.erase(playlistDeleteRects.begin() + i);
 
-            // If we just deleted the active playlist, reset activePlaylist
-            if (static_cast<int>(i) == activePlaylist) {
+            if ((int)i == activePlaylist) {
                 activePlaylist = -1;
-            }
-            // Also if we deleted a playlist before the active one,
-            // shift the activePlaylist index down by 1
-            else if (static_cast<int>(i) < activePlaylist) {
+            } else if ((int)i < activePlaylist) {
                 activePlaylist--;
             }
-            return; // Done handling this click
+            return;
         }
 
-        // The main playlist row
+        // Check if we clicked the main playlist row
         SDL_Rect row = playlistRects[i];
         if (x >= row.x && x <= row.x + row.w &&
             y >= row.y && y <= row.y + row.h)
         {
-            // Make this playlist active
-            activePlaylist = static_cast<int>(i);
-            return; // done handling
+            activePlaylist = (int)i;
+            return;
         }
     }
 
-    // 3) Check if clicked any playback controls (like prev, play, stop, etc.)
-    //    This code is already in your handleMouseClick. For example:
+    // 3) Check if we clicked a song in the active playlist
+    if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
+        // We have some songs, let's see if we clicked on them
+        for (size_t songIndex = 0; songIndex < songRects.size(); songIndex++) {
+            SDL_Rect sRect = songRects[songIndex];
+            if (x >= sRect.x && x <= sRect.x + sRect.w &&
+                y >= sRect.y && y <= sRect.y + sRect.h)
+            {
+                // We clicked on this song
+                const std::string& path = playlists[activePlaylist].songs[songIndex];
+                if (loadAudioFile(path)) {
+                    playAudio();
+                }
+                return;
+            }
+        }
+    }
+
+    // 4) Check if we clicked playback controls, etc.
     if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
         if (x >= prevButton.x && x <= prevButton.x + prevButton.w) {
-            // previous track logic
+            // Prev track
         } else if (x >= playButton.x && x <= playButton.x + playButton.w) {
             if (!loadedFile.empty()) playAudio();
         } else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
-            // next track logic
+            // Next track
         } else if (x >= stopButton.x && x <= stopButton.x + stopButton.w) {
             stopAudio();
         } else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {

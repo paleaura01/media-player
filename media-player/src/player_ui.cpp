@@ -227,6 +227,9 @@ void Player::drawPlaylistPanel() {
 
 // Draw the **songs** for the active playlist in the right-side panel
 void Player::drawSongPanel() {
+    // Clear old song rects
+    songRects.clear();
+
     // Dark background for the library (song) panel
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderFillRect(renderer, &libraryPanel);
@@ -235,8 +238,8 @@ void Player::drawSongPanel() {
     if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
         SDL_Color white = {255, 255, 255, 255};
 
-        // Start just under the top of the library panel
         int yOffset = libraryPanel.y + 10;
+        // For each song in the active playlist
         for (auto& song : playlists[activePlaylist].songs) {
             SDL_Rect songRect = {
                 libraryPanel.x + 10, 
@@ -246,6 +249,9 @@ void Player::drawSongPanel() {
             };
             SDL_SetRenderDrawColor(renderer, 45, 45, 45, 255);
             SDL_RenderFillRect(renderer, &songRect);
+
+            // Push back so handleMouseClick() can know the clickable rect
+            songRects.push_back(songRect);
 
             // Show only the filename portion
             std::string filename = song.substr(song.find_last_of("/\\") + 1);
@@ -261,6 +267,7 @@ void Player::drawSongPanel() {
                 SDL_RenderCopy(renderer, songText, nullptr, &dest);
                 SDL_DestroyTexture(songText);
             }
+
             yOffset += songRect.h + 2;
         }
     }
