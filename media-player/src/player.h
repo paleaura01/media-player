@@ -25,7 +25,6 @@ public:
     bool init();       // Sets up SDL, TTF, etc.
     void update();     // Main loop body: handles events, draws UI, etc.
     void shutdown();   // Cleans up everything.
-
     bool isRunning() const;
 
 private:
@@ -35,6 +34,7 @@ private:
     SDL_Rect timeBar;
     SDL_Rect volumeBar;
     SDL_Rect playlistPanel;
+    SDL_Rect libraryPanel;     // <-- NEW: right-side panel for songs
     SDL_Rect mainPanel;
 
     // Buttons
@@ -89,6 +89,7 @@ private:
     void drawTimeBar();
     void drawControls();
     void drawPlaylistPanel();
+    void drawSongPanel();      // <-- NEW: draws the songs in active playlist
 
     // Playlist
     void handleMouseClick(int x, int y);

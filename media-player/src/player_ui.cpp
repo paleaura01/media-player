@@ -43,7 +43,7 @@ void Player::drawTimeBar() {
         SDL_RenderFillRect(renderer, &progress);
     }
     
-    // Text
+    // Text: current time vs total time
     char timeText[32];
     int curMin = static_cast<int>(currentTime / 60);
     int curSec = static_cast<int>(currentTime) % 60;
@@ -126,8 +126,9 @@ void Player::drawControls() {
     SDL_DestroyTexture(muteText);
 }
 
-// Draw the playlist panel on the left side
+// Draw only the **list of playlists** on the left side
 void Player::drawPlaylistPanel() {
+    // Dark background for the playlist panel
     SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
     SDL_RenderFillRect(renderer, &playlistPanel);
 
@@ -149,13 +150,16 @@ void Player::drawPlaylistPanel() {
         SDL_DestroyTexture(newPlaylistText);
     }
 
-    // Show each playlist
+    // Draw each playlist name
     int yOffset = newPlaylistButton.y + newPlaylistButton.h + 10;
     for (size_t i = 0; i < playlists.size(); i++) {
         SDL_Rect playlistRect = {
-            playlistPanel.x + 5, yOffset,
-            playlistPanel.w - 10, 25
+            playlistPanel.x + 5, 
+            yOffset,
+            playlistPanel.w - 10, 
+            25
         };
+        // Highlight if it's the active playlist
         if (static_cast<int>(i) == activePlaylist) {
             SDL_SetRenderDrawColor(renderer, 60, 100, 60, 255);
         } else {
@@ -176,34 +180,46 @@ void Player::drawPlaylistPanel() {
             SDL_DestroyTexture(playlistName);
         }
         yOffset += playlistRect.h + 5;
+    }
+}
 
-        // If it's the active playlist, draw the songs
-        if (static_cast<int>(i) == activePlaylist) {
-            for (const auto& song : playlists[i].songs) {
-                SDL_Rect songRect = {
-                    playlistPanel.x + 15, yOffset,
-                    playlistPanel.w - 20, 20
+// Draw the **songs** for the active playlist in the right-side panel
+void Player::drawSongPanel() {
+    // Dark background for the library (song) panel
+    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+    SDL_RenderFillRect(renderer, &libraryPanel);
+
+    // If we have an active playlist, show its songs
+    if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
+        SDL_Color white = {255, 255, 255, 255};
+
+        // Start just under the top of the library panel
+        int yOffset = libraryPanel.y + 10;
+        for (auto& song : playlists[activePlaylist].songs) {
+            SDL_Rect songRect = {
+                libraryPanel.x + 10, 
+                yOffset, 
+                libraryPanel.w - 20, 
+                25
+            };
+            SDL_SetRenderDrawColor(renderer, 45, 45, 45, 255);
+            SDL_RenderFillRect(renderer, &songRect);
+
+            // Show only the filename portion
+            std::string filename = song.substr(song.find_last_of("/\\") + 1);
+            SDL_Texture* songText = renderText(filename, white);
+            if (songText) {
+                int w, h;
+                SDL_QueryTexture(songText, nullptr, nullptr, &w, &h);
+                SDL_Rect dest = {
+                    songRect.x + 5,
+                    songRect.y + (songRect.h - h) / 2,
+                    w, h
                 };
-                SDL_SetRenderDrawColor(renderer, 45, 45, 45, 255);
-                SDL_RenderFillRect(renderer, &songRect);
-
-                // Show filename only
-                std::string filename = song.substr(song.find_last_of("/\\") + 1);
-                SDL_Texture* songText = renderText(filename, white);
-                if (songText) {
-                    int w, h;
-                    SDL_QueryTexture(songText, nullptr, nullptr, &w, &h);
-                    SDL_Rect dest = {
-                        songRect.x + 5,
-                        songRect.y + (songRect.h - h) / 2,
-                        w, h
-                    };
-                    SDL_RenderCopy(renderer, songText, nullptr, &dest);
-                    SDL_DestroyTexture(songText);
-                }
-                yOffset += songRect.h + 2;
+                SDL_RenderCopy(renderer, songText, nullptr, &dest);
+                SDL_DestroyTexture(songText);
             }
-            yOffset += 10;
+            yOffset += songRect.h + 2;
         }
     }
 }
