@@ -3,6 +3,7 @@
 #define PLAYER_H
 
 #include <string>
+#include <vector>
 #include <SDL.h>
 #include <SDL_ttf.h>
 
@@ -18,66 +19,75 @@ class Player {
 public:
     Player();
     ~Player();
-
-    // Initialize SDL (video and audio), FFmpeg, window, renderer, font, and the audio device.
     bool init();
-
-    // Process events, update the GUI, and handle audio decoding/playback.
     void update();
-
-    // Clean up all resources.
     void shutdown();
-
-    // Returns whether the player is still running.
     bool isRunning() const;
 
 private:
     bool running;
 
-    // SDL objects.
+    // UI Components
+    SDL_Rect timeBar;
+    SDL_Rect volumeBar;
+    SDL_Rect playlistPanel;
+    SDL_Rect mainPanel;
+    
+    // Buttons
+    SDL_Rect prevButton;
+    SDL_Rect playButton;
+    SDL_Rect nextButton;
+    SDL_Rect stopButton;
+    SDL_Rect shuffleButton;
+    SDL_Rect muteButton;
+    SDL_Rect newPlaylistButton;
+    
+    // Playlist management
+    struct Playlist {
+        std::string name;
+        std::vector<std::string> songs;
+    };
+    std::vector<Playlist> playlists;
+    int activePlaylist;
+    
+    // Playback tracking
+    double currentTime;
+    double totalDuration;
+    bool isMuted;
+    bool isShuffled;
+
+    // SDL objects
     SDL_Window* window;
     SDL_Renderer* renderer;
     TTF_Font* font;
 
-    // GUI button rectangles.
-    SDL_Rect playButton;
-    SDL_Rect stopButton;
-
-    // FFmpeg decoding members.
+    // FFmpeg members
     AVFormatContext* fmtCtx;
     AVCodecContext* codecCtx;
     SwrContext* swrCtx;
     int audioStreamIndex;
     AVPacket* packet;
     AVFrame* frame;
-
-    // Audio output buffer (decoded/resampled to S16 stereo at 44100 Hz).
     uint8_t* audioBuffer;
     int audioBufferSize;
     int audioBufferIndex;
-
-    // SDL audio device.
     SDL_AudioDeviceID audioDev;
-
-    // Playback state.
     bool playingAudio;
-
-    // Currently loaded file path.
     std::string loadedFile;
 
-    // Helper: render text to an SDL_Texture.
+    // Helper methods
     SDL_Texture* renderText(const std::string &text, SDL_Color color);
-
-    // Load an audio file using FFmpeg.
+    void renderButtonText(SDL_Texture* texture, const SDL_Rect& button);
     bool loadAudioFile(const std::string &filename);
-
-    // Start and stop audio playback (using SDL_PauseAudioDevice).
     void playAudio();
     void stopAudio();
-
-    // Audio callback: decodes audio frames and fills the output stream.
     void audioCallback(Uint8* stream, int len);
     static void sdlAudioCallback(void* userdata, Uint8* stream, int len);
+    void drawTimeBar();
+    void drawControls();
+    void drawPlaylistPanel();
+    void handlePlaylistCreation();
+    void calculateSongDuration();
 };
 
 #endif // PLAYER_H

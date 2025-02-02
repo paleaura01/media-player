@@ -4,21 +4,108 @@
 #include <libavutil/mathematics.h>    // For av_popcount64 if needed
 #include <libavutil/channel_layout.h>  // For AVChannelLayout and av_channel_layout_default()
 
+#include "player.h"
+#include <iostream>
+#include <cstring>
+#include <libavutil/mathematics.h>
+#include <libavutil/channel_layout.h>
+
 Player::Player() 
     : running(true), window(nullptr), renderer(nullptr), font(nullptr),
       fmtCtx(nullptr), codecCtx(nullptr), swrCtx(nullptr),
       audioStreamIndex(-1), packet(nullptr), frame(nullptr),
       audioBuffer(nullptr), audioBufferSize(0), audioBufferIndex(0),
-      audioDev(0), playingAudio(false), loadedFile("")
+      audioDev(0), playingAudio(false), loadedFile(""),
+      currentTime(0), totalDuration(0), isMuted(false), isShuffled(false),
+      activePlaylist(-1)
 {
-    // Set button positions and sizes.
-    playButton = { 50, 500, 150, 50 };
-    stopButton = { 250, 500, 150, 50 };
+    // Main window sections
+    playlistPanel = { 0, 100, 200, 500 };
+    mainPanel = { 200, 100, 600, 500 };
+    
+    // Control buttons (top panel)
+    prevButton = { 210, 20, 40, 40 };
+    playButton = { 260, 20, 40, 40 };
+    nextButton = { 310, 20, 40, 40 };
+    stopButton = { 360, 20, 40, 40 };
+    shuffleButton = { 410, 20, 40, 40 };
+    muteButton = { 460, 20, 40, 40 };
+    
+    // Time bar
+    timeBar = { 210, 70, 540, 20 };
+    volumeBar = { 510, 20, 80, 40 };
+    
+    // Playlist controls
+    newPlaylistButton = { 10, 60, 180, 30 };
 }
 
 Player::~Player() {
     shutdown();
 }
+
+void Player::renderButtonText(SDL_Texture* texture, const SDL_Rect& button) {
+    if (texture) {
+        int w, h;
+        SDL_QueryTexture(texture, nullptr, nullptr, &w, &h);
+        SDL_Rect dest = { 
+            button.x + (button.w - w) / 2,
+            button.y + (button.h - h) / 2,
+            w, h 
+        };
+        SDL_RenderCopy(renderer, texture, nullptr, &dest);
+    }
+}
+
+void Player::drawControls() {
+    SDL_Color white = {255, 255, 255, 255};
+    
+    // Previous button
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &prevButton);
+    SDL_Texture* prevText = renderText("<<", white);
+    
+    // Play button
+    SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
+    SDL_RenderFillRect(renderer, &playButton);
+    SDL_Texture* playText = renderText(playingAudio ? "||" : ">", white);
+    
+    // Next button
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &nextButton);
+    SDL_Texture* nextText = renderText(">>", white);
+    
+    // Stop button
+    SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &stopButton);
+    SDL_Texture* stopText = renderText("□", white);
+    
+    // Shuffle button
+    SDL_SetRenderDrawColor(renderer, isShuffled ? 0, 200, 0 : 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &shuffleButton);
+    SDL_Texture* shuffleText = renderText("🔀", white);
+    
+    // Mute button
+    SDL_SetRenderDrawColor(renderer, isMuted ? 200, 0, 0 : 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &muteButton);
+    SDL_Texture* muteText = renderText(isMuted ? "🔇" : "🔊", white);
+    
+    // Render all button texts
+    renderButtonText(prevText, prevButton);
+    renderButtonText(playText, playButton);
+    renderButtonText(nextText, nextButton);
+    renderButtonText(stopText, stopButton);
+    renderButtonText(shuffleText, shuffleButton);
+    renderButtonText(muteText, muteButton);
+    
+    // Clean up
+    SDL_DestroyTexture(prevText);
+    SDL_DestroyTexture(playText);
+    SDL_DestroyTexture(nextText);
+    SDL_DestroyTexture(stopText);
+    SDL_DestroyTexture(shuffleText);
+    SDL_DestroyTexture(muteText);
+}
+
 
 bool Player::init() {
     // Initialize FFmpeg networking (optional).
@@ -88,6 +175,12 @@ SDL_Texture* Player::renderText(const std::string &text, SDL_Color color) {
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
     return texture;
+}
+
+void Player::handlePlaylistCreation() {
+    std::string name = "Playlist " + std::to_string(playlists.size() + 1);
+    playlists.push_back({name, std::vector<std::string>()});
+    activePlaylist = playlists.size() - 1;
 }
 
 void Player::sdlAudioCallback(void* userdata, Uint8* stream, int len) {
@@ -312,78 +405,64 @@ void Player::update() {
         else if (event.type == SDL_MOUSEBUTTONDOWN) {
             int x = event.button.x;
             int y = event.button.y;
-            if (x >= playButton.x && x <= playButton.x + playButton.w &&
-                y >= playButton.y && y <= playButton.y + playButton.h) {
-                std::cout << "Play button pressed." << std::endl;
-                if (!loadedFile.empty()) {
-                    playAudio();
-                } else {
-                    std::cout << "No audio loaded!" << std::endl;
-                }
+            
+            // Handle playlist button
+            if (x >= newPlaylistButton.x && x <= newPlaylistButton.x + newPlaylistButton.w &&
+                y >= newPlaylistButton.y && y <= newPlaylistButton.y + newPlaylistButton.h) {
+                handlePlaylistCreation();
             }
-            if (x >= stopButton.x && x <= stopButton.x + stopButton.w &&
-                y >= stopButton.y && y <= stopButton.y + stopButton.h) {
-                std::cout << "Stop button pressed." << std::endl;
-                stopAudio();
+            
+            // Handle playback controls
+            if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
+                if (x >= prevButton.x && x <= prevButton.x + prevButton.w) {
+                    // Previous track
+                } else if (x >= playButton.x && x <= playButton.x + playButton.w) {
+                    if (!loadedFile.empty()) playAudio();
+                } else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
+                    // Next track
+                } else if (x >= stopButton.x && x <= stopButton.x + stopButton.w) {
+                    stopAudio();
+                } else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
+                    isShuffled = !isShuffled;
+                } else if (x >= muteButton.x && x <= muteButton.x + muteButton.w) {
+                    isMuted = !isMuted;
+                    // Implement volume control
+                }
             }
         }
         else if (event.type == SDL_DROPFILE) {
             char* filePath = event.drop.file;
-            std::cout << "File dropped: " << filePath << std::endl;
-            if (!loadedFile.empty()) {
-                stopAudio();
-                if (fmtCtx) {
-                    avformat_close_input(&fmtCtx);
-                    fmtCtx = nullptr;
+            if (activePlaylist >= 0) {
+                playlists[activePlaylist].songs.push_back(filePath);
+                if (playlists[activePlaylist].songs.size() == 1) {
+                    if (loadAudioFile(filePath)) {
+                        calculateSongDuration();
+                    }
                 }
-            }
-            if (!loadAudioFile(filePath)) {
-                std::cerr << "Failed to load audio file." << std::endl;
             }
             SDL_free(filePath);
         }
     }
     
-    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+    // Update current time if playing
+    if (playingAudio && fmtCtx) {
+        currentTime = (double)fmtCtx->pb->pos / (fmtCtx->bit_rate / 8);
+    }
+    
+    // Clear screen
+    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderClear(renderer);
     
-    SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
-    SDL_RenderFillRect(renderer, &playButton);
-    
-    SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
-    SDL_RenderFillRect(renderer, &stopButton);
-    
-    SDL_Color white = {255, 255, 255, 255};
-    SDL_Texture* playLabel = renderText("Play", white);
-    SDL_Texture* stopLabel = renderText("Stop", white);
-    if (playLabel) {
-        int w, h;
-        SDL_QueryTexture(playLabel, nullptr, nullptr, &w, &h);
-        SDL_Rect dest = { playButton.x + (playButton.w - w) / 2, playButton.y + (playButton.h - h) / 2, w, h };
-        SDL_RenderCopy(renderer, playLabel, nullptr, &dest);
-        SDL_DestroyTexture(playLabel);
-    }
-    if (stopLabel) {
-        int w, h;
-        SDL_QueryTexture(stopLabel, nullptr, nullptr, &w, &h);
-        SDL_Rect dest = { stopButton.x + (stopButton.w - w) / 2, stopButton.y + (stopButton.h - h) / 2, w, h };
-        SDL_RenderCopy(renderer, stopLabel, nullptr, &dest);
-        SDL_DestroyTexture(stopLabel);
-    }
-    
-    std::string status = loadedFile.empty() ? "Drop an audio file to load." : "Loaded: " + loadedFile;
-    SDL_Texture* statusLabel = renderText(status, white);
-    if (statusLabel) {
-        int w, h;
-        SDL_QueryTexture(statusLabel, nullptr, nullptr, &w, &h);
-        SDL_Rect dest = { 50, 50, w, h };
-        SDL_RenderCopy(renderer, statusLabel, nullptr, &dest);
-        SDL_DestroyTexture(statusLabel);
-    }
+    // Draw all UI components
+    drawTimeBar();
+    drawPlaylistPanel();
+    drawControls();
     
     SDL_RenderPresent(renderer);
-    SDL_Delay(16);  // ~60 FPS
+    SDL_Delay(16);
 }
+
+
 
 void Player::shutdown() {
     if (audioDev != 0) {
@@ -428,6 +507,93 @@ void Player::shutdown() {
     SDL_Quit();
     std::cout << "Player shutdown." << std::endl;
     running = false;
+}
+
+// In player.cpp - Add these missing implementation methods:
+
+void Player::drawTimeBar() {
+    // Background
+    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+    SDL_RenderFillRect(renderer, &timeBar);
+    
+    // Progress
+    if (totalDuration > 0) {
+        SDL_Rect progress = timeBar;
+        progress.w = (int)(timeBar.w * (currentTime / totalDuration));
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(renderer, &progress);
+    }
+    
+    // Time text
+    char timeText[32];
+    int currentMinutes = (int)currentTime / 60;
+    int currentSeconds = (int)currentTime % 60;
+    int totalMinutes = (int)totalDuration / 60;
+    int totalSeconds = (int)totalDuration % 60;
+    snprintf(timeText, sizeof(timeText), "%d:%02d / %d:%02d", 
+             currentMinutes, currentSeconds, totalMinutes, totalSeconds);
+    
+    SDL_Color white = {255, 255, 255, 255};
+    SDL_Texture* timeTexture = renderText(timeText, white);
+    if (timeTexture) {
+        int w, h;
+        SDL_QueryTexture(timeTexture, nullptr, nullptr, &w, &h);
+        SDL_Rect dest = { timeBar.x + (timeBar.w - w) / 2, 
+                         timeBar.y - h - 5, w, h };
+        SDL_RenderCopy(renderer, timeTexture, nullptr, &dest);
+        SDL_DestroyTexture(timeTexture);
+    }
+}
+
+void Player::drawPlaylistPanel() {
+    // Draw panel background
+    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+    SDL_RenderFillRect(renderer, &playlistPanel);
+    
+    // Draw "New Playlist" button
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &newPlaylistButton);
+    SDL_Color white = {255, 255, 255, 255};
+    SDL_Texture* newPlaylistText = renderText("New Playlist", white);
+    if (newPlaylistText) {
+        int w, h;
+        SDL_QueryTexture(newPlaylistText, nullptr, nullptr, &w, &h);
+        SDL_Rect dest = { newPlaylistButton.x + (newPlaylistButton.w - w) / 2,
+                         newPlaylistButton.y + (newPlaylistButton.h - h) / 2, w, h };
+        SDL_RenderCopy(renderer, newPlaylistText, nullptr, &dest);
+        SDL_DestroyTexture(newPlaylistText);
+    }
+    
+    // Draw playlists
+    int yOffset = newPlaylistButton.y + newPlaylistButton.h + 10;
+    for (size_t i = 0; i < playlists.size(); i++) {
+        SDL_Rect playlistRect = { playlistPanel.x + 5, yOffset, 
+                                 playlistPanel.w - 10, 25 };
+        if ((int)i == activePlaylist) {
+            SDL_SetRenderDrawColor(renderer, 60, 100, 60, 255);
+        } else {
+            SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+        }
+        SDL_RenderFillRect(renderer, &playlistRect);
+        
+        SDL_Texture* playlistName = renderText(playlists[i].name, white);
+        if (playlistName) {
+            int w, h;
+            SDL_QueryTexture(playlistName, nullptr, nullptr, &w, &h);
+            SDL_Rect dest = { playlistRect.x + 5, 
+                             playlistRect.y + (playlistRect.h - h) / 2, w, h };
+            SDL_RenderCopy(renderer, playlistName, nullptr, &dest);
+            SDL_DestroyTexture(playlistName);
+        }
+        yOffset += playlistRect.h + 5;
+    }
+}
+
+void Player::calculateSongDuration() {
+    if (fmtCtx && audioStreamIndex >= 0) {
+        int64_t duration = fmtCtx->duration + (fmtCtx->duration <= INT64_MAX - 5000 ? 5000 : 0);
+        totalDuration = duration / AV_TIME_BASE;
+    }
 }
 
 bool Player::isRunning() const {
