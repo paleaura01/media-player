@@ -15,14 +15,32 @@ Player::Player()
     // Place the time bar near the top
     timeBar = { 10, 10, 780, 20 };
 
-    // Place playback controls just below the time bar
+    // ======== Buttons with updated rectangles ========
+    // - Prev: small  (40×40)
+    // - Play: wide   (80×40)
+    // - Next: small  (40×40)
+    // - Stop, Shuffle, Mute: wide (80×40 each)
+
+    // Prev (small, "<<" symbol)
     prevButton    = { 10,  40, 40, 40 };
-    playButton    = { 60,  40, 40, 40 };
-    nextButton    = { 110, 40, 40, 40 };
-    stopButton    = { 160, 40, 40, 40 };
-    shuffleButton = { 210, 40, 40, 40 };
-    muteButton    = { 260, 40, 40, 40 };
-    volumeBar     = { 310, 40, 80, 40 };
+
+    // Play (wide, labeled "Play")
+    playButton    = { 60,  40, 80, 40 };
+
+    // Next (small, labeled ">>")
+    nextButton    = { 145, 40, 40, 40 };
+
+    // Stop (wide, labeled "Stop")
+    stopButton    = { 190, 40, 80, 40 };
+
+    // Shuffle (wide, labeled "Shuffle")
+    shuffleButton = { 275, 40, 80, 40 };
+
+    // Mute (wide, labeled "Mute")
+    muteButton    = { 360, 40, 80, 40 };
+
+    // Volume bar, optional (80×40)
+    volumeBar     = { 445, 40, 80, 40 };
 
     // Left panel for playlists
     playlistPanel = { 0, 90, 200, 510 };
@@ -30,11 +48,11 @@ Player::Player()
     libraryPanel  = { 200, 90, 600, 510 };
 
     // "New Playlist" button
-    newPlaylistButton = { 
-        playlistPanel.x + 10, 
-        playlistPanel.y + 10, 
-        playlistPanel.w - 20, 
-        30 
+    newPlaylistButton = {
+        playlistPanel.x + 10,
+        playlistPanel.y + 10,
+        playlistPanel.w - 20,
+        30
     };
     mainPanel = { 0, 0, 0, 0 }; // Not used now
 
@@ -77,7 +95,7 @@ bool Player::init() {
         std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
         return false;
     }
-    
+
     window = SDL_CreateWindow("Barebones Audio Player",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               800, 600, SDL_WINDOW_SHOWN);
@@ -85,19 +103,19 @@ bool Player::init() {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    
+
     font = TTF_OpenFont("Arial.ttf", 24);
     if (!font) {
         std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
         return false;
     }
-    
+
     // Allocate FFmpeg packet/frame
     packet = av_packet_alloc();
     frame  = av_frame_alloc();
@@ -105,7 +123,7 @@ bool Player::init() {
         std::cerr << "Failed to allocate FFmpeg packet or frame." << std::endl;
         return false;
     }
-    
+
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
     std::cout << "Initialization successful." << std::endl;
     return true;
@@ -120,7 +138,7 @@ void Player::update() {
         else if (event.type == SDL_MOUSEBUTTONDOWN) {
             int x = event.button.x;
             int y = event.button.y;
-            handleMouseClick(x, y); 
+            handleMouseClick(x, y);
         }
         // ========== TEXT INPUT FOR RENAME MODE ==========
         else if (event.type == SDL_TEXTINPUT) {
@@ -166,7 +184,7 @@ void Player::update() {
     if (playingAudio && fmtCtx && fmtCtx->bit_rate > 0) {
         currentTime = static_cast<double>(fmtCtx->pb->pos) / (fmtCtx->bit_rate / 8);
     }
-    
+
     // Clear screen
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderClear(renderer);
@@ -174,7 +192,7 @@ void Player::update() {
     // Draw UI
     drawPlaylistPanel();  // left pane
     drawSongPanel();      // right pane
-    drawControls();       // buttons
+    drawControls();       // transport buttons
     drawTimeBar();        // track time bar
 
     // Finally, draw the confirmation dialog if needed (on top)
@@ -225,7 +243,7 @@ void Player::shutdown() {
         SDL_DestroyWindow(window);
         window = nullptr;
     }
-    
+
     SDL_Quit();
     std::cout << "Player shutdown." << std::endl;
     running = false;

@@ -19,10 +19,10 @@ void Player::renderButtonText(SDL_Texture* texture, const SDL_Rect& button) {
     if (texture) {
         int w, h;
         SDL_QueryTexture(texture, nullptr, nullptr, &w, &h);
-        SDL_Rect dest = { 
+        SDL_Rect dest = {
             button.x + (button.w - w) / 2,
             button.y + (button.h - h) / 2,
-            w, h 
+            w, h
         };
         SDL_RenderCopy(renderer, texture, nullptr, &dest);
     }
@@ -39,7 +39,7 @@ void Player::drawTimeBar() {
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &progress);
     }
-    
+
     char timeText[32];
     int curMin = (int)(currentTime / 60);
     int curSec = (int)currentTime % 60;
@@ -66,59 +66,81 @@ void Player::drawTimeBar() {
 void Player::drawControls() {
     SDL_Color white = {255, 255, 255, 255};
 
-    // Prev
+    // === PREV BUTTON ("<<") => small square ===
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderFillRect(renderer, &prevButton);
-    SDL_Texture* prevText = renderText("<<", white);
+    {
+        SDL_Texture* prevText = renderText("<<", white);
+        if (prevText) {
+            renderButtonText(prevText, prevButton);
+            SDL_DestroyTexture(prevText);
+        }
+    }
 
-    // Play
+    // === PLAY BUTTON ("Play") => wide rectangle ===
     SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
     SDL_RenderFillRect(renderer, &playButton);
-    SDL_Texture* playText = renderText(playingAudio ? "||" : ">", white);
+    {
+        SDL_Texture* playLabel = renderText("Play", white);
+        if (playLabel) {
+            renderButtonText(playLabel, playButton);
+            SDL_DestroyTexture(playLabel);
+        }
+    }
 
-    // Next
+    // === NEXT BUTTON (">>") => small square ===
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderFillRect(renderer, &nextButton);
-    SDL_Texture* nextText = renderText(">>", white);
+    {
+        SDL_Texture* nextTxt = renderText(">>", white);
+        if (nextTxt) {
+            renderButtonText(nextTxt, nextButton);
+            SDL_DestroyTexture(nextTxt);
+        }
+    }
 
-    // Stop
+    // === STOP BUTTON ("Stop") => wide rectangle ===
     SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
     SDL_RenderFillRect(renderer, &stopButton);
-    SDL_Texture* stopText = renderText("□", white);
+    {
+        SDL_Texture* stopLabel = renderText("Stop", white);
+        if (stopLabel) {
+            renderButtonText(stopLabel, stopButton);
+            SDL_DestroyTexture(stopLabel);
+        }
+    }
 
-    // Shuffle
+    // === SHUFFLE BUTTON ("Shuffle") => wide rectangle ===
     if (isShuffled) {
         SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
     } else {
         SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     }
     SDL_RenderFillRect(renderer, &shuffleButton);
-    SDL_Texture* shuffleText = renderText("🔀", white);
+    {
+        SDL_Texture* shuffleLabel = renderText("Shuffle", white);
+        if (shuffleLabel) {
+            renderButtonText(shuffleLabel, shuffleButton);
+            SDL_DestroyTexture(shuffleLabel);
+        }
+    }
 
-    // Mute
+    // === MUTE BUTTON ("Mute") => wide rectangle ===
     if (isMuted) {
         SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
     } else {
         SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     }
     SDL_RenderFillRect(renderer, &muteButton);
-    SDL_Texture* muteText = renderText(isMuted ? "🔇" : "🔊", white);
-
-    renderButtonText(prevText,    prevButton);
-    renderButtonText(playText,    playButton);
-    renderButtonText(nextText,    nextButton);
-    renderButtonText(stopText,    stopButton);
-    renderButtonText(shuffleText, shuffleButton);
-    renderButtonText(muteText,    muteButton);
-
-    // Cleanup
-    SDL_DestroyTexture(prevText);
-    SDL_DestroyTexture(playText);
-    SDL_DestroyTexture(nextText);
-    SDL_DestroyTexture(stopText);
-    SDL_DestroyTexture(shuffleText);
-    SDL_DestroyTexture(muteText);
+    {
+        SDL_Texture* muteLabel = renderText("Mute", white);
+        if (muteLabel) {
+            renderButtonText(muteLabel, muteButton);
+            SDL_DestroyTexture(muteLabel);
+        }
+    }
 }
+
 
 // Left panel playlists
 void Player::drawPlaylistPanel() {

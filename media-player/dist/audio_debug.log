@@ -100,11 +100,2571 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
+av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -144,11 +2704,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -230,11 +2795,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -316,11 +2886,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -430,11 +3005,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -502,11 +3082,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -553,11 +3138,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -604,11 +3194,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -641,11 +3236,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -671,11 +3271,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -694,11 +3299,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -710,11 +3320,16 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -726,29 +3341,44 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
@@ -760,56 +3390,86 @@ swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
 av_read_frame result: 0
+avcodec_send_packet result: 0
+avcodec_receive_frame result: 0
+Frame decoded: samples=4096, channels=2
+swr_convert result: 4096
+Copying 16384 bytes to output
+Callback called with length: 16384
 av_read_frame result: 0
 avcodec_send_packet result: 0
 avcodec_receive_frame result: 0
 Frame decoded: samples=4096, channels=2
-swr_init result: 0
 swr_convert result: 4096
 Copying 16384 bytes to output
 Callback called with length: 16384
