@@ -1,0 +1,10 @@
+^D:\GITHUB\MEDIA-PLAYER\MEDIA-PLAYER\BUILD\CMAKEFILES\49014489CD5CBCC5A566A30A57361381\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Github/media-player/media-player -BD:/Github/media-player/media-player/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Github/media-player/media-player/build/media_player.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,9 @@
+{
+    "cmake.sourceDirectory": "D:/Github/media-player/vcpkg/ports/b64",
+    "files.associations": {
+        "xstring": "cpp",
+        "string": "cpp",
+        "iostream": "cpp",
+        "ostream": "cpp"
+    }
+}

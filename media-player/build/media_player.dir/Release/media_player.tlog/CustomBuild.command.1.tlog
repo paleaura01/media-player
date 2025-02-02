@@ -1,0 +1,10 @@
+^D:\GITHUB\MEDIA-PLAYER\MEDIA-PLAYER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Github/media-player/media-player -BD:/Github/media-player/media-player/build --check-stamp-file D:/Github/media-player/media-player/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
