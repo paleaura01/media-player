@@ -1,6 +1,7 @@
-// player.cpp (the orchestrator)
+// player.cpp
 #include "player.h"
 #include <iostream>
+#include <cmath> // llround
 
 Player::Player()
     : running(true), window(nullptr), renderer(nullptr), font(nullptr),
@@ -12,79 +13,39 @@ Player::Player()
       activePlaylist(-1),
       isConfirmingDeletion(false), deleteCandidateIndex(-1)
 {
-    // Place the time bar near the top
     timeBar = { 10, 10, 780, 20 };
-
-    // ======== Buttons with updated rectangles ========
-    // - Prev: small  (40×40)
-    // - Play: wide   (80×40)
-    // - Next: small  (40×40)
-    // - Stop, Shuffle, Mute: wide (80×40 each)
-
-    // Prev (small, "<<" symbol)
+    // Transport buttons
     prevButton    = { 10,  40, 40, 40 };
-
-    // Play (wide, labeled "Play")
     playButton    = { 60,  40, 80, 40 };
-
-    // Next (small, labeled ">>")
     nextButton    = { 145, 40, 40, 40 };
-
-    // Stop (wide, labeled "Stop")
     stopButton    = { 190, 40, 80, 40 };
-
-    // Shuffle (wide, labeled "Shuffle")
     shuffleButton = { 275, 40, 80, 40 };
-
-    // Mute (wide, labeled "Mute")
     muteButton    = { 360, 40, 80, 40 };
-
-    // Volume bar, optional (80×40)
     volumeBar     = { 445, 40, 80, 40 };
 
-    // Left panel for playlists
-    playlistPanel = { 0, 90, 200, 510 };
-    // Right panel for songs
+    // Panels
+    playlistPanel = { 0,  90, 200, 510 };
     libraryPanel  = { 200, 90, 600, 510 };
-
-    // "New Playlist" button
-    newPlaylistButton = {
+    newPlaylistButton = { 
         playlistPanel.x + 10,
         playlistPanel.y + 10,
         playlistPanel.w - 20,
         30
     };
-    mainPanel = { 0, 0, 0, 0 }; // Not used now
+    mainPanel = {0,0,0,0};
 
-    // ====== Set up the "Are you sure?" confirmation dialog ======
-    confirmDialogRect = {
-        250, // x
-        200, // y
-        300, // width
-        150  // height
-    };
-    confirmYesButton = {
-        confirmDialogRect.x + 30,
-        confirmDialogRect.y + confirmDialogRect.h - 50,
-        100,
-        30
-    };
-    confirmNoButton = {
-        confirmDialogRect.x + confirmDialogRect.w - 130,
-        confirmDialogRect.y + confirmDialogRect.h - 50,
-        100,
-        30
-    };
+    // Confirm Deletion
+    confirmDialogRect = { 250,200,300,150 };
+    confirmYesButton  = { 280,300,100,30 };
+    confirmNoButton   = { 420,300,100,30 };
 }
 
 Player::~Player() {
-    // Save playlists on destruction
     savePlaylistState();
     shutdown();
 }
 
 bool Player::init() {
-    // Load any saved playlists
     loadPlaylistState();
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
@@ -103,29 +64,26 @@ bool Player::init() {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         return false;
     }
-
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         return false;
     }
-
     font = TTF_OpenFont("Arial.ttf", 24);
     if (!font) {
         std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
         return false;
     }
 
-    // Allocate FFmpeg packet/frame
     packet = av_packet_alloc();
     frame  = av_frame_alloc();
     if (!packet || !frame) {
-        std::cerr << "Failed to allocate FFmpeg packet or frame." << std::endl;
+        std::cerr << "Failed to allocate FFmpeg packet/frame." << std::endl;
         return false;
     }
 
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
-    std::cout << "Initialization successful." << std::endl;
+    std::cout << "Initialization successful.\n";
     return true;
 }
 
@@ -136,11 +94,8 @@ void Player::update() {
             running = false;
         }
         else if (event.type == SDL_MOUSEBUTTONDOWN) {
-            int x = event.button.x;
-            int y = event.button.y;
-            handleMouseClick(x, y);
+            handleMouseClick(event.button.x, event.button.y);
         }
-        // ========== TEXT INPUT FOR RENAME MODE ==========
         else if (event.type == SDL_TEXTINPUT) {
             if (isRenaming) {
                 renameBuffer += event.text.text;
@@ -154,7 +109,6 @@ void Player::update() {
                     }
                 }
                 else if (event.key.keysym.sym == SDLK_RETURN) {
-                    // Commit
                     if (renameIndex >= 0 && renameIndex < (int)playlists.size()) {
                         playlists[renameIndex].name = renameBuffer;
                     }
@@ -164,7 +118,6 @@ void Player::update() {
                     SDL_StopTextInput();
                 }
                 else if (event.key.keysym.sym == SDLK_ESCAPE) {
-                    // Cancel
                     isRenaming = false;
                     renameIndex = -1;
                     renameBuffer.clear();
@@ -172,7 +125,6 @@ void Player::update() {
                 }
             }
         }
-        // ========== FILE DROPS / DRAG AND DROP ==========
         else if (event.type == SDL_DROPFILE) {
             char* filePath = event.drop.file;
             handleFileDrop(filePath);
@@ -180,26 +132,38 @@ void Player::update() {
         }
     }
 
-    // Update currentTime if playing
-    if (playingAudio && fmtCtx && fmtCtx->bit_rate > 0) {
-        currentTime = static_cast<double>(fmtCtx->pb->pos) / (fmtCtx->bit_rate / 8);
+    // Update currentTime from lastPTS
+    if (playingAudio) {
+        currentTime = lastPTS.load(std::memory_order_relaxed);
     }
 
-    // Clear screen
+    // Clear
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderClear(renderer);
 
-    // Draw UI
-    drawPlaylistPanel();  // left pane
-    drawSongPanel();      // right pane
-    drawControls();       // transport buttons
-    drawTimeBar();        // track time bar
-
-    // Finally, draw the confirmation dialog if needed (on top)
+    // Draw
+    drawPlaylistPanel();
+    drawSongPanel();
+    drawControls();
+    drawTimeBar();
     drawConfirmDialog();
 
     SDL_RenderPresent(renderer);
     SDL_Delay(16);
+}
+
+void Player::seekTo(double seconds) {
+    if (!fmtCtx || audioStreamIndex < 0) return;
+
+    int64_t target = (int64_t)llround(seconds * AV_TIME_BASE);
+    if (av_seek_frame(fmtCtx, -1, target, AVSEEK_FLAG_BACKWARD) >= 0) {
+        avcodec_flush_buffers(codecCtx);
+        currentTime = seconds;
+        lastPTS.store(seconds, std::memory_order_relaxed);
+        std::cout << "[Debug] Seeked to " << seconds << " sec.\n";
+    } else {
+        std::cerr << "[Warn] av_seek_frame failed.\n";
+    }
 }
 
 void Player::shutdown() {
@@ -243,9 +207,8 @@ void Player::shutdown() {
         SDL_DestroyWindow(window);
         window = nullptr;
     }
-
     SDL_Quit();
-    std::cout << "Player shutdown." << std::endl;
+    std::cout << "Player shutdown.\n";
     running = false;
 }
 

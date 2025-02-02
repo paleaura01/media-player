@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <atomic>
 #include <SDL.h>
 #include <SDL_ttf.h>
 
@@ -16,25 +17,25 @@ extern "C" {
 #include <libavutil/channel_layout.h>
 }
 
-// A single class that orchestrates the UI, playlists, and audio decoding.
+// A single class that orchestrates the UI, playlists, and audio decoding
 class Player {
 public:
     Player();
     ~Player();
 
-    bool init();       // Sets up SDL, TTF, etc.
-    void update();     // Main loop body: handles events, draws UI, etc.
-    void shutdown();   // Cleans up everything.
+    bool init();
+    void update();
+    void shutdown();
     bool isRunning() const;
 
 private:
     bool running;
 
-    // --- UI Components / Layout ---
+    // UI Layout
     SDL_Rect timeBar;
     SDL_Rect volumeBar;
     SDL_Rect playlistPanel;
-    SDL_Rect libraryPanel; // right-side panel for songs
+    SDL_Rect libraryPanel;
     SDL_Rect mainPanel;
 
     // Transport Buttons
@@ -46,59 +47,48 @@ private:
     SDL_Rect muteButton;
     SDL_Rect newPlaylistButton;
 
-    // Playlist management
+    // Playlist
     struct Playlist {
         std::string name;
         std::vector<std::string> songs;
     };
     std::vector<Playlist> playlists;
-
-    // Rects for each playlist row + "X" button
     std::vector<SDL_Rect> playlistRects;
     std::vector<SDL_Rect> playlistDeleteRects;
-
-    // Rects for each song in the active playlist
     std::vector<SDL_Rect> songRects;
-
-    // Index of currently active playlist
     int activePlaylist;
 
-    // For saving/loading
     void savePlaylistState();
     void loadPlaylistState();
 
-    // Double-click detection
+    // Double-click
     int    lastPlaylistClickIndex = -1;
     Uint32 lastPlaylistClickTime  = 0;
 
-    // Inline rename fields
-    bool        isRenaming    = false;  // Are we editing a playlist name right now?
-    int         renameIndex   = -1;     // Which playlist index is being edited?
-    std::string renameBuffer;           // Current typed text for rename
+    // Inline rename
+    bool        isRenaming    = false;
+    int         renameIndex   = -1;
+    std::string renameBuffer;
 
-    // Playback tracking
+    // Playback
     double currentTime;
     double totalDuration;
-    bool isMuted;
-    bool isShuffled;
+    bool   isMuted;
+    bool   isShuffled;
 
-    // ======================================
-    // Deletion Confirmation Modal Variables
-    // ======================================
-    bool isConfirmingDeletion = false;  // if true, show "Are you sure?" dialog
-    int  deleteCandidateIndex = -1;     // which playlist is pending deletion
-
-    // The dialog box / yes/no button rectangles
+    // "Are you sure?" confirm deletion
+    bool isConfirmingDeletion = false;
+    int  deleteCandidateIndex = -1;
     SDL_Rect confirmDialogRect;
     SDL_Rect confirmYesButton;
     SDL_Rect confirmNoButton;
 
-    // SDL objects
+    // SDL
     SDL_Window* window;
     SDL_Renderer* renderer;
     TTF_Font* font;
 
-    // FFmpeg members
+    // FFmpeg
     AVFormatContext* fmtCtx;
     AVCodecContext*  codecCtx;
     SwrContext*      swrCtx;
@@ -112,31 +102,35 @@ private:
     bool             playingAudio;
     std::string      loadedFile;
 
-    // ========== UI Helpers ==========
-    SDL_Texture* renderText(const std::string &text, SDL_Color color);
-    void renderButtonText(SDL_Texture* texture, const SDL_Rect& button);
+    // The last decoded PTS (in seconds), updated in audioCallback
+    std::atomic<double> lastPTS{0.0};
 
-    // Draw methods
-    void drawTimeBar();
-    void drawControls();
-    void drawPlaylistPanel();
-    void drawSongPanel();
-    void drawConfirmDialog(); // NEW: draws the "Are you sure?" modal
-
-    // Playlist logic
+    // UI / Mouse logic
     void handleMouseClick(int x, int y);
     void handleFileDrop(const char* filePath);
     void handlePlaylistCreation();
     void calculateSongDuration();
 
-    // ========== Audio Methods ==========
+    // Audio
     bool loadAudioFile(const std::string &filename);
     void playAudio();
     void stopAudio();
 
+    // If you want seeking in time bar
+    void seekTo(double seconds);
+
     // Audio callback
     void audioCallback(Uint8* stream, int len);
     static void sdlAudioCallback(void* userdata, Uint8* stream, int len);
+
+    // Draw methods
+    SDL_Texture* renderText(const std::string &text, SDL_Color color);
+    void renderButtonText(SDL_Texture* texture, const SDL_Rect& button);
+    void drawTimeBar();
+    void drawControls();
+    void drawPlaylistPanel();
+    void drawSongPanel();
+    void drawConfirmDialog();
 };
 
 #endif // PLAYER_H

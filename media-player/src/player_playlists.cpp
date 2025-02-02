@@ -45,16 +45,6 @@ void Player::loadPlaylistState() {
     }
 }
 
-void Player::calculateSongDuration() {
-    if (fmtCtx && audioStreamIndex >= 0) {
-        int64_t duration = fmtCtx->duration;
-        if (duration <= INT64_MAX - 5000) {
-            duration += 5000;
-        }
-        totalDuration = (double)duration / AV_TIME_BASE;
-    }
-}
-
 void Player::handleFileDrop(const char* filePath) {
     if (activePlaylist >= 0) {
         playlists[activePlaylist].songs.push_back(filePath);
@@ -188,5 +178,19 @@ void Player::handleMouseClick(int x, int y) {
         } else if (x >= muteButton.x && x <= muteButton.x + muteButton.w) {
             isMuted = !isMuted;
         }
+    }
+
+    // If clicked timeBar => compute fraction => seekTo(...)
+    if (y >= timeBar.y && y <= timeBar.y + timeBar.h) {
+        if (x >= timeBar.x && x <= timeBar.x + timeBar.w) {
+            if (totalDuration > 0.0) {
+                double fraction = double(x - timeBar.x) / double(timeBar.w);
+                if (fraction < 0) fraction = 0;
+                if (fraction > 1) fraction = 1;
+                double newTime = fraction * totalDuration;
+                seekTo(newTime);
+            }
+            return;            
+        }   
     }
 }

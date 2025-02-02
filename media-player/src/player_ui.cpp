@@ -62,6 +62,7 @@ void Player::drawTimeBar() {
     }
 }
 
+
 // Transport controls
 void Player::drawControls() {
     SDL_Color white = {255, 255, 255, 255};
