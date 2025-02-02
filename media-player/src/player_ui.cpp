@@ -166,8 +166,17 @@ SDL_Rect volumeFill = volumeBar;
 volumeFill.w = (int)(volumeBar.w * (volume / 100.0f));
 SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
 SDL_RenderFillRect(renderer, &volumeFill);
+
+// Display volume percentage
+char volumeText[16];
+snprintf(volumeText, sizeof(volumeText), "%.0f%%", volume);
+SDL_Texture* volumeTexture = renderText(volumeText, white);
+if (volumeTexture) {
+    renderButtonText(volumeTexture, volumeBar);
+    SDL_DestroyTexture(volumeTexture);
 }
 
+}
 
 // Left panel playlists
 void Player::drawPlaylistPanel() {
