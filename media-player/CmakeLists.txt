@@ -2,6 +2,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(media_player)
 
+set(CMAKE_GENERATOR "Ninja")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -43,6 +44,10 @@ target_link_libraries(media_player PRIVATE
     ${AVUTIL_LIB}
     ${SWSCALE_LIB}
     ${SWRESAMPLE_LIB}
+)
+
+add_custom_command(TARGET media_player POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:media_player> ${CMAKE_SOURCE_DIR}/dist/
 )
 
 install(TARGETS media_player RUNTIME DESTINATION .)
