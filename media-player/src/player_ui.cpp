@@ -141,27 +141,31 @@ void Player::drawControls() {
         }
     }
 
-        // === REWIND BUTTON ("<") ===
-    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
-    SDL_RenderFillRect(renderer, &rewindButton);
-    {
-        SDL_Texture* rewindText = renderText("<", white);
-        if (rewindText) {
-            renderButtonText(rewindText, rewindButton);
-            SDL_DestroyTexture(rewindText);
-        }
-    }
+    // === REWIND/FORWARD BUTTONS ===
+SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+SDL_RenderFillRect(renderer, &rewindButton);
+SDL_RenderFillRect(renderer, &forwardButton);
 
-    // === FORWARD BUTTON (">") ===
-    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
-    SDL_RenderFillRect(renderer, &forwardButton);
-    {
-        SDL_Texture* forwardText = renderText(">", white);
-        if (forwardText) {
-            renderButtonText(forwardText, forwardButton);
-            SDL_DestroyTexture(forwardText);
-        }
-    }
+SDL_Texture* rewindText = renderText("<", white);
+if (rewindText) {
+    renderButtonText(rewindText, rewindButton);
+    SDL_DestroyTexture(rewindText);
+}
+
+SDL_Texture* forwardText = renderText(">", white);
+if (forwardText) {
+    renderButtonText(forwardText, forwardButton);
+    SDL_DestroyTexture(forwardText);
+}
+
+// === VOLUME BAR ===
+SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+SDL_RenderFillRect(renderer, &volumeBar);
+
+SDL_Rect volumeFill = volumeBar;
+volumeFill.w = (int)(volumeBar.w * (volume / 100.0f));
+SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
+SDL_RenderFillRect(renderer, &volumeFill);
 }
 
 
@@ -281,19 +285,25 @@ void Player::drawSongPanel() {
         SDL_Color white = {255, 255, 255, 255};
         int yOffset = libraryPanel.y + 10;
 
-        for (auto& song : playlists[activePlaylist].songs) {
+        for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+            auto& song = playlists[activePlaylist].songs[i];
             SDL_Rect songRect = {
                 libraryPanel.x + 10,
                 yOffset,
                 libraryPanel.w - 20,
                 25
             };
-            SDL_SetRenderDrawColor(renderer, 45, 45, 45, 255);
+            
+            if (song == loadedFile) {
+                SDL_SetRenderDrawColor(renderer, 0, 100, 0, 255);
+            } else {
+                SDL_SetRenderDrawColor(renderer, 45, 45, 45, 255);
+            }
             SDL_RenderFillRect(renderer, &songRect);
 
             songRects.push_back(songRect);
 
-            std::string filename = song.substr(song.find_last_of("/\\")+1);
+            std::string filename = song.substr(song.find_last_of("/\\") + 1);
             SDL_Texture* songTex = renderText(filename, white);
             if (songTex) {
                 int w, h;
@@ -306,6 +316,24 @@ void Player::drawSongPanel() {
                 SDL_RenderCopy(renderer, songTex, nullptr, &dest);
                 SDL_DestroyTexture(songTex);
             }
+
+            if ((int)i == hoveredSongIndex) {
+                SDL_Rect deleteRect = {
+                    songRect.x + songRect.w - 30,
+                    songRect.y,
+                    25,
+                    songRect.h
+                };
+                SDL_SetRenderDrawColor(renderer, 90, 30, 30, 255);
+                SDL_RenderFillRect(renderer, &deleteRect);
+                
+                SDL_Texture* xText = renderText("X", white);
+                if (xText) {
+                    renderButtonText(xText, deleteRect);
+                    SDL_DestroyTexture(xText);
+                }
+            }
+
             yOffset += songRect.h + 2;
         }
     }

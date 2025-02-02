@@ -132,6 +132,16 @@ void Player::update() {
             handleFileDrop(filePath);
             SDL_free(filePath);
         }
+        int mouseX, mouseY;
+SDL_GetMouseState(&mouseX, &mouseY);
+hoveredSongIndex = -1;
+for (size_t i = 0; i < songRects.size(); i++) {
+    if (mouseX >= songRects[i].x && mouseX <= songRects[i].x + songRects[i].w &&
+        mouseY >= songRects[i].y && mouseY <= songRects[i].y + songRects[i].h) {
+        hoveredSongIndex = i;
+        break;
+    }
+}
     }
 
     // Update currentTime from lastPTS

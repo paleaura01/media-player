@@ -117,9 +117,10 @@ private:
     bool loadAudioFile(const std::string &filename);
     void playAudio();
     void stopAudio();
-
+    float volume = 100.0f;
     // If you want seeking in time bar
     void seekTo(double seconds);
+    int hoveredSongIndex = -1;
 
     // Audio callback
     void audioCallback(Uint8* stream, int len);

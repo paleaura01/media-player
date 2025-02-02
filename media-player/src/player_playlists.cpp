@@ -160,17 +160,45 @@ void Player::handleMouseClick(int x, int y) {
                 }
                 return;
             }
+            if (hoveredSongIndex >= 0 && 
+            x >= songRects[hoveredSongIndex].x + songRects[hoveredSongIndex].w - 30 && 
+            x <= songRects[hoveredSongIndex].x + songRects[hoveredSongIndex].w) {
+            // Remove song
+            playlists[activePlaylist].songs.erase(
+                playlists[activePlaylist].songs.begin() + hoveredSongIndex
+            );
+            return;
+        }
         }
     }
 
     // 4) Check transport controls
     if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
         if (x >= prevButton.x && x <= prevButton.x + prevButton.w) {
-            // ...
+            if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
+                for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+                    if (playlists[activePlaylist].songs[i] == loadedFile && i > 0) {
+                        if (loadAudioFile(playlists[activePlaylist].songs[i-1])) {
+                            playAudio();
+                        }
+                        break;
+                    }
+                }
+            }
         } else if (x >= playButton.x && x <= playButton.x + playButton.w) {
             if (!loadedFile.empty()) playAudio();
         } else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
-            // ...
+            if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
+                for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+                    if (playlists[activePlaylist].songs[i] == loadedFile && 
+                        i < playlists[activePlaylist].songs.size() - 1) {
+                        if (loadAudioFile(playlists[activePlaylist].songs[i+1])) {
+                            playAudio();
+                        }
+                        break;
+                    }
+                }
+            }
         } else if (x >= stopButton.x && x <= stopButton.x + stopButton.w) {
             stopAudio();
         } else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
@@ -181,6 +209,10 @@ void Player::handleMouseClick(int x, int y) {
             seekTo(currentTime - 10.0);
         } else if (x >= forwardButton.x && x <= forwardButton.x + forwardButton.w) {
             seekTo(currentTime + 10.0);
+        } else if (x >= volumeBar.x && x <= volumeBar.x + volumeBar.w) {
+            volume = ((float)(x - volumeBar.x) / volumeBar.w) * 100.0f;
+            if (volume < 0) volume = 0;
+            if (volume > 100) volume = 100;
         }
     }
 
@@ -195,6 +227,7 @@ void Player::handleMouseClick(int x, int y) {
             double newTime = fraction * totalDuration;
             seekTo(newTime);
         }
+        
         return;
     }
 }

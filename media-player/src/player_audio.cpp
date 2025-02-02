@@ -193,9 +193,23 @@ void Player::audioCallback(Uint8* stream, int len) {
         if (bytesToCopy > remaining) {
             bytesToCopy = remaining;
         }
-        memcpy(out, audioBuffer + audioBufferIndex, bytesToCopy);
+
+        // Apply volume control
+        if (!isMuted) {
+            int16_t* samples = (int16_t*)(audioBuffer + audioBufferIndex);
+            int numSamples = bytesToCopy / 2;  // 2 bytes per sample
+            float volumeScale = volume / 100.0f;
+            
+            for (int i = 0; i < numSamples; i++) {
+                samples[i] = (int16_t)(samples[i] * volumeScale);
+            }
+            memcpy(out, audioBuffer + audioBufferIndex, bytesToCopy);
+        } else {
+            memset(out, 0, bytesToCopy);
+        }
+
         audioBufferIndex += bytesToCopy;
-        remaining        -= bytesToCopy;
-        out             += bytesToCopy;
+        remaining -= bytesToCopy;
+        out += bytesToCopy;
     }
 }
