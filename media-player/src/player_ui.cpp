@@ -2,7 +2,7 @@
 #include "player.h"
 #include <iostream>
 
-// Renders text with the current font/color
+// Render text with the current font/color
 SDL_Texture* Player::renderText(const std::string &text, SDL_Color color) {
     if (!font) return nullptr;
     SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), color);
@@ -15,7 +15,6 @@ SDL_Texture* Player::renderText(const std::string &text, SDL_Color color) {
     return texture;
 }
 
-// Renders text centered in a button
 void Player::renderButtonText(SDL_Texture* texture, const SDL_Rect& button) {
     if (texture) {
         int w, h;
@@ -29,13 +28,12 @@ void Player::renderButtonText(SDL_Texture* texture, const SDL_Rect& button) {
     }
 }
 
-// Draw the progress/time bar
+// Draw the time bar
 void Player::drawTimeBar() {
-    // Background
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderFillRect(renderer, &timeBar);
-    
-    // Progress
+
+    // Draw progress
     if (totalDuration > 0.0) {
         SDL_Rect progress = timeBar;
         progress.w = static_cast<int>(timeBar.w * (currentTime / totalDuration));
@@ -43,34 +41,31 @@ void Player::drawTimeBar() {
         SDL_RenderFillRect(renderer, &progress);
     }
     
-    // Text
+    // Time text
     char timeText[32];
-    int curMin = static_cast<int>(currentTime / 60);
-    int curSec = static_cast<int>(currentTime) % 60;
-    int totMin = static_cast<int>(totalDuration / 60);
-    int totSec = static_cast<int>(totalDuration) % 60;
+    int curMin = (int)(currentTime / 60);
+    int curSec = (int)currentTime % 60;
+    int totMin = (int)(totalDuration / 60);
+    int totSec = (int)totalDuration % 60;
     snprintf(timeText, sizeof(timeText), "%d:%02d / %d:%02d", curMin, curSec, totMin, totSec);
-    
+
     SDL_Color white = {255, 255, 255, 255};
     SDL_Texture* timeTexture = renderText(timeText, white);
     if (timeTexture) {
         int w, h;
         SDL_QueryTexture(timeTexture, nullptr, nullptr, &w, &h);
-        
-        // Right-align the text INSIDE the time bar, vertically centered
+
         SDL_Rect dest = {
             timeBar.x + timeBar.w - w - 5,
-            timeBar.y + (timeBar.h - h) / 2,
+            timeBar.y + (timeBar.h - h)/2,
             w, h
         };
-
         SDL_RenderCopy(renderer, timeTexture, nullptr, &dest);
         SDL_DestroyTexture(timeTexture);
     }
 }
 
-
-// Draw playback/transport controls
+// Transport controls
 void Player::drawControls() {
     SDL_Color white = {255, 255, 255, 255};
 
@@ -129,13 +124,12 @@ void Player::drawControls() {
     SDL_DestroyTexture(muteText);
 }
 
-// Draw only the **list of playlists** on the left side
+// Draw the playlists panel on the left
 void Player::drawPlaylistPanel() {
-    // Clear out any old rectangles before drawing new ones
     playlistRects.clear();
     playlistDeleteRects.clear();
 
-    // Dark background for the playlist panel
+    // Panel background
     SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
     SDL_RenderFillRect(renderer, &playlistPanel);
 
@@ -149,8 +143,8 @@ void Player::drawPlaylistPanel() {
         int w, h;
         SDL_QueryTexture(newPlaylistText, nullptr, nullptr, &w, &h);
         SDL_Rect dest = { 
-            newPlaylistButton.x + (newPlaylistButton.w - w) / 2,
-            newPlaylistButton.y + (newPlaylistButton.h - h) / 2,
+            newPlaylistButton.x + (newPlaylistButton.w - w)/2,
+            newPlaylistButton.y + (newPlaylistButton.h - h)/2,
             w, h
         };
         SDL_RenderCopy(renderer, newPlaylistText, nullptr, &dest);
@@ -159,16 +153,13 @@ void Player::drawPlaylistPanel() {
 
     int yOffset = newPlaylistButton.y + newPlaylistButton.h + 10;
     for (size_t i = 0; i < playlists.size(); i++) {
-        // The entire row for this playlist
+        // Full row for the playlist
         SDL_Rect playlistRect = {
             playlistPanel.x + 5,
             yOffset,
             playlistPanel.w - 10,
             25
         };
-
-        // A smaller "X" button on the right side of that row
-        // We'll set it to about 25px wide.
         SDL_Rect deleteRect = {
             playlistRect.x + playlistRect.w - 25,
             playlistRect.y,
@@ -176,47 +167,71 @@ void Player::drawPlaylistPanel() {
             playlistRect.h
         };
 
-        // Determine fill color for the row (active vs inactive)
-        if (static_cast<int>(i) == activePlaylist) {
+        // Decide color
+        if ((int)i == activePlaylist) {
             SDL_SetRenderDrawColor(renderer, 60, 100, 60, 255);
         } else {
             SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
         }
         SDL_RenderFillRect(renderer, &playlistRect);
 
-        // Draw the "X" delete button
+        // "X" button
         SDL_SetRenderDrawColor(renderer, 90, 30, 30, 255);
         SDL_RenderFillRect(renderer, &deleteRect);
 
-        // Render the playlist's name
-        SDL_Texture* playlistName = renderText(playlists[i].name, white);
-        if (playlistName) {
-            int w, h;
-            SDL_QueryTexture(playlistName, nullptr, nullptr, &w, &h);
-            SDL_Rect dest = {
-                playlistRect.x + 5,
-                playlistRect.y + (playlistRect.h - h) / 2,
-                w, h
-            };
-            SDL_RenderCopy(renderer, playlistName, nullptr, &dest);
-            SDL_DestroyTexture(playlistName);
+        // =============== Inline Rename vs Normal Display ===============
+        bool editingThis = (isRenaming && (int)i == renameIndex);
+
+        if (editingThis) {
+            // Lighten a bit more to show editing
+            SDL_SetRenderDrawColor(renderer, 90, 90, 90, 255);
+            SDL_RenderFillRect(renderer, &playlistRect);
+
+            // Render renameBuffer
+            SDL_Texture* editTex = renderText(renameBuffer, white);
+            if (editTex) {
+                int w, h;
+                SDL_QueryTexture(editTex, nullptr, nullptr, &w, &h);
+                SDL_Rect dest = {
+                    playlistRect.x + 5,
+                    playlistRect.y + (playlistRect.h - h)/2,
+                    w, h
+                };
+                SDL_RenderCopy(renderer, editTex, nullptr, &dest);
+                SDL_DestroyTexture(editTex);
+            }
+        }
+        else {
+            // Normal playlist name
+            SDL_Texture* plName = renderText(playlists[i].name, white);
+            if (plName) {
+                int w, h;
+                SDL_QueryTexture(plName, nullptr, nullptr, &w, &h);
+                SDL_Rect dest = {
+                    playlistRect.x + 5,
+                    playlistRect.y + (playlistRect.h - h)/2,
+                    w, h
+                };
+                SDL_RenderCopy(renderer, plName, nullptr, &dest);
+                SDL_DestroyTexture(plName);
+            }
         }
 
-        // Render an "X" in the delete button area
+        // Render the "X"
         SDL_Texture* xText = renderText("X", white);
         if (xText) {
             int w, h;
             SDL_QueryTexture(xText, nullptr, nullptr, &w, &h);
             SDL_Rect dest = {
-                deleteRect.x + (deleteRect.w - w) / 2,
-                deleteRect.y + (deleteRect.h - h) / 2,
+                deleteRect.x + (deleteRect.w - w)/2,
+                deleteRect.y + (deleteRect.h - h)/2,
                 w, h
             };
             SDL_RenderCopy(renderer, xText, nullptr, &dest);
             SDL_DestroyTexture(xText);
         }
 
-        // Store these rectangles so we can detect clicks
+        // Keep track of these rects for click detection
         playlistRects.push_back(playlistRect);
         playlistDeleteRects.push_back(deleteRect);
 
@@ -224,50 +239,44 @@ void Player::drawPlaylistPanel() {
     }
 }
 
-
-// Draw the **songs** for the active playlist in the right-side panel
+// Draw the songs in the active playlist (right pane)
 void Player::drawSongPanel() {
     // Clear old song rects
     songRects.clear();
 
-    // Dark background for the library (song) panel
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderFillRect(renderer, &libraryPanel);
 
-    // If we have an active playlist, show its songs
     if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
         SDL_Color white = {255, 255, 255, 255};
-
         int yOffset = libraryPanel.y + 10;
-        // For each song in the active playlist
+
         for (auto& song : playlists[activePlaylist].songs) {
             SDL_Rect songRect = {
-                libraryPanel.x + 10, 
-                yOffset, 
-                libraryPanel.w - 20, 
+                libraryPanel.x + 10,
+                yOffset,
+                libraryPanel.w - 20,
                 25
             };
             SDL_SetRenderDrawColor(renderer, 45, 45, 45, 255);
             SDL_RenderFillRect(renderer, &songRect);
 
-            // Push back so handleMouseClick() can know the clickable rect
             songRects.push_back(songRect);
 
-            // Show only the filename portion
-            std::string filename = song.substr(song.find_last_of("/\\") + 1);
-            SDL_Texture* songText = renderText(filename, white);
-            if (songText) {
+            // Filename only
+            std::string filename = song.substr(song.find_last_of("/\\")+1);
+            SDL_Texture* songTex = renderText(filename, white);
+            if (songTex) {
                 int w, h;
-                SDL_QueryTexture(songText, nullptr, nullptr, &w, &h);
+                SDL_QueryTexture(songTex, nullptr, nullptr, &w, &h);
                 SDL_Rect dest = {
                     songRect.x + 5,
-                    songRect.y + (songRect.h - h) / 2,
+                    songRect.y + (songRect.h - h)/2,
                     w, h
                 };
-                SDL_RenderCopy(renderer, songText, nullptr, &dest);
-                SDL_DestroyTexture(songText);
+                SDL_RenderCopy(renderer, songTex, nullptr, &dest);
+                SDL_DestroyTexture(songTex);
             }
-
             yOffset += songRect.h + 2;
         }
     }

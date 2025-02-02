@@ -34,10 +34,10 @@ private:
     SDL_Rect timeBar;
     SDL_Rect volumeBar;
     SDL_Rect playlistPanel;
-    SDL_Rect libraryPanel;     // <-- NEW: right-side panel for songs
+    SDL_Rect libraryPanel; // right-side panel for songs
     SDL_Rect mainPanel;
 
-    // Buttons
+    // Transport Buttons
     SDL_Rect prevButton;
     SDL_Rect playButton;
     SDL_Rect nextButton;
@@ -52,12 +52,29 @@ private:
         std::vector<std::string> songs;
     };
     std::vector<Playlist> playlists;
+
+    // Rects for each playlist row + "X" button
     std::vector<SDL_Rect> playlistRects;
     std::vector<SDL_Rect> playlistDeleteRects;
+
+    // Rects for each song in the active playlist
     std::vector<SDL_Rect> songRects;
+
+    // Index of currently active playlist
     int activePlaylist;
+
+    // For saving/loading
     void savePlaylistState();
     void loadPlaylistState();
+
+    // Double-click detection
+    int    lastPlaylistClickIndex = -1;
+    Uint32 lastPlaylistClickTime  = 0;
+
+    // Inline rename fields
+    bool        isRenaming    = false;  // Are we editing a playlist name right now?
+    int         renameIndex   = -1;     // Which playlist index is being edited?
+    std::string renameBuffer;           // Current typed text for rename
 
     // Playback tracking
     double currentTime;
@@ -92,9 +109,9 @@ private:
     void drawTimeBar();
     void drawControls();
     void drawPlaylistPanel();
-    void drawSongPanel();      // <-- NEW: draws the songs in active playlist
+    void drawSongPanel(); // draws the songs in active playlist
 
-    // Playlist
+    // Playlist logic
     void handleMouseClick(int x, int y);
     void handleFileDrop(const char* filePath);
     void handlePlaylistCreation();

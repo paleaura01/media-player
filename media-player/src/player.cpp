@@ -2,7 +2,6 @@
 #include "player.h"
 #include <iostream>
 
-// Constructor: sets up basic defaults, UI rectangles, etc.
 Player::Player()
     : running(true), window(nullptr), renderer(nullptr), font(nullptr),
       fmtCtx(nullptr), codecCtx(nullptr), swrCtx(nullptr),
@@ -26,29 +25,27 @@ Player::Player()
 
     // Left panel for playlists
     playlistPanel = { 0, 90, 200, 510 };
-
-    // Right panel for songs in the *active* playlist
+    // Right panel for songs
     libraryPanel  = { 200, 90, 600, 510 };
 
-    // Button at top of the left panel
+    // "New Playlist" button
     newPlaylistButton = { 
         playlistPanel.x + 10, 
         playlistPanel.y + 10, 
         playlistPanel.w - 20, 
         30 
     };
-
     mainPanel = { 0, 0, 0, 0 }; // Not used now
 }
 
 Player::~Player() {
-    // Save playlists on destruction to ensure persistence
+    // Save playlists on destruction
     savePlaylistState();
     shutdown();
 }
 
 bool Player::init() {
-    // Load any saved playlists from disk first
+    // Load any saved playlists
     loadPlaylistState();
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
@@ -104,6 +101,39 @@ void Player::update() {
             int y = event.button.y;
             handleMouseClick(x, y); 
         }
+        // ========== TEXT INPUT FOR RENAME MODE ==========
+        else if (event.type == SDL_TEXTINPUT) {
+            if (isRenaming) {
+                renameBuffer += event.text.text;
+            }
+        }
+        else if (event.type == SDL_KEYDOWN) {
+            if (isRenaming) {
+                if (event.key.keysym.sym == SDLK_BACKSPACE) {
+                    if (!renameBuffer.empty()) {
+                        renameBuffer.pop_back();
+                    }
+                }
+                else if (event.key.keysym.sym == SDLK_RETURN) {
+                    // Commit
+                    if (renameIndex >= 0 && renameIndex < (int)playlists.size()) {
+                        playlists[renameIndex].name = renameBuffer;
+                    }
+                    isRenaming = false;
+                    renameIndex = -1;
+                    renameBuffer.clear();
+                    SDL_StopTextInput();
+                }
+                else if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    // Cancel
+                    isRenaming = false;
+                    renameIndex = -1;
+                    renameBuffer.clear();
+                    SDL_StopTextInput();
+                }
+            }
+        }
+        // ========== FILE DROPS / DRAG AND DROP ==========
         else if (event.type == SDL_DROPFILE) {
             char* filePath = event.drop.file;
             handleFileDrop(filePath);
@@ -111,9 +141,8 @@ void Player::update() {
         }
     }
 
-    // Update currentTime if playing 
+    // Update currentTime if playing
     if (playingAudio && fmtCtx && fmtCtx->bit_rate > 0) {
-        // This is a rough estimate of current time by file position 
         currentTime = static_cast<double>(fmtCtx->pb->pos) / (fmtCtx->bit_rate / 8);
     }
     
@@ -122,9 +151,9 @@ void Player::update() {
     SDL_RenderClear(renderer);
 
     // Draw UI
-    drawPlaylistPanel();  // left pane with the playlists
-    drawSongPanel();      // right pane with the songs of the selected playlist
-    drawControls();       // transport buttons
+    drawPlaylistPanel();  // left pane
+    drawSongPanel();      // right pane
+    drawControls();       // buttons
     drawTimeBar();        // track time bar
 
     SDL_RenderPresent(renderer);
@@ -177,8 +206,6 @@ void Player::shutdown() {
     std::cout << "Player shutdown." << std::endl;
     running = false;
 }
-
-
 
 bool Player::isRunning() const {
     return running;
