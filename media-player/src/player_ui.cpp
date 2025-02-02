@@ -140,6 +140,28 @@ void Player::drawControls() {
             SDL_DestroyTexture(muteLabel);
         }
     }
+
+        // === REWIND BUTTON ("<") ===
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &rewindButton);
+    {
+        SDL_Texture* rewindText = renderText("<", white);
+        if (rewindText) {
+            renderButtonText(rewindText, rewindButton);
+            SDL_DestroyTexture(rewindText);
+        }
+    }
+
+    // === FORWARD BUTTON (">") ===
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &forwardButton);
+    {
+        SDL_Texture* forwardText = renderText(">", white);
+        if (forwardText) {
+            renderButtonText(forwardText, forwardButton);
+            SDL_DestroyTexture(forwardText);
+        }
+    }
 }
 
 

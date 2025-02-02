@@ -177,20 +177,24 @@ void Player::handleMouseClick(int x, int y) {
             isShuffled = !isShuffled;
         } else if (x >= muteButton.x && x <= muteButton.x + muteButton.w) {
             isMuted = !isMuted;
+        } else if (x >= rewindButton.x && x <= rewindButton.x + rewindButton.w) {
+            seekTo(currentTime - 10.0);
+        } else if (x >= forwardButton.x && x <= forwardButton.x + forwardButton.w) {
+            seekTo(currentTime + 10.0);
         }
     }
 
-    // If clicked timeBar => compute fraction => seekTo(...)
-    if (y >= timeBar.y && y <= timeBar.y + timeBar.h) {
-        if (x >= timeBar.x && x <= timeBar.x + timeBar.w) {
-            if (totalDuration > 0.0) {
-                double fraction = double(x - timeBar.x) / double(timeBar.w);
-                if (fraction < 0) fraction = 0;
-                if (fraction > 1) fraction = 1;
-                double newTime = fraction * totalDuration;
-                seekTo(newTime);
-            }
-            return;            
-        }   
+    // Handle time bar clicks
+    if (y >= timeBar.y && y <= timeBar.y + timeBar.h &&
+        x >= timeBar.x && x <= timeBar.x + timeBar.w) 
+    {
+        if (totalDuration > 0.0) {
+            double fraction = double(x - timeBar.x) / double(timeBar.w);
+            if (fraction < 0) fraction = 0;
+            if (fraction > 1) fraction = 1;
+            double newTime = fraction * totalDuration;
+            seekTo(newTime);
+        }
+        return;
     }
 }

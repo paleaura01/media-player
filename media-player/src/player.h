@@ -46,6 +46,8 @@ private:
     SDL_Rect shuffleButton;
     SDL_Rect muteButton;
     SDL_Rect newPlaylistButton;
+    SDL_Rect rewindButton;
+    SDL_Rect forwardButton;
 
     // Playlist
     struct Playlist {

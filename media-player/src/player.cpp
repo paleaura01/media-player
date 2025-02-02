@@ -21,7 +21,9 @@ Player::Player()
     stopButton    = { 190, 40, 80, 40 };
     shuffleButton = { 275, 40, 80, 40 };
     muteButton    = { 360, 40, 80, 40 };
-    volumeBar     = { 445, 40, 80, 40 };
+    rewindButton  = { 445, 40, 40, 40 };
+    forwardButton = { 490, 40, 40, 40 };
+    volumeBar     = { 535, 40, 80, 40 };
 
     // Panels
     playlistPanel = { 0,  90, 200, 510 };
