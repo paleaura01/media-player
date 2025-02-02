@@ -3,6 +3,7 @@
 #include "player.h"
 #include <fstream>
 #include <iostream>
+#include <mutex>
 
 void Player::handlePlaylistCreation() {
     std::string name = "Playlist " + std::to_string(playlists.size() + 1);
@@ -45,7 +46,10 @@ void Player::loadPlaylistState() {
     }
 }
 
+
+
 void Player::handleFileDrop(const char* filePath) {
+    std::lock_guard<std::mutex> lock(playlistMutex);
     if (activePlaylist >= 0) {
         playlists[activePlaylist].songs.push_back(filePath);
         if (playlists[activePlaylist].songs.size() == 1) {
@@ -57,6 +61,7 @@ void Player::handleFileDrop(const char* filePath) {
 }
 
 void Player::handleMouseClick(int x, int y) {
+    std::lock_guard<std::mutex> lock(playlistMutex);
     // 1) If the confirmation dialog is open, only handle Yes/No
     if (isConfirmingDeletion) {
         // Check Yes button

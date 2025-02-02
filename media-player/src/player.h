@@ -8,6 +8,7 @@
 #include <atomic>
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <mutex>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -120,7 +121,10 @@ private:
     float volume = 100.0f;
     // If you want seeking in time bar
     void seekTo(double seconds);
+    std::mutex audioMutex;
+    std::mutex playlistMutex;
     int hoveredSongIndex = -1;
+ 
 
     // Audio callback
     void audioCallback(Uint8* stream, int len);
@@ -135,5 +139,7 @@ private:
     void drawSongPanel();
     void drawConfirmDialog();
 };
+
+
 
 #endif // PLAYER_H

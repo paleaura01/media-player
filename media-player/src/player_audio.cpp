@@ -3,6 +3,7 @@
 #include <iostream>
 #include <libavutil/mathematics.h>
 #include <libavutil/channel_layout.h>
+#include <mutex>
 
 bool Player::loadAudioFile(const std::string &filename) {
     // Close old device
@@ -119,8 +120,15 @@ void Player::sdlAudioCallback(void* userdata, Uint8* stream, int len) {
 }
 
 void Player::audioCallback(Uint8* stream, int len) {
+    std::lock_guard<std::mutex> lock(audioMutex);
+    if (!fmtCtx || !codecCtx || !stream) {
+        memset(stream, 0, len);
+        return;
+    }
+
     int remaining = len;
     uint8_t* out = stream;
+    
 
     while (remaining > 0) {
         if (audioBufferIndex >= audioBufferSize) {
