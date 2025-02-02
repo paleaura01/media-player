@@ -6,7 +6,6 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-// FFmpeg headers (wrapped in extern "C")
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>

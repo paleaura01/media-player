@@ -387,13 +387,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="D:\Github\media-player\media-player\src\main.cpp" />
     <ClCompile Include="D:\Github\media-player\media-player\src\player.cpp" />
-    <ClInclude Include="D:\Github\media-player\media-player\src\player.h" />
     <ClCompile Include="D:\Github\media-player\media-player\src\bluetooth_server.cpp" />
-    <ClInclude Include="D:\Github\media-player\media-player\src\bluetooth_server.h" />
     <ClCompile Include="D:\Github\media-player\media-player\src\protocol.cpp" />
-    <ClInclude Include="D:\Github\media-player\media-player\src\protocol.h" />
     <ClCompile Include="D:\Github\media-player\media-player\src\state_manager.cpp" />
-    <ClInclude Include="D:\Github\media-player\media-player\src\state_manager.h" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -33,19 +33,14 @@ endif()
 add_executable(media_player 
     src/main.cpp
     src/player.cpp 
-    src/player.h
     src/bluetooth_server.cpp
-    src/bluetooth_server.h
     src/protocol.cpp
-    src/protocol.h
     src/state_manager.cpp
-    src/state_manager.h
 )
 
 # For a GUI application, force the Windows subsystem.
 if(MSVC)
     set_target_properties(media_player PROPERTIES WIN32_EXECUTABLE TRUE)
-    # Remove any explicit /ENTRY flag.
 endif()
 
 target_link_libraries(media_player PRIVATE 

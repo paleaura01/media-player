@@ -1,4 +1,3 @@
-// src/player.cpp
 #include "player.h"
 #include <iostream>
 #include <cstring>
@@ -97,6 +96,10 @@ void Player::sdlAudioCallback(void* userdata, Uint8* stream, int len) {
 }
 
 void Player::audioCallback(Uint8* stream, int len) {
+    static FILE* logFile = fopen("audio_debug.log", "w");
+    fprintf(logFile, "Callback called with length: %d\n", len);
+    fflush(logFile);
+
     int remaining = len;
     uint8_t* out = stream;
     
@@ -104,59 +107,92 @@ void Player::audioCallback(Uint8* stream, int len) {
         if (audioBufferIndex >= audioBufferSize) {
             audioBufferSize = 0;
             audioBufferIndex = 0;
-            // Decode frames until we have decoded audio data.
-            while (audioBufferSize == 0) {
-                if (av_read_frame(fmtCtx, packet) < 0) {
+            
+            bool frameDecoded = false;
+            while (!frameDecoded) {
+                int readResult = av_read_frame(fmtCtx, packet);
+                fprintf(logFile, "av_read_frame result: %d\n", readResult);
+                fflush(logFile);
+                
+                if (readResult < 0) {
+                    fprintf(logFile, "End of file or error: %d\n", readResult);
+                    fflush(logFile);
                     memset(out, 0, remaining);
                     return;
                 }
+                
                 if (packet->stream_index == audioStreamIndex) {
-                    if (avcodec_send_packet(codecCtx, packet) >= 0) {
-                        int ret = avcodec_receive_frame(codecCtx, frame);
-                        if (ret >= 0) {
-#if defined(avcodec_parameters_get_channels)
-                            int nb_channels = avcodec_parameters_get_channels(fmtCtx->streams[audioStreamIndex]->codecpar);
-#else
-                            int nb_channels = 2;
-#endif
-                            if (nb_channels <= 0)
-                                nb_channels = 2;  // Fallback to stereo.
-                            
-                            // Fill an AVChannelLayout with the default layout for nb_channels.
-                            AVChannelLayout layout;
-                            av_channel_layout_default(&layout, nb_channels);
-                            int64_t in_ch_layout = layout.u.mask;
+                    int sendResult = avcodec_send_packet(codecCtx, packet);
+                    fprintf(logFile, "avcodec_send_packet result: %d\n", sendResult);
+                    fflush(logFile);
+                    
+                    if (sendResult >= 0) {
+                        int receiveResult = avcodec_receive_frame(codecCtx, frame);
+                        fprintf(logFile, "avcodec_receive_frame result: %d\n", receiveResult);
+                        fflush(logFile);
+                        
+                        if (receiveResult >= 0) {
+                            fprintf(logFile, "Frame decoded: samples=%d, channels=%d, format=%d\n", 
+                                    frame->nb_samples, frame->ch_layout.nb_channels, frame->format);
+                            fflush(logFile);
                             
                             if (!swrCtx) {
-                                swrCtx = swr_alloc();
-                                av_opt_set_int(swrCtx, "in_channel_layout", in_ch_layout, 0);
-                                av_opt_set_int(swrCtx, "in_sample_rate", codecCtx->sample_rate, 0);
-                                av_opt_set_sample_fmt(swrCtx, "in_sample_fmt", codecCtx->sample_fmt, 0);
-                                av_opt_set_int(swrCtx, "out_channel_layout", AV_CH_LAYOUT_STEREO, 0);
-                                av_opt_set_int(swrCtx, "out_sample_rate", 44100, 0);
-                                av_opt_set_sample_fmt(swrCtx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
-                                swr_init(swrCtx);
-                            }
-                            int dst_nb_samples = av_rescale_rnd(swr_get_delay(swrCtx, codecCtx->sample_rate) + frame->nb_samples,
-                                                                 44100, codecCtx->sample_rate, AV_ROUND_UP);
-                            int buffer_size = av_samples_get_buffer_size(nullptr, 2, dst_nb_samples, AV_SAMPLE_FMT_S16, 1);
+    fprintf(logFile, "Creating resampler context\n");
+    fflush(logFile);
+    
+    swrCtx = swr_alloc();
+    
+    AVChannelLayout stereo_layout = AV_CHANNEL_LAYOUT_STEREO;
+    
+    // Use frame's existing channel layout for input
+    av_opt_set_chlayout(swrCtx, "in_chlayout", &frame->ch_layout, 0);
+    av_opt_set_int(swrCtx, "in_sample_rate", codecCtx->sample_rate, 0);
+    av_opt_set_sample_fmt(swrCtx, "in_sample_fmt", (AVSampleFormat)frame->format, 0);
+    
+    // Set output to stereo
+    av_opt_set_chlayout(swrCtx, "out_chlayout", &stereo_layout, 0);
+    av_opt_set_int(swrCtx, "out_sample_rate", 44100, 0);
+    av_opt_set_sample_fmt(swrCtx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+    
+    int initResult = swr_init(swrCtx);
+    fprintf(logFile, "swr_init result: %d\n", initResult);
+    fflush(logFile);
+}
+                            
+                            int dst_nb_samples = av_rescale_rnd(
+                                swr_get_delay(swrCtx, codecCtx->sample_rate) + frame->nb_samples,
+                                44100, codecCtx->sample_rate, AV_ROUND_UP);
+                            
+                            int buffer_size = av_samples_get_buffer_size(
+                                nullptr, 2, dst_nb_samples, AV_SAMPLE_FMT_S16, 1);
+                            
                             if (audioBuffer) {
                                 av_free(audioBuffer);
                             }
                             audioBuffer = (uint8_t*)av_malloc(buffer_size);
-                            swr_convert(swrCtx, &audioBuffer, dst_nb_samples,
-                                        (const uint8_t**)frame->data, frame->nb_samples);
+                            
+                            int convertResult = swr_convert(swrCtx, &audioBuffer, dst_nb_samples,
+                                      (const uint8_t**)frame->data, frame->nb_samples);
+                            fprintf(logFile, "swr_convert result: %d\n", convertResult);
+                            fflush(logFile);
+                            
                             audioBufferSize = buffer_size;
                             audioBufferIndex = 0;
+                            frameDecoded = true;
                         }
                     }
                 }
                 av_packet_unref(packet);
             }
         }
+        
         int bytesToCopy = audioBufferSize - audioBufferIndex;
         if (bytesToCopy > remaining)
             bytesToCopy = remaining;
+        
+        fprintf(logFile, "Copying %d bytes to output\n", bytesToCopy);
+        fflush(logFile);
+            
         memcpy(out, audioBuffer + audioBufferIndex, bytesToCopy);
         audioBufferIndex += bytesToCopy;
         remaining -= bytesToCopy;
@@ -165,7 +201,12 @@ void Player::audioCallback(Uint8* stream, int len) {
 }
 
 bool Player::loadAudioFile(const std::string &filename) {
-    // Clean up previous FFmpeg contexts.
+    if (audioDev != 0) {
+        SDL_CloseAudioDevice(audioDev);
+        audioDev = 0;
+    }
+    
+    // Clean up previous FFmpeg contexts
     if (fmtCtx) {
         avformat_close_input(&fmtCtx);
         fmtCtx = nullptr;
@@ -183,10 +224,13 @@ bool Player::loadAudioFile(const std::string &filename) {
         std::cerr << "Could not open audio file: " << filename << std::endl;
         return false;
     }
+    
     if (avformat_find_stream_info(fmtCtx, nullptr) < 0) {
         std::cerr << "Could not find stream information." << std::endl;
         return false;
     }
+    
+    // Find audio stream
     audioStreamIndex = -1;
     for (unsigned int i = 0; i < fmtCtx->nb_streams; i++) {
         if (fmtCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -198,33 +242,37 @@ bool Player::loadAudioFile(const std::string &filename) {
         std::cerr << "No audio stream found." << std::endl;
         return false;
     }
+    
+    // Set up codec
     const AVCodec* codec = avcodec_find_decoder(fmtCtx->streams[audioStreamIndex]->codecpar->codec_id);
     if (!codec) {
         std::cerr << "Codec not found." << std::endl;
         return false;
     }
+    
     codecCtx = avcodec_alloc_context3(codec);
     if (!codecCtx) {
         std::cerr << "Could not allocate codec context." << std::endl;
         return false;
     }
+    
     if (avcodec_parameters_to_context(codecCtx, fmtCtx->streams[audioStreamIndex]->codecpar) < 0) {
         std::cerr << "Could not copy codec parameters." << std::endl;
         return false;
     }
+    
     if (avcodec_open2(codecCtx, codec, nullptr) < 0) {
         std::cerr << "Could not open codec." << std::endl;
         return false;
     }
-    loadedFile = filename;
-    std::cout << "Audio file loaded: " << loadedFile << std::endl;
     
+    // Set up SDL audio
     SDL_AudioSpec desiredSpec;
     SDL_zero(desiredSpec);
     desiredSpec.freq = 44100;
     desiredSpec.format = AUDIO_S16SYS;
     desiredSpec.channels = 2;
-    desiredSpec.samples = 1024;
+    desiredSpec.samples = 4096;  // Increased buffer size
     desiredSpec.callback = Player::sdlAudioCallback;
     desiredSpec.userdata = this;
     
@@ -234,8 +282,10 @@ bool Player::loadAudioFile(const std::string &filename) {
         std::cerr << "SDL_OpenAudioDevice Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    SDL_PauseAudioDevice(audioDev, 0);
-    playingAudio = true;
+    
+    loadedFile = filename;
+    playingAudio = false;  // Don't start playing immediately
+    std::cout << "Audio file loaded: " << loadedFile << std::endl;
     return true;
 }
 
