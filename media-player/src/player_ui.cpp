@@ -2,7 +2,7 @@
 #include "player.h"
 #include <iostream>
 
-// Render text with the current font/color
+// Render text
 SDL_Texture* Player::renderText(const std::string &text, SDL_Color color) {
     if (!font) return nullptr;
     SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), color);
@@ -28,20 +28,18 @@ void Player::renderButtonText(SDL_Texture* texture, const SDL_Rect& button) {
     }
 }
 
-// Draw the time bar
+// Time bar
 void Player::drawTimeBar() {
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderFillRect(renderer, &timeBar);
 
-    // Draw progress
     if (totalDuration > 0.0) {
         SDL_Rect progress = timeBar;
-        progress.w = static_cast<int>(timeBar.w * (currentTime / totalDuration));
+        progress.w = (int)(timeBar.w * (currentTime / totalDuration));
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &progress);
     }
     
-    // Time text
     char timeText[32];
     int curMin = (int)(currentTime / 60);
     int curSec = (int)currentTime % 60;
@@ -54,7 +52,6 @@ void Player::drawTimeBar() {
     if (timeTexture) {
         int w, h;
         SDL_QueryTexture(timeTexture, nullptr, nullptr, &w, &h);
-
         SDL_Rect dest = {
             timeBar.x + timeBar.w - w - 5,
             timeBar.y + (timeBar.h - h)/2,
@@ -69,7 +66,7 @@ void Player::drawTimeBar() {
 void Player::drawControls() {
     SDL_Color white = {255, 255, 255, 255};
 
-    // Previous
+    // Prev
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderFillRect(renderer, &prevButton);
     SDL_Texture* prevText = renderText("<<", white);
@@ -107,7 +104,6 @@ void Player::drawControls() {
     SDL_RenderFillRect(renderer, &muteButton);
     SDL_Texture* muteText = renderText(isMuted ? "🔇" : "🔊", white);
 
-    // Render text
     renderButtonText(prevText,    prevButton);
     renderButtonText(playText,    playButton);
     renderButtonText(nextText,    nextButton);
@@ -124,16 +120,14 @@ void Player::drawControls() {
     SDL_DestroyTexture(muteText);
 }
 
-// Draw the playlists panel on the left
+// Left panel playlists
 void Player::drawPlaylistPanel() {
     playlistRects.clear();
     playlistDeleteRects.clear();
 
-    // Panel background
     SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
     SDL_RenderFillRect(renderer, &playlistPanel);
 
-    // "New Playlist" button
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderFillRect(renderer, &newPlaylistButton);
 
@@ -153,7 +147,6 @@ void Player::drawPlaylistPanel() {
 
     int yOffset = newPlaylistButton.y + newPlaylistButton.h + 10;
     for (size_t i = 0; i < playlists.size(); i++) {
-        // Full row for the playlist
         SDL_Rect playlistRect = {
             playlistPanel.x + 5,
             yOffset,
@@ -167,7 +160,6 @@ void Player::drawPlaylistPanel() {
             playlistRect.h
         };
 
-        // Decide color
         if ((int)i == activePlaylist) {
             SDL_SetRenderDrawColor(renderer, 60, 100, 60, 255);
         } else {
@@ -175,19 +167,16 @@ void Player::drawPlaylistPanel() {
         }
         SDL_RenderFillRect(renderer, &playlistRect);
 
-        // "X" button
+        // "X" area
         SDL_SetRenderDrawColor(renderer, 90, 30, 30, 255);
         SDL_RenderFillRect(renderer, &deleteRect);
 
-        // =============== Inline Rename vs Normal Display ===============
         bool editingThis = (isRenaming && (int)i == renameIndex);
-
         if (editingThis) {
-            // Lighten a bit more to show editing
             SDL_SetRenderDrawColor(renderer, 90, 90, 90, 255);
             SDL_RenderFillRect(renderer, &playlistRect);
 
-            // Render renameBuffer
+            // Show renameBuffer
             SDL_Texture* editTex = renderText(renameBuffer, white);
             if (editTex) {
                 int w, h;
@@ -202,7 +191,7 @@ void Player::drawPlaylistPanel() {
             }
         }
         else {
-            // Normal playlist name
+            // Normal name
             SDL_Texture* plName = renderText(playlists[i].name, white);
             if (plName) {
                 int w, h;
@@ -217,7 +206,7 @@ void Player::drawPlaylistPanel() {
             }
         }
 
-        // Render the "X"
+        // Draw "X"
         SDL_Texture* xText = renderText("X", white);
         if (xText) {
             int w, h;
@@ -231,19 +220,15 @@ void Player::drawPlaylistPanel() {
             SDL_DestroyTexture(xText);
         }
 
-        // Keep track of these rects for click detection
         playlistRects.push_back(playlistRect);
         playlistDeleteRects.push_back(deleteRect);
-
         yOffset += playlistRect.h + 5;
     }
 }
 
-// Draw the songs in the active playlist (right pane)
+// Right panel songs
 void Player::drawSongPanel() {
-    // Clear old song rects
     songRects.clear();
-
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderFillRect(renderer, &libraryPanel);
 
@@ -263,7 +248,6 @@ void Player::drawSongPanel() {
 
             songRects.push_back(songRect);
 
-            // Filename only
             std::string filename = song.substr(song.find_last_of("/\\")+1);
             SDL_Texture* songTex = renderText(filename, white);
             if (songTex) {
@@ -279,5 +263,54 @@ void Player::drawSongPanel() {
             }
             yOffset += songRect.h + 2;
         }
+    }
+}
+
+// ============== The Confirmation Dialog ==============
+void Player::drawConfirmDialog() {
+    if (!isConfirmingDeletion) return;
+
+    // Dim the background behind the dialog
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150); 
+    SDL_Rect fullScreen = { 0, 0, 800, 600 };
+    SDL_RenderFillRect(renderer, &fullScreen);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+
+    // Draw the dialog box
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &confirmDialogRect);
+
+    // "Are you sure?" text
+    SDL_Color white = {255, 255, 255, 255};
+    SDL_Texture* msg = renderText("Are you sure?", white);
+    if (msg) {
+        int w, h;
+        SDL_QueryTexture(msg, nullptr, nullptr, &w, &h);
+        SDL_Rect msgRect = {
+            confirmDialogRect.x + (confirmDialogRect.w - w)/2,
+            confirmDialogRect.y + 20,
+            w, h
+        };
+        SDL_RenderCopy(renderer, msg, nullptr, &msgRect);
+        SDL_DestroyTexture(msg);
+    }
+
+    // Yes button
+    SDL_SetRenderDrawColor(renderer, 80, 140, 80, 255);
+    SDL_RenderFillRect(renderer, &confirmYesButton);
+    SDL_Texture* yesText = renderText("Yes", white);
+    if (yesText) {
+        renderButtonText(yesText, confirmYesButton);
+        SDL_DestroyTexture(yesText);
+    }
+
+    // No button
+    SDL_SetRenderDrawColor(renderer, 140, 80, 80, 255);
+    SDL_RenderFillRect(renderer, &confirmNoButton);
+    SDL_Texture* noText = renderText("No", white);
+    if (noText) {
+        renderButtonText(noText, confirmNoButton);
+        SDL_DestroyTexture(noText);
     }
 }

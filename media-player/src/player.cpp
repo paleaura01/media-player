@@ -9,7 +9,8 @@ Player::Player()
       audioBuffer(nullptr), audioBufferSize(0), audioBufferIndex(0),
       audioDev(0), playingAudio(false), loadedFile(""),
       currentTime(0), totalDuration(0), isMuted(false), isShuffled(false),
-      activePlaylist(-1)
+      activePlaylist(-1),
+      isConfirmingDeletion(false), deleteCandidateIndex(-1)
 {
     // Place the time bar near the top
     timeBar = { 10, 10, 780, 20 };
@@ -36,6 +37,26 @@ Player::Player()
         30 
     };
     mainPanel = { 0, 0, 0, 0 }; // Not used now
+
+    // ====== Set up the "Are you sure?" confirmation dialog ======
+    confirmDialogRect = {
+        250, // x
+        200, // y
+        300, // width
+        150  // height
+    };
+    confirmYesButton = {
+        confirmDialogRect.x + 30,
+        confirmDialogRect.y + confirmDialogRect.h - 50,
+        100,
+        30
+    };
+    confirmNoButton = {
+        confirmDialogRect.x + confirmDialogRect.w - 130,
+        confirmDialogRect.y + confirmDialogRect.h - 50,
+        100,
+        30
+    };
 }
 
 Player::~Player() {
@@ -155,6 +176,9 @@ void Player::update() {
     drawSongPanel();      // right pane
     drawControls();       // buttons
     drawTimeBar();        // track time bar
+
+    // Finally, draw the confirmation dialog if needed (on top)
+    drawConfirmDialog();
 
     SDL_RenderPresent(renderer);
     SDL_Delay(16);

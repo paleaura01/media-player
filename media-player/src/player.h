@@ -82,6 +82,17 @@ private:
     bool isMuted;
     bool isShuffled;
 
+    // ======================================
+    // Deletion Confirmation Modal Variables
+    // ======================================
+    bool isConfirmingDeletion = false;  // if true, show "Are you sure?" dialog
+    int  deleteCandidateIndex = -1;     // which playlist is pending deletion
+
+    // The dialog box / yes/no button rectangles
+    SDL_Rect confirmDialogRect;
+    SDL_Rect confirmYesButton;
+    SDL_Rect confirmNoButton;
+
     // SDL objects
     SDL_Window* window;
     SDL_Renderer* renderer;
@@ -109,7 +120,8 @@ private:
     void drawTimeBar();
     void drawControls();
     void drawPlaylistPanel();
-    void drawSongPanel(); // draws the songs in active playlist
+    void drawSongPanel();
+    void drawConfirmDialog(); // NEW: draws the "Are you sure?" modal
 
     // Playlist logic
     void handleMouseClick(int x, int y);
