@@ -1,13 +1,14 @@
-// main.cpp
+// src/main.cpp
 #include <iostream>
 #include "player.h"
 
-// Standard main() function.
 int main(int argc, char* argv[]) {
-    std::cout << "Starting Barebones Media Player..." << std::endl;
+    (void)argc;
+    (void)argv;
+    std::cout << "Starting Barebones Audio Player..." << std::endl;
     Player player;
     if (!player.init()) {
-        std::cerr << "Failed to initialize the media player!" << std::endl;
+        std::cerr << "Failed to initialize the audio player!" << std::endl;
         return 1;
     }
     
@@ -21,10 +22,8 @@ int main(int argc, char* argv[]) {
 
 #ifdef _WIN32
 #include <windows.h>
-// Provide a Unicode entry point fallback that calls main()
-// This ensures that if the CRT expects wmain(), it finds one.
-int wmain(int argc, wchar_t* argv[]) {
-    // For simplicity, we ignore the wide arguments.
-    return main(0, nullptr);
+// Fallback WinMain in case the linker looks for it.
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+    return main(__argc, __argv);
 }
 #endif

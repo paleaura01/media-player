@@ -1,11 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(media_player)
 
-# Force the project to build as a console application.
-set(CMAKE_WIN32_EXECUTABLE OFF)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE")
-
-# Set the C++ standard and enforce no extensions.
+# Set the C++ standard.
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -18,8 +14,6 @@ else()
 endif()
 
 # --- vcpkg integration ---
-# Configure with:
-#   cmake .. -DCMAKE_TOOLCHAIN_FILE="../vcpkg/scripts/buildsystems/vcpkg.cmake" -A x64
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 find_package(SDL2_mixer CONFIG REQUIRED)
@@ -48,7 +42,12 @@ add_executable(media_player
     src/state_manager.h
 )
 
-# Link the required libraries.
+# For a GUI application, force the Windows subsystem.
+if(MSVC)
+    set_target_properties(media_player PROPERTIES WIN32_EXECUTABLE TRUE)
+    # Remove any explicit /ENTRY flag.
+endif()
+
 target_link_libraries(media_player PRIVATE 
     SDL2::SDL2 
     SDL2_ttf::SDL2_ttf 
