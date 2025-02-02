@@ -178,6 +178,8 @@ void Player::shutdown() {
     running = false;
 }
 
+
+
 bool Player::isRunning() const {
     return running;
 }

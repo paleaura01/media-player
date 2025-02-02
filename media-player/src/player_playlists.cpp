@@ -74,20 +74,58 @@ void Player::handleFileDrop(const char* filePath) {
 }
 
 void Player::handleMouseClick(int x, int y) {
-    // Handle playlist button
+    // 1) Check if clicked "New Playlist"
     if (x >= newPlaylistButton.x && x <= newPlaylistButton.x + newPlaylistButton.w &&
-        y >= newPlaylistButton.y && y <= newPlaylistButton.y + newPlaylistButton.h) {
+        y >= newPlaylistButton.y && y <= newPlaylistButton.y + newPlaylistButton.h) 
+    {
         handlePlaylistCreation();
         return;
     }
-        // Handle playback controls
+
+    // 2) Check if we clicked any existing playlist row or "X" button
+    for (size_t i = 0; i < playlists.size(); i++) {
+        // The delete "X" button for this playlist
+        SDL_Rect del = playlistDeleteRects[i];
+        if (x >= del.x && x <= del.x + del.w &&
+            y >= del.y && y <= del.y + del.h)
+        {
+            // Delete this playlist
+            playlists.erase(playlists.begin() + i);
+            playlistRects.erase(playlistRects.begin() + i);
+            playlistDeleteRects.erase(playlistDeleteRects.begin() + i);
+
+            // If we just deleted the active playlist, reset activePlaylist
+            if (static_cast<int>(i) == activePlaylist) {
+                activePlaylist = -1;
+            }
+            // Also if we deleted a playlist before the active one,
+            // shift the activePlaylist index down by 1
+            else if (static_cast<int>(i) < activePlaylist) {
+                activePlaylist--;
+            }
+            return; // Done handling this click
+        }
+
+        // The main playlist row
+        SDL_Rect row = playlistRects[i];
+        if (x >= row.x && x <= row.x + row.w &&
+            y >= row.y && y <= row.y + row.h)
+        {
+            // Make this playlist active
+            activePlaylist = static_cast<int>(i);
+            return; // done handling
+        }
+    }
+
+    // 3) Check if clicked any playback controls (like prev, play, stop, etc.)
+    //    This code is already in your handleMouseClick. For example:
     if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
         if (x >= prevButton.x && x <= prevButton.x + prevButton.w) {
-            // Previous track (unimplemented)
+            // previous track logic
         } else if (x >= playButton.x && x <= playButton.x + playButton.w) {
             if (!loadedFile.empty()) playAudio();
         } else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
-            // Next track (unimplemented)
+            // next track logic
         } else if (x >= stopButton.x && x <= stopButton.x + stopButton.w) {
             stopAudio();
         } else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
