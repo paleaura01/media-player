@@ -2,6 +2,7 @@
 #include "player.h"
 #include <iostream>
 #include <cmath> // llround
+#include <cstdlib> // for srand, rand
 
 Player::Player()
     : running(true), window(nullptr), renderer(nullptr), font(nullptr),
@@ -86,7 +87,11 @@ bool Player::init() {
 
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
     std::cout << "Initialization successful.\n";
+
+     // Optionally seed for random generator once
+    srand(static_cast<unsigned>(SDL_GetTicks())); 
     return true;
+
 }
 
 void Player::update() {

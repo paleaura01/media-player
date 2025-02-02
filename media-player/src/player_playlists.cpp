@@ -215,20 +215,55 @@ void Player::handleMouseClick(int x, int y) {
                     }
                 }
             }
-        } else if (x >= playButton.x && x <= playButton.x + playButton.w) {
-            if (!loadedFile.empty()) playAudio();
-        } else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
-            if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
-                for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
-                    if (playlists[activePlaylist].songs[i] == loadedFile && 
-                        i < playlists[activePlaylist].songs.size() - 1) {
-                        if (loadAudioFile(playlists[activePlaylist].songs[i+1])) {
-                            playAudio();
-                        }
-                        break;
-                    }
+} else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
+    if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
+
+        // If shuffle is on, pick random track
+        if (isShuffled) {
+            const auto& songs = playlists[activePlaylist].songs;
+
+            // If there's only one track, that’s our "random" pick
+            if (songs.size() == 1) {
+                if (loadAudioFile(songs[0])) {
+                    playAudio();
+                }
+                return;
+            }
+
+            // Otherwise pick a random song index different from the current one
+            int currentIndex = -1;
+            for (size_t i = 0; i < songs.size(); i++) {
+                if (songs[i] == loadedFile) {
+                    currentIndex = (int)i;
+                    break;
                 }
             }
+
+            int randomIndex;
+            do {
+                randomIndex = rand() % songs.size();
+            } while (randomIndex == currentIndex);
+
+            if (loadAudioFile(songs[randomIndex])) {
+                playAudio();
+            }
+
+        } 
+        // If shuffle is off, just go to the next in the list
+        else {
+            for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+                if (playlists[activePlaylist].songs[i] == loadedFile &&
+                    i < playlists[activePlaylist].songs.size() - 1)
+                {
+                    if (loadAudioFile(playlists[activePlaylist].songs[i + 1])) {
+                        playAudio();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
         } else if (x >= stopButton.x && x <= stopButton.x + stopButton.w) {
             stopAudio();
         } else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
