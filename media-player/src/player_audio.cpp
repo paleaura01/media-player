@@ -35,7 +35,7 @@ bool Player::loadAudioFile(const std::string &filename) {
     }
 
     audioStreamIndex = -1;
-    for (unsigned int i=0; i < fmtCtx->nb_streams; i++) {
+    for (unsigned int i = 0; i < fmtCtx->nb_streams; i++) {
         if (fmtCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             audioStreamIndex = i;
             break;
@@ -85,7 +85,25 @@ bool Player::loadAudioFile(const std::string &filename) {
 
     loadedFile   = filename;
     playingAudio = false;
+
+    // ------------------------------
+    // INCREMENT the play count HERE
+    // ------------------------------
+    if (activePlaylist >= 0) {
+        int trackIndex = -1;
+        for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+            if (playlists[activePlaylist].songs[i] == filename) {
+                trackIndex = (int)i;
+                break;
+            }
+        }
+        if (trackIndex >= 0) {
+            playlists[activePlaylist].playCounts[trackIndex]++;
+        }
+    }
+    // ------------------------------
     std::cout << "Audio file loaded: " << loadedFile << "\n";
+
     return true;
 }
 
@@ -128,7 +146,6 @@ void Player::audioCallback(Uint8* stream, int len) {
 
     int remaining = len;
     uint8_t* out = stream;
-    
 
     while (remaining > 0) {
         if (audioBufferIndex >= audioBufferSize) {

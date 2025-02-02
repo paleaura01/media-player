@@ -7,9 +7,11 @@
 
 void Player::handlePlaylistCreation() {
     std::string name = "Playlist " + std::to_string(playlists.size() + 1);
-    playlists.push_back({ name, {} });
+    // Create new playlist with empty songs + empty playCounts
+    playlists.push_back({ name, {}, {} });
     activePlaylist = (int)playlists.size() - 1;
 }
+
 
 // Saves all playlists
 void Player::savePlaylistState() {
@@ -22,8 +24,13 @@ void Player::savePlaylistState() {
         for (auto& song : pl.songs) {
             file << song << "\n";
         }
+        // Save play counts in the same order
+        for (auto count : pl.playCounts) {
+            file << count << "\n";
+        }
     }
 }
+
 
 void Player::loadPlaylistState() {
     std::ifstream file("playlists.dat");
@@ -34,31 +41,46 @@ void Player::loadPlaylistState() {
     while (std::getline(file, line)) {
         Playlist p;
         p.name = line;
+
         size_t count = 0;
         file >> count;
-        file.ignore();
+        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        // Read songs
         for (size_t i = 0; i < count; i++) {
             std::string s;
             std::getline(file, s);
             p.songs.push_back(s);
         }
+
+        // Read play counts
+        for (size_t i = 0; i < count; i++) {
+            int c;
+            file >> c;
+            file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            p.playCounts.push_back(c);
+        }
+
         playlists.push_back(p);
     }
 }
 
-
-
 void Player::handleFileDrop(const char* filePath) {
     std::lock_guard<std::mutex> lock(playlistMutex);
     if (activePlaylist >= 0) {
+        // Keep parallel vectors in sync
         playlists[activePlaylist].songs.push_back(filePath);
+        playlists[activePlaylist].playCounts.push_back(0);
+
+        // If it's the first song, load & play it
         if (playlists[activePlaylist].songs.size() == 1) {
             if (loadAudioFile(filePath)) {
-                calculateSongDuration();
+                playAudio();
             }
         }
     }
 }
+
 
 void Player::handleMouseClick(int x, int y) {
     std::lock_guard<std::mutex> lock(playlistMutex);
@@ -168,10 +190,13 @@ void Player::handleMouseClick(int x, int y) {
             if (hoveredSongIndex >= 0 && 
             x >= songRects[hoveredSongIndex].x + songRects[hoveredSongIndex].w - 30 && 
             x <= songRects[hoveredSongIndex].x + songRects[hoveredSongIndex].w) {
-            // Remove song
-            playlists[activePlaylist].songs.erase(
-                playlists[activePlaylist].songs.begin() + hoveredSongIndex
-            );
+                // Remove song AND its play count
+                playlists[activePlaylist].songs.erase(
+                    playlists[activePlaylist].songs.begin() + hoveredSongIndex
+                );
+                playlists[activePlaylist].playCounts.erase(
+                    playlists[activePlaylist].playCounts.begin() + hoveredSongIndex
+                );
             return;
         }
         }

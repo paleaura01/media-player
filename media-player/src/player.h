@@ -54,6 +54,7 @@ private:
     struct Playlist {
         std::string name;
         std::vector<std::string> songs;
+        std::vector<int> playCounts;
     };
     std::vector<Playlist> playlists;
     std::vector<SDL_Rect> playlistRects;

@@ -62,12 +62,11 @@ void Player::drawTimeBar() {
     }
 }
 
-
 // Transport controls
 void Player::drawControls() {
     SDL_Color white = {255, 255, 255, 255};
 
-    // === PREV BUTTON ("<<") => small square ===
+    // === PREV BUTTON ("<<")
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderFillRect(renderer, &prevButton);
     {
@@ -78,7 +77,7 @@ void Player::drawControls() {
         }
     }
 
-    // === PLAY BUTTON ("Play") => wide rectangle ===
+    // === PLAY BUTTON ("Play")
     SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
     SDL_RenderFillRect(renderer, &playButton);
     {
@@ -89,7 +88,7 @@ void Player::drawControls() {
         }
     }
 
-    // === NEXT BUTTON (">>") => small square ===
+    // === NEXT BUTTON (">>")
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderFillRect(renderer, &nextButton);
     {
@@ -100,7 +99,7 @@ void Player::drawControls() {
         }
     }
 
-    // === STOP BUTTON ("Stop") => wide rectangle ===
+    // === STOP BUTTON ("Stop")
     SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
     SDL_RenderFillRect(renderer, &stopButton);
     {
@@ -111,7 +110,7 @@ void Player::drawControls() {
         }
     }
 
-    // === SHUFFLE BUTTON ("Shuffle") => wide rectangle ===
+    // === SHUFFLE BUTTON ("Shuffle")
     if (isShuffled) {
         SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
     } else {
@@ -126,7 +125,7 @@ void Player::drawControls() {
         }
     }
 
-    // === MUTE BUTTON ("Mute") => wide rectangle ===
+    // === MUTE BUTTON ("Mute")
     if (isMuted) {
         SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
     } else {
@@ -141,41 +140,40 @@ void Player::drawControls() {
         }
     }
 
-    // === REWIND/FORWARD BUTTONS ===
-SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
-SDL_RenderFillRect(renderer, &rewindButton);
-SDL_RenderFillRect(renderer, &forwardButton);
+    // === REWIND / FORWARD
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &rewindButton);
+    SDL_RenderFillRect(renderer, &forwardButton);
 
-SDL_Texture* rewindText = renderText("<", white);
-if (rewindText) {
-    renderButtonText(rewindText, rewindButton);
-    SDL_DestroyTexture(rewindText);
-}
+    SDL_Texture* rewindText = renderText("<", white);
+    if (rewindText) {
+        renderButtonText(rewindText, rewindButton);
+        SDL_DestroyTexture(rewindText);
+    }
 
-SDL_Texture* forwardText = renderText(">", white);
-if (forwardText) {
-    renderButtonText(forwardText, forwardButton);
-    SDL_DestroyTexture(forwardText);
-}
+    SDL_Texture* forwardText = renderText(">", white);
+    if (forwardText) {
+        renderButtonText(forwardText, forwardButton);
+        SDL_DestroyTexture(forwardText);
+    }
 
-// === VOLUME BAR ===
-SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
-SDL_RenderFillRect(renderer, &volumeBar);
+    // === VOLUME BAR
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_RenderFillRect(renderer, &volumeBar);
 
-SDL_Rect volumeFill = volumeBar;
-volumeFill.w = (int)(volumeBar.w * (volume / 100.0f));
-SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
-SDL_RenderFillRect(renderer, &volumeFill);
+    SDL_Rect volumeFill = volumeBar;
+    volumeFill.w = (int)(volumeBar.w * (volume / 100.0f));
+    SDL_SetRenderDrawColor(renderer, 0, 200, 0, 255);
+    SDL_RenderFillRect(renderer, &volumeFill);
 
-// Display volume percentage
-char volumeText[16];
-snprintf(volumeText, sizeof(volumeText), "%.0f%%", volume);
-SDL_Texture* volumeTexture = renderText(volumeText, white);
-if (volumeTexture) {
-    renderButtonText(volumeTexture, volumeBar);
-    SDL_DestroyTexture(volumeTexture);
-}
-
+    // Display volume percentage
+    char volumeText[16];
+    snprintf(volumeText, sizeof(volumeText), "%.0f%%", volume);
+    SDL_Texture* volumeTexture = renderText(volumeText, white);
+    if (volumeTexture) {
+        renderButtonText(volumeTexture, volumeBar);
+        SDL_DestroyTexture(volumeTexture);
+    }
 }
 
 // Left panel playlists
@@ -249,7 +247,6 @@ void Player::drawPlaylistPanel() {
             }
         }
         else {
-            // Normal name
             SDL_Texture* plName = renderText(playlists[i].name, white);
             if (plName) {
                 int w, h;
@@ -303,6 +300,7 @@ void Player::drawSongPanel() {
                 25
             };
             
+            // Highlight if this song is currently loaded
             if (song == loadedFile) {
                 SDL_SetRenderDrawColor(renderer, 0, 100, 0, 255);
             } else {
@@ -312,8 +310,15 @@ void Player::drawSongPanel() {
 
             songRects.push_back(songRect);
 
+            // Extract just the filename
             std::string filename = song.substr(song.find_last_of("/\\") + 1);
-            SDL_Texture* songTex = renderText(filename, white);
+
+            // Build a display string like "(played 3) MySong.mp3"
+            int plays = playlists[activePlaylist].playCounts[i];
+            std::string displayName = "(played " + std::to_string(plays) + ") " + filename;
+
+            // Render that text
+            SDL_Texture* songTex = renderText(displayName, white);
             if (songTex) {
                 int w, h;
                 SDL_QueryTexture(songTex, nullptr, nullptr, &w, &h);
@@ -326,6 +331,7 @@ void Player::drawSongPanel() {
                 SDL_DestroyTexture(songTex);
             }
 
+            // If hovered, draw the X area on the right side
             if ((int)i == hoveredSongIndex) {
                 SDL_Rect deleteRect = {
                     songRect.x + songRect.w - 30,
@@ -348,13 +354,13 @@ void Player::drawSongPanel() {
     }
 }
 
-// ============== The Confirmation Dialog ==============
+// Confirmation Dialog
 void Player::drawConfirmDialog() {
     if (!isConfirmingDeletion) return;
 
-    // Dim the background behind the dialog
+    // Dim background behind the dialog
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150); 
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
     SDL_Rect fullScreen = { 0, 0, 800, 600 };
     SDL_RenderFillRect(renderer, &fullScreen);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
