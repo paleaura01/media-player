@@ -59,10 +59,10 @@ private:
     std::vector<SDL_Rect> playlistRects;
     std::vector<SDL_Rect> playlistDeleteRects;
     std::vector<SDL_Rect> songRects;
-    int activePlaylist;
 
     void savePlaylistState();
     void loadPlaylistState();
+    
 
     // Double-click
     int    lastPlaylistClickIndex = -1;
@@ -76,8 +76,10 @@ private:
     // Playback
     double currentTime;
     double totalDuration;
-    bool   isMuted;
-    bool   isShuffled;
+    bool isMuted;
+    bool isShuffled;
+    int activePlaylist;
+   std::atomic<bool> reachedEOF{false};
 
     // "Are you sure?" confirm deletion
     bool isConfirmingDeletion = false;
@@ -118,13 +120,14 @@ private:
     bool loadAudioFile(const std::string &filename);
     void playAudio();
     void stopAudio();
+    void playNextTrack();
     float volume = 100.0f;
     // If you want seeking in time bar
     void seekTo(double seconds);
     std::mutex audioMutex;
     std::mutex playlistMutex;
     int hoveredSongIndex = -1;
- 
+    
 
     // Audio callback
     void audioCallback(Uint8* stream, int len);

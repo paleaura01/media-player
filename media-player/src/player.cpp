@@ -102,62 +102,24 @@ void Player::update() {
         else if (event.type == SDL_MOUSEBUTTONDOWN) {
             handleMouseClick(event.button.x, event.button.y);
         }
-        else if (event.type == SDL_TEXTINPUT) {
-            if (isRenaming) {
-                renameBuffer += event.text.text;
-            }
-        }
-        else if (event.type == SDL_KEYDOWN) {
-            if (isRenaming) {
-                if (event.key.keysym.sym == SDLK_BACKSPACE) {
-                    if (!renameBuffer.empty()) {
-                        renameBuffer.pop_back();
-                    }
-                }
-                else if (event.key.keysym.sym == SDLK_RETURN) {
-                    if (renameIndex >= 0 && renameIndex < (int)playlists.size()) {
-                        playlists[renameIndex].name = renameBuffer;
-                    }
-                    isRenaming = false;
-                    renameIndex = -1;
-                    renameBuffer.clear();
-                    SDL_StopTextInput();
-                }
-                else if (event.key.keysym.sym == SDLK_ESCAPE) {
-                    isRenaming = false;
-                    renameIndex = -1;
-                    renameBuffer.clear();
-                    SDL_StopTextInput();
-                }
-            }
-        }
-        else if (event.type == SDL_DROPFILE) {
-            char* filePath = event.drop.file;
-            handleFileDrop(filePath);
-            SDL_free(filePath);
-        }
-        int mouseX, mouseY;
-SDL_GetMouseState(&mouseX, &mouseY);
-hoveredSongIndex = -1;
-for (size_t i = 0; i < songRects.size(); i++) {
-    if (mouseX >= songRects[i].x && mouseX <= songRects[i].x + songRects[i].w &&
-        mouseY >= songRects[i].y && mouseY <= songRects[i].y + songRects[i].h) {
-        hoveredSongIndex = i;
-        break;
     }
+
+    // Update current time
+    if (playingAudio) {
+        currentTime = lastPTS.load(std::memory_order_relaxed);
+
+        // === Detect end of song ===
+if ((currentTime >= totalDuration && totalDuration > 0) || reachedEOF.load(std::memory_order_relaxed)) {
+    std::cout << "[Debug] Track finished. Moving to next song...\n";
+    reachedEOF.store(false, std::memory_order_relaxed);  // Reset the flag
+    playNextTrack();
 }
     }
 
-    // Update currentTime from lastPTS
-    if (playingAudio) {
-        currentTime = lastPTS.load(std::memory_order_relaxed);
-    }
-
-    // Clear
+    // UI Rendering
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderClear(renderer);
 
-    // Draw
     drawPlaylistPanel();
     drawSongPanel();
     drawControls();
@@ -167,6 +129,54 @@ for (size_t i = 0; i < songRects.size(); i++) {
     SDL_RenderPresent(renderer);
     SDL_Delay(16);
 }
+
+void Player::playNextTrack() {
+    if (activePlaylist < 0 || playlists[activePlaylist].songs.empty()) return;
+
+    const auto& songs = playlists[activePlaylist].songs;
+
+    if (isShuffled) {
+        // Shuffle mode: pick a random song (not the same one)
+        if (songs.size() == 1) return; // Only one track, just replay it
+
+        int currentIndex = -1;
+        for (size_t i = 0; i < songs.size(); i++) {
+            if (songs[i] == loadedFile) {
+                currentIndex = (int)i;
+                break;
+            }
+        }
+
+        int randomIndex;
+        do {
+            randomIndex = rand() % songs.size();
+        } while (randomIndex == currentIndex);
+
+        if (loadAudioFile(songs[randomIndex])) {
+            playAudio();
+        }
+    }
+    else {
+        // Normal mode: Go to the next track or loop back
+        for (size_t i = 0; i < songs.size(); i++) {
+            if (songs[i] == loadedFile) {
+                if (i < songs.size() - 1) {
+                    if (loadAudioFile(songs[i + 1])) {
+                        playAudio();
+                    }
+                } else {
+                    // Loop back to the first song if at the end
+                    if (loadAudioFile(songs[0])) {
+                        playAudio();
+                    }
+                }
+                return;
+            }
+        }
+    }
+}
+
+
 
 void Player::seekTo(double seconds) {
     if (!fmtCtx || audioStreamIndex < 0) return;
