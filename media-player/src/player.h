@@ -59,7 +59,10 @@ private:
     std::vector<SDL_Rect> playlistRects;
     std::vector<SDL_Rect> playlistDeleteRects;
     std::vector<SDL_Rect> songRects;
-
+     int playlistScrollOffset = 0;
+    int songScrollOffset = 0;
+    int visibleSongRows = 0;  // Will be calculated based on panel height
+    bool ensurePlayingTrackVisible = false;  // Flag to trigger scrolling to playing track
     void savePlaylistState();
     void loadPlaylistState();
     
@@ -121,12 +124,18 @@ private:
     void playAudio();
     void stopAudio();
     void playNextTrack();
+    void cleanup_audio_resources();
+    std::atomic<bool> isLoading{false};
     float volume = 100.0f;
     // If you want seeking in time bar
     void seekTo(double seconds);
     std::mutex audioMutex;
     std::mutex playlistMutex;
     int hoveredSongIndex = -1;
+    void incrementPlayCount(const std::string& filepath);
+
+
+
     
 
     // Audio callback

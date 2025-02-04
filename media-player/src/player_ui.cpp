@@ -280,35 +280,54 @@ void Player::drawSongPanel() {
 
     if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
         SDL_Color white = {255, 255, 255, 255};
-        int yOffset = libraryPanel.y + 10;
+        
+        // Calculate visible area
+        int rowHeight = 25;
+        visibleSongRows = (libraryPanel.h - 20) / (rowHeight + 2);
+        
+        // Ensure playing track is visible
+        if (ensurePlayingTrackVisible) {
+            for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+                if (playlists[activePlaylist].songs[i] == loadedFile) {
+                    // Calculate desired scroll offset to make this track visible
+                    int desiredOffset = (int)i - (visibleSongRows / 2);
+                    int maxOffset = (int)playlists[activePlaylist].songs.size() - visibleSongRows;
+                    if (desiredOffset < 0) desiredOffset = 0;
+                    if (desiredOffset > maxOffset) desiredOffset = maxOffset;
+                    songScrollOffset = desiredOffset;
+                    break;
+                }
+            }
+            ensurePlayingTrackVisible = false;
+        }
 
-        for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+        // Draw visible songs
+        for (size_t i = songScrollOffset; 
+             i < playlists[activePlaylist].songs.size() && 
+             i < (size_t)(songScrollOffset + visibleSongRows); 
+             i++) {
+            
             auto& song = playlists[activePlaylist].songs[i];
             SDL_Rect songRect = {
                 libraryPanel.x + 10,
-                yOffset,
+                libraryPanel.y + 10 + ((int)i - songScrollOffset) * (rowHeight + 2),
                 libraryPanel.w - 20,
-                25
+                rowHeight
             };
             
-            // Highlight if this song is currently loaded
+            // Rest of the drawing code remains the same
             if (song == loadedFile) {
                 SDL_SetRenderDrawColor(renderer, 0, 100, 0, 255);
             } else {
                 SDL_SetRenderDrawColor(renderer, 45, 45, 45, 255);
             }
             SDL_RenderFillRect(renderer, &songRect);
-
             songRects.push_back(songRect);
 
-            // Extract just the filename
             std::string filename = song.substr(song.find_last_of("/\\") + 1);
-
-            // Build a display string like "(played 3) MySong.mp3"
             int plays = playlists[activePlaylist].playCounts[i];
             std::string displayName = "(played " + std::to_string(plays) + ") " + filename;
 
-            // Render that text
             SDL_Texture* songTex = renderText(displayName, white);
             if (songTex) {
                 int w, h;
@@ -322,7 +341,6 @@ void Player::drawSongPanel() {
                 SDL_DestroyTexture(songTex);
             }
 
-            // If hovered, draw the X area on the right side
             if ((int)i == hoveredSongIndex) {
                 SDL_Rect deleteRect = {
                     songRect.x + songRect.w - 30,
@@ -339,8 +357,6 @@ void Player::drawSongPanel() {
                     SDL_DestroyTexture(xText);
                 }
             }
-
-            yOffset += songRect.h + 2;
         }
     }
 }

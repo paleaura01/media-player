@@ -6,34 +6,30 @@
 #include <mutex>
 
 bool Player::loadAudioFile(const std::string &filename) {
+    std::lock_guard<std::mutex> lock(audioMutex);
     std::cout << "[Debug] Loading file: " << filename << "\n";
-    reachedEOF.store(false, std::memory_order_relaxed);
-    currentTime = 0;  // Reset time
+    
 
-    // Close old audio device and contexts
-    if (audioDev != 0) {
-        SDL_CloseAudioDevice(audioDev);
-        audioDev = 0;
-    }
-    if (fmtCtx) {
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
-    }
-    if (codecCtx) {
-        avcodec_free_context(&codecCtx);
-        codecCtx = nullptr;
-    }
-    if (swrCtx) {
-        swr_free(&swrCtx);
-        swrCtx = nullptr;
+
+    isLoading.store(true);  // Set loading flag
+    reachedEOF.store(false);
+    currentTime = 0;
+    
+    // Clean up old resources first
+    cleanup_audio_resources();
+
+    // Make sure we have our packet and frame
+    if (!packet) packet = av_packet_alloc();
+    if (!frame) frame = av_frame_alloc();
+    if (!packet || !frame) {
+        std::cerr << "Failed to allocate packet/frame\n";
+        isLoading.store(false);
+        return false;
     }
 
     if (avformat_open_input(&fmtCtx, filename.c_str(), nullptr, nullptr) != 0) {
         std::cerr << "Could not open audio file: " << filename << std::endl;
-        return false;
-    }
-    if (avformat_find_stream_info(fmtCtx, nullptr) < 0) {
-        std::cerr << "Could not find stream info.\n";
+        isLoading.store(false);
         return false;
     }
 
@@ -68,6 +64,13 @@ bool Player::loadAudioFile(const std::string &filename) {
         return false;
     }
 
+
+
+    // Safely stop current playback first
+    if (playingAudio) {
+        stopAudio();
+    }
+
     SDL_AudioSpec desired;
     SDL_zero(desired);
     desired.freq = 44100;
@@ -93,9 +96,52 @@ bool Player::loadAudioFile(const std::string &filename) {
     } else {
         totalDuration = 0;
     }
+
+    
     std::cout << "[Debug] Loaded file duration: " << totalDuration << " seconds\n";
 
+    ensurePlayingTrackVisible = true;
+
+    loadedFile = filename;
+    playingAudio = false;
+    ensurePlayingTrackVisible = true;
+    isLoading.store(false);
+
+    // Increment play count for new track
+    incrementPlayCount(filename);
     return true;
+}
+
+void Player::cleanup_audio_resources() {
+    if (audioDev != 0) {
+        SDL_PauseAudioDevice(audioDev, 1);  // Pause first
+        SDL_CloseAudioDevice(audioDev);
+        audioDev = 0;
+    }
+
+    if (audioBuffer) {
+        av_free(audioBuffer);
+        audioBuffer = nullptr;
+    }
+
+    if (swrCtx) {
+        swr_free(&swrCtx);
+        swrCtx = nullptr;
+    }
+
+    if (codecCtx) {
+        avcodec_free_context(&codecCtx);
+        codecCtx = nullptr;
+    }
+
+    if (fmtCtx) {
+        avformat_close_input(&fmtCtx);
+        fmtCtx = nullptr;
+    }
+
+    audioBufferSize = 0;
+    audioBufferIndex = 0;
+    playingAudio = false;
 }
 
 void Player::calculateSongDuration() {
@@ -110,13 +156,15 @@ void Player::calculateSongDuration() {
 }
 
 void Player::playAudio() {
-    if (audioDev != 0 && !playingAudio) {
+    std::lock_guard<std::mutex> lock(audioMutex);
+    if (audioDev != 0 && !playingAudio && !isLoading.load()) {
         SDL_PauseAudioDevice(audioDev, 0);
         playingAudio = true;
     }
 }
 
 void Player::stopAudio() {
+    std::lock_guard<std::mutex> lock(audioMutex);
     if (audioDev != 0 && playingAudio) {
         SDL_PauseAudioDevice(audioDev, 1);
         playingAudio = false;
@@ -129,11 +177,13 @@ void Player::sdlAudioCallback(void* userdata, Uint8* stream, int len) {
 }
 
 void Player::audioCallback(Uint8* stream, int len) {
-    std::lock_guard<std::mutex> lock(audioMutex);
-    if (!fmtCtx || !codecCtx || !stream) {
+ std::unique_lock<std::mutex> lock(audioMutex, std::try_to_lock);
+    if (!lock.owns_lock() || !fmtCtx || !codecCtx || !stream || isLoading.load()) {
         memset(stream, 0, len);
         return;
     }
+
+    try {
 
     int remaining = len;
     uint8_t* out = stream;
@@ -229,4 +279,9 @@ void Player::audioCallback(Uint8* stream, int len) {
         remaining -= bytesToCopy;
         out += bytesToCopy;
     }
+        } catch (...) {
+        memset(stream, 0, len);
+        std::cerr << "Error in audio callback" << std::endl;
+    }
+
 }

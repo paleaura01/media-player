@@ -59,6 +59,13 @@ bool Player::init() {
         return false;
     }
 
+    // Move font initialization here
+    font = TTF_OpenFont("Arial.ttf", 14);
+    if (!font) {
+        std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
     window = SDL_CreateWindow("Barebones Audio Player",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               800, 600, SDL_WINDOW_SHOWN);
@@ -71,7 +78,6 @@ bool Player::init() {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    font = TTF_OpenFont("Arial.ttf", 24);
     if (!font) {
         std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
         return false;
@@ -99,19 +105,37 @@ void Player::update() {
         if (event.type == SDL_QUIT) {
             running = false;
         }
+        else if (event.type == SDL_MOUSEWHEEL) {
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+            
+            // Check if mouse is over song panel
+            if (mouseX >= libraryPanel.x && mouseX <= libraryPanel.x + libraryPanel.w &&
+                mouseY >= libraryPanel.y && mouseY <= libraryPanel.y + libraryPanel.h) 
+            {
+                songScrollOffset -= event.wheel.y;
+                
+                // Clamp scrolling
+                if (activePlaylist >= 0) {
+                    int maxOffset = (int)playlists[activePlaylist].songs.size() - visibleSongRows;
+                    if (maxOffset < 0) maxOffset = 0;
+                    if (songScrollOffset < 0) songScrollOffset = 0;
+                    if (songScrollOffset > maxOffset) songScrollOffset = maxOffset;
+                }
+            }
+        }
         else if (event.type == SDL_MOUSEBUTTONDOWN) {
             handleMouseClick(event.button.x, event.button.y);
         }
         else if (event.type == SDL_DROPFILE) {
             handleFileDrop(event.drop.file);
-            SDL_free(event.drop.file);  // Free the file path
+            SDL_free(event.drop.file);
         }
         else if (event.type == SDL_TEXTINPUT && isRenaming) {
             renameBuffer += event.text.text;
         }
         else if (event.type == SDL_KEYDOWN && isRenaming) {
             if (event.key.keysym.sym == SDLK_RETURN) {
-                // Save the new name
                 if (renameIndex >= 0 && renameIndex < (int)playlists.size()) {
                     playlists[renameIndex].name = renameBuffer;
                 }
@@ -126,16 +150,31 @@ void Player::update() {
                 SDL_StopTextInput();
             }
         }
+        else if (event.type == SDL_MOUSEMOTION) {
+            if (activePlaylist >= 0) {
+                hoveredSongIndex = -1;  // Reset first
+                for (size_t i = 0; i < songRects.size(); i++) {
+                    if (event.motion.x >= songRects[i].x &&
+                        event.motion.x <= songRects[i].x + songRects[i].w &&
+                        event.motion.y >= songRects[i].y &&
+                        event.motion.y <= songRects[i].y + songRects[i].h)
+                    {
+                        hoveredSongIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     // Update current time
     if (playingAudio) {
         currentTime = lastPTS.load(std::memory_order_relaxed);
 
-        // === Detect end of song ===
-        if ((currentTime >= totalDuration && totalDuration > 0) || reachedEOF.load(std::memory_order_relaxed)) {
+        if ((currentTime >= totalDuration && totalDuration > 0) || 
+            reachedEOF.load(std::memory_order_relaxed)) {
             std::cout << "[Debug] Track finished. Moving to next song...\n";
-            reachedEOF.store(false, std::memory_order_relaxed);  // Reset the flag
+            reachedEOF.store(false, std::memory_order_relaxed);
             playNextTrack();
         }
     }
@@ -155,7 +194,18 @@ void Player::update() {
 }
 
 void Player::playNextTrack() {
-    if (activePlaylist < 0 || playlists[activePlaylist].songs.empty()) return;
+    std::lock_guard<std::mutex> lock(playlistMutex);
+    
+    if (activePlaylist < 0 || 
+        activePlaylist >= (int)playlists.size() || 
+        playlists[activePlaylist].songs.empty()) {
+        return;
+    }
+
+    // Increment play count for the track that just finished
+    if (!loadedFile.empty()) {
+        incrementPlayCount(loadedFile);
+    }
 
     const auto& songs = playlists[activePlaylist].songs;
 
@@ -203,40 +253,34 @@ void Player::playNextTrack() {
 
 
 void Player::seekTo(double seconds) {
-    if (!fmtCtx || audioStreamIndex < 0) return;
+    std::lock_guard<std::mutex> lock(audioMutex);
+    
+    if (!fmtCtx || audioStreamIndex < 0 || isLoading.load()) {
+        return;
+    }
 
-    int64_t target = (int64_t)llround(seconds * AV_TIME_BASE);
-    if (av_seek_frame(fmtCtx, -1, target, AVSEEK_FLAG_BACKWARD) >= 0) {
-        avcodec_flush_buffers(codecCtx);
-        currentTime = seconds;
-        lastPTS.store(seconds, std::memory_order_relaxed);
-        std::cout << "[Debug] Seeked to " << seconds << " sec.\n";
-    } else {
-        std::cerr << "[Warn] av_seek_frame failed.\n";
+    if (seconds < 0) seconds = 0;
+    if (seconds > totalDuration) seconds = totalDuration;
+
+    try {
+        int64_t target = (int64_t)llround(seconds * AV_TIME_BASE);
+        if (av_seek_frame(fmtCtx, -1, target, AVSEEK_FLAG_BACKWARD) >= 0) {
+            avcodec_flush_buffers(codecCtx);
+            currentTime = seconds;
+            lastPTS.store(seconds, std::memory_order_relaxed);
+        }
+    } catch (...) {
+        std::cerr << "Error during seek operation" << std::endl;
     }
 }
 
 void Player::shutdown() {
-    if (audioDev != 0) {
-        SDL_CloseAudioDevice(audioDev);
-        audioDev = 0;
-    }
-    if (audioBuffer) {
-        av_free(audioBuffer);
-        audioBuffer = nullptr;
-    }
-    if (swrCtx) {
-        swr_free(&swrCtx);
-        swrCtx = nullptr;
-    }
-    if (codecCtx) {
-        avcodec_free_context(&codecCtx);
-        codecCtx = nullptr;
-    }
-    if (fmtCtx) {
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
-    }
+    std::lock_guard<std::mutex> lock1(audioMutex);
+    std::lock_guard<std::mutex> lock2(playlistMutex);
+    
+    running = false;
+    cleanup_audio_resources();
+    
     if (packet) {
         av_packet_free(&packet);
         packet = nullptr;
@@ -245,6 +289,7 @@ void Player::shutdown() {
         av_frame_free(&frame);
         frame = nullptr;
     }
+    
     if (font) {
         TTF_CloseFont(font);
         font = nullptr;
@@ -257,9 +302,9 @@ void Player::shutdown() {
         SDL_DestroyWindow(window);
         window = nullptr;
     }
+    
+    TTF_Quit();
     SDL_Quit();
-    std::cout << "Player shutdown.\n";
-    running = false;
 }
 
 bool Player::isRunning() const {

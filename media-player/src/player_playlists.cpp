@@ -5,6 +5,18 @@
 #include <iostream>
 #include <mutex>
 
+void Player::incrementPlayCount(const std::string& filepath) {
+    if (activePlaylist < 0) return;
+    
+    // Find the song in the current playlist
+    for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+        if (playlists[activePlaylist].songs[i] == filepath) {
+            playlists[activePlaylist].playCounts[i]++;
+            break;
+        }
+    }
+}
+
 void Player::handlePlaylistCreation() {
     std::string name = "Playlist " + std::to_string(playlists.size() + 1);
     // Create new playlist with empty songs + empty playCounts
@@ -84,6 +96,17 @@ void Player::handleFileDrop(const char* filePath) {
 
 void Player::handleMouseClick(int x, int y) {
     std::lock_guard<std::mutex> lock(playlistMutex);
+
+        // Add bounds checking at the start
+    if (x < 0 || x >= 800 || y < 0 || y >= 600) {
+        return;  // Ignore clicks outside window bounds
+    }
+
+    // If audio operations are in progress, ignore clicks
+    if (!audioMutex.try_lock()) {
+        return;  // Audio system busy, ignore click
+    }
+    audioMutex.unlock();
     // 1) If the confirmation dialog is open, only handle Yes/No
     if (isConfirmingDeletion) {
         // Check Yes button
@@ -174,33 +197,45 @@ void Player::handleMouseClick(int x, int y) {
     }
 
     // 3) Check if clicked a song
-    if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
-        for (size_t s = 0; s < songRects.size(); s++) {
-            SDL_Rect r = songRects[s];
-            if (x >= r.x && x <= r.x + r.w &&
-                y >= r.y && y <= r.y + r.h)
-            {
-                // clicked a song
-                const std::string& path = playlists[activePlaylist].songs[s];
-                if (loadAudioFile(path)) {
-                    playAudio();
+if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
+    for (size_t s = 0; s < songRects.size(); s++) {
+        SDL_Rect r = songRects[s];
+        
+        // First check if this is a delete click
+        if ((int)s == hoveredSongIndex) {
+            if (x >= r.x + r.w - 30 && x <= r.x + r.w &&
+                y >= r.y && y <= r.y + r.h) {
+                // Calculate actual index accounting for scroll
+                size_t actualIndex = s + songScrollOffset;
+                if (actualIndex < playlists[activePlaylist].songs.size()) {
+                    playlists[activePlaylist].songs.erase(
+                        playlists[activePlaylist].songs.begin() + actualIndex
+                    );
+                    playlists[activePlaylist].playCounts.erase(
+                        playlists[activePlaylist].playCounts.begin() + actualIndex
+                    );
+                    // Reset hover state
+                    hoveredSongIndex = -1;
                 }
                 return;
             }
-            if (hoveredSongIndex >= 0 && 
-            x >= songRects[hoveredSongIndex].x + songRects[hoveredSongIndex].w - 30 && 
-            x <= songRects[hoveredSongIndex].x + songRects[hoveredSongIndex].w) {
-                // Remove song AND its play count
-                playlists[activePlaylist].songs.erase(
-                    playlists[activePlaylist].songs.begin() + hoveredSongIndex
-                );
-                playlists[activePlaylist].playCounts.erase(
-                    playlists[activePlaylist].playCounts.begin() + hoveredSongIndex
-                );
+        }
+        
+        // Then check for normal song click
+        if (x >= r.x && x <= r.x + r.w &&
+            y >= r.y && y <= r.y + r.h)
+        {
+            size_t actualIndex = s + songScrollOffset;
+            if (actualIndex < playlists[activePlaylist].songs.size()) {
+                const std::string& path = playlists[activePlaylist].songs[actualIndex];
+                if (loadAudioFile(path)) {
+                    playAudio();
+                }
+            }
             return;
         }
-        }
     }
+}
 
     // 4) Check transport controls
     if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
