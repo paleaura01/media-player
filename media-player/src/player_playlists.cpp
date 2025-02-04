@@ -12,9 +12,11 @@ void Player::incrementPlayCount(const std::string& filepath) {
     for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
         if (playlists[activePlaylist].songs[i] == filepath) {
             playlists[activePlaylist].playCounts[i]++;
+            // Don't increment session count here as it's handled in playNextTrack
             break;
         }
     }
+    savePlaylistState(); // Save after incrementing
 }
 
 void Player::handlePlaylistCreation() {
@@ -58,22 +60,29 @@ void Player::loadPlaylistState() {
         file >> count;
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-        // Read songs
+        // Read songs and initialize play counts
         for (size_t i = 0; i < count; i++) {
             std::string s;
             std::getline(file, s);
             p.songs.push_back(s);
+            p.playCounts.push_back(0); // Initialize to 0
         }
 
-        // Read play counts
+        // Read saved play counts
         for (size_t i = 0; i < count; i++) {
             int c;
             file >> c;
             file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            p.playCounts.push_back(c);
+            p.playCounts[i] = c;
         }
 
         playlists.push_back(p);
+    }
+
+    // Initialize session counts for active playlist
+    if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
+        sessionPlayCounts.resize(playlists[activePlaylist].songs.size(), 0);
+        currentPlayLevel = 0;
     }
 }
 
@@ -83,6 +92,10 @@ void Player::handleFileDrop(const char* filePath) {
         // Keep parallel vectors in sync
         playlists[activePlaylist].songs.push_back(filePath);
         playlists[activePlaylist].playCounts.push_back(0);
+
+        // Update session play counts to match the new number of songs.
+        // This ensures that each song has an entry in sessionPlayCounts.
+        sessionPlayCounts.resize(playlists[activePlaylist].songs.size(), 0);
 
         // If it's the first song, load & play it
         if (playlists[activePlaylist].songs.size() == 1) {
@@ -197,29 +210,23 @@ void Player::handleMouseClick(int x, int y) {
     }
 
     // 3) Check if clicked a song
+// In handleMouseClick, in the song selection section:
 if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
     for (size_t s = 0; s < songRects.size(); s++) {
         SDL_Rect r = songRects[s];
-        
-        // First check if this is a delete click
-        if ((int)s == hoveredSongIndex) {
-            if (x >= r.x + r.w - 30 && x <= r.x + r.w &&
-                y >= r.y && y <= r.y + r.h) {
-                // Calculate actual index accounting for scroll
-                size_t actualIndex = s + songScrollOffset;
-                if (actualIndex < playlists[activePlaylist].songs.size()) {
-                    playlists[activePlaylist].songs.erase(
-                        playlists[activePlaylist].songs.begin() + actualIndex
-                    );
-                    playlists[activePlaylist].playCounts.erase(
-                        playlists[activePlaylist].playCounts.begin() + actualIndex
-                    );
-                    // Reset hover state
-                    hoveredSongIndex = -1;
+        if (x >= r.x && x <= r.x + r.w &&
+            y >= r.y && y <= r.y + r.h)
+        {
+            size_t actualIndex = s + songScrollOffset;
+            if (actualIndex < playlists[activePlaylist].songs.size()) {
+                const std::string& path = playlists[activePlaylist].songs[actualIndex];
+                if (!path.empty() && loadAudioFile(path)) {
+                    playAudio();
                 }
-                return;
             }
+            return;
         }
+    
         
         // Then check for normal song click
         if (x >= r.x && x <= r.x + r.w &&
@@ -238,94 +245,96 @@ if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
 }
 
     // 4) Check transport controls
-    if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
-        if (x >= prevButton.x && x <= prevButton.x + prevButton.w) {
-            if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
+// 4) Check transport controls
+if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
+    if (x >= prevButton.x && x <= prevButton.x + prevButton.w) {
+        // Previous button
+        if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
+            size_t currentIndex = 0;
+            bool found = false;
+            for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+                if (playlists[activePlaylist].songs[i] == loadedFile) {
+                    currentIndex = i;
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (found && currentIndex > 0) {
+                if (loadAudioFile(playlists[activePlaylist].songs[currentIndex - 1])) {
+                    playAudio();
+                }
+            }
+        }
+    }
+    else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
+        // Next button
+        if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
+            if (isShuffled) {
+                const auto& songs = playlists[activePlaylist].songs;
+                if (songs.size() == 1) {
+                    if (loadAudioFile(songs[0])) {
+                        playAudio();
+                    }
+                } else {
+                    int currentIndex = -1;
+                    for (size_t i = 0; i < songs.size(); i++) {
+                        if (songs[i] == loadedFile) {
+                            currentIndex = (int)i;
+                            break;
+                        }
+                    }
+
+                    int randomIndex;
+                    do {
+                        randomIndex = rand() % songs.size();
+                    } while (randomIndex == currentIndex);
+
+                    if (loadAudioFile(songs[randomIndex])) {
+                        playAudio();
+                    }
+                }
+            } else {
                 for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
-                    if (playlists[activePlaylist].songs[i] == loadedFile && i > 0) {
-                        if (loadAudioFile(playlists[activePlaylist].songs[i-1])) {
+                    if (playlists[activePlaylist].songs[i] == loadedFile &&
+                        i < playlists[activePlaylist].songs.size() - 1)
+                    {
+                        if (loadAudioFile(playlists[activePlaylist].songs[i + 1])) {
                             playAudio();
                         }
                         break;
                     }
                 }
             }
-} else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
-    if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
-
-        // If shuffle is on, pick random track
-        if (isShuffled) {
-            const auto& songs = playlists[activePlaylist].songs;
-
-            // If there's only one track, that’s our "random" pick
-            if (songs.size() == 1) {
-                if (loadAudioFile(songs[0])) {
-                    playAudio();
-                }
-                return;
-            }
-
-            // Otherwise pick a random song index different from the current one
-            int currentIndex = -1;
-            for (size_t i = 0; i < songs.size(); i++) {
-                if (songs[i] == loadedFile) {
-                    currentIndex = (int)i;
-                    break;
-                }
-            }
-
-            int randomIndex;
-            do {
-                randomIndex = rand() % songs.size();
-            } while (randomIndex == currentIndex);
-
-            if (loadAudioFile(songs[randomIndex])) {
+        }
+    }
+    else if (x >= playButton.x && x <= playButton.x + playButton.w) {
+        if (!loadedFile.empty()) {
+            if (playingAudio) {
+                stopAudio();
+            } else {
                 playAudio();
             }
-
-        } 
-        // If shuffle is off, just go to the next in the list
-        else {
-            for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
-                if (playlists[activePlaylist].songs[i] == loadedFile &&
-                    i < playlists[activePlaylist].songs.size() - 1)
-                {
-                    if (loadAudioFile(playlists[activePlaylist].songs[i + 1])) {
-                        playAudio();
-                    }
-                    break;
-                }
-            }
         }
     }
-    } else if (x >= playButton.x && x <= playButton.x + playButton.w) {
-    // Toggle Play/Pause if we have a file loaded
-    if (!loadedFile.empty()) {
-        if (playingAudio) {
-            // If currently playing, pause
-            stopAudio();  // we can reuse "stopAudio()" to pause
-        } else {
-            // If currently paused/stopped, resume or start playing
-            playAudio();
-        }
+    else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
+        isShuffled = !isShuffled;
     }
-
-
-
-        } else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
-            isShuffled = !isShuffled;
-        } else if (x >= muteButton.x && x <= muteButton.x + muteButton.w) {
-            isMuted = !isMuted;
-        } else if (x >= rewindButton.x && x <= rewindButton.x + rewindButton.w) {
-            seekTo(currentTime - 10.0);
-        } else if (x >= forwardButton.x && x <= forwardButton.x + forwardButton.w) {
-            seekTo(currentTime + 10.0);
-        } else if (x >= volumeBar.x && x <= volumeBar.x + volumeBar.w) {
-            volume = ((float)(x - volumeBar.x) / volumeBar.w) * 100.0f;
-            if (volume < 0) volume = 0;
-            if (volume > 100) volume = 100;
-        }
+    else if (x >= muteButton.x && x <= muteButton.x + muteButton.w) {
+        isMuted = !isMuted;
     }
+    else if (x >= rewindButton.x && x <= rewindButton.x + rewindButton.w) {
+        seekTo(currentTime - 10.0);
+    }
+    else if (x >= forwardButton.x && x <= forwardButton.x + forwardButton.w) {
+        seekTo(currentTime + 10.0);
+    }
+    else if (x >= volumeBar.x && x <= volumeBar.x + volumeBar.w) {
+        volume = ((float)(x - volumeBar.x) / volumeBar.w) * 100.0f;
+        if (volume < 0) volume = 0;
+        if (volume > 100) volume = 100;
+    }
+}
 
     // Handle time bar clicks
     if (y >= timeBar.y && y <= timeBar.y + timeBar.h &&

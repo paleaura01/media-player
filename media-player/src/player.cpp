@@ -5,7 +5,8 @@
 #include <cstdlib> // for srand, rand
 
 Player::Player()
-    : running(true), window(nullptr), renderer(nullptr), font(nullptr),
+
+    : currentPlayLevel(0), running(true), window(nullptr), renderer(nullptr), font(nullptr),
       fmtCtx(nullptr), codecCtx(nullptr), swrCtx(nullptr),
       audioStreamIndex(-1), packet(nullptr), frame(nullptr),
       audioBuffer(nullptr), audioBufferSize(0), audioBufferIndex(0),
@@ -43,12 +44,13 @@ Player::Player()
 }
 
 Player::~Player() {
+    savePlaybackState();
     savePlaylistState();
     shutdown();
 }
 
 bool Player::init() {
-    loadPlaylistState();
+    loadPlaylistState();  // Load playlists first
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -59,7 +61,6 @@ bool Player::init() {
         return false;
     }
 
-    // Move font initialization here
     font = TTF_OpenFont("Arial.ttf", 14);
     if (!font) {
         std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
@@ -67,39 +68,78 @@ bool Player::init() {
     }
 
     window = SDL_CreateWindow("Barebones Audio Player",
-                              SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              800, 600, SDL_WINDOW_SHOWN);
+                            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                            800, 600, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         return false;
     }
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    if (!font) {
-        std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
-        return false;
-    }
 
     packet = av_packet_alloc();
-    frame  = av_frame_alloc();
+    frame = av_frame_alloc();
     if (!packet || !frame) {
         std::cerr << "Failed to allocate FFmpeg packet/frame." << std::endl;
         return false;
     }
 
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
-    std::cout << "Initialization successful.\n";
-
-     // Optionally seed for random generator once
+    
+    // Seed random generator
     srand(static_cast<unsigned>(SDL_GetTicks())); 
-    return true;
 
+    // Now that everything is initialized, load the playback state
+    loadPlaybackState();  // Move this here, after all initialization
+
+    std::cout << "Initialization successful.\n";
+    return true;
+}
+
+void Player::shuffleCurrentPlaylist() {
+    if (activePlaylist < 0 || activePlaylist >= (int)playlists.size()) return;
+    
+    auto& songs = playlists[activePlaylist].songs;
+    auto& counts = playlists[activePlaylist].playCounts;
+    auto& sessionCounts = sessionPlayCounts;
+
+    // Create indices array
+    std::vector<size_t> indices(songs.size());
+    for (size_t i = 0; i < indices.size(); i++) {
+        indices[i] = i;
+    }
+    
+    // Fisher-Yates shuffle
+    for (size_t i = indices.size() - 1; i > 0; i--) {
+        size_t j = rand() % (i + 1);
+        std::swap(indices[i], indices[j]);
+    }
+    
+    // Apply shuffle using temporary vectors
+    std::vector<std::string> tempSongs = songs;
+    std::vector<int> tempCounts = counts;
+    std::vector<int> tempSessionCounts = sessionCounts;
+    
+    for (size_t i = 0; i < indices.size(); i++) {
+        songs[i] = tempSongs[indices[i]];
+        counts[i] = tempCounts[indices[i]];
+        sessionCounts[i] = tempSessionCounts[indices[i]];
+    }
 }
 
 void Player::update() {
+    static Uint32 lastSaveTime = 0;
+    Uint32 currentTicks = SDL_GetTicks();
+    
+    // Save playback state every 5 seconds if playing
+    if (playingAudio && currentTicks - lastSaveTime > 5000) {
+        savePlaybackState();
+        lastSaveTime = currentTicks;
+    }
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
@@ -204,53 +244,50 @@ void Player::playNextTrack() {
 
     // Increment play count for the track that just finished
     if (!loadedFile.empty()) {
-        incrementPlayCount(loadedFile);
-    }
-
-    const auto& songs = playlists[activePlaylist].songs;
-
-    if (isShuffled) {
-        // Shuffle mode: pick a random song (not the same one)
-        if (songs.size() == 1) return; // Only one track, just replay it
-
-        int currentIndex = -1;
-        for (size_t i = 0; i < songs.size(); i++) {
-            if (songs[i] == loadedFile) {
-                currentIndex = (int)i;
+        for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+            if (playlists[activePlaylist].songs[i] == loadedFile) {
+                playlists[activePlaylist].playCounts[i]++;
+                sessionPlayCounts[i]++;
+                savePlaylistState();
                 break;
             }
         }
+    }
 
-        int randomIndex;
-        do {
-            randomIndex = rand() % songs.size();
-        } while (randomIndex == currentIndex);
+    // First try to find any unplayed tracks in this session
+    std::vector<size_t> unplayedTracks;
+    for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
+        if (sessionPlayCounts[i] == 0) {  // Hasn't been played this session
+            unplayedTracks.push_back(i);
+        }
+    }
 
-        if (loadAudioFile(songs[randomIndex])) {
+    // If no unplayed tracks, reset session counts and increment level
+    if (unplayedTracks.empty()) {
+        currentPlayLevel++;
+        for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
+            sessionPlayCounts[i] = 0;
+        }
+        // Get all tracks again
+        for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
+            unplayedTracks.push_back(i);
+        }
+    }
+
+    // Pick next track
+    if (!unplayedTracks.empty()) {
+        size_t nextTrack;
+        if (isShuffled) {
+            nextTrack = unplayedTracks[rand() % unplayedTracks.size()];
+        } else {
+            nextTrack = unplayedTracks[0];
+        }
+
+        if (loadAudioFile(playlists[activePlaylist].songs[nextTrack])) {
             playAudio();
         }
     }
-    else {
-        // Normal mode: Go to the next track or loop back
-        for (size_t i = 0; i < songs.size(); i++) {
-            if (songs[i] == loadedFile) {
-                if (i < songs.size() - 1) {
-                    if (loadAudioFile(songs[i + 1])) {
-                        playAudio();
-                    }
-                } else {
-                    // Loop back to the first song if at the end
-                    if (loadAudioFile(songs[0])) {
-                        playAudio();
-                    }
-                }
-                return;
-            }
-        }
-    }
 }
-
-
 
 void Player::seekTo(double seconds) {
     std::lock_guard<std::mutex> lock(audioMutex);
@@ -275,6 +312,10 @@ void Player::seekTo(double seconds) {
 }
 
 void Player::shutdown() {
+  if (!loadedFile.empty()) {
+        savePlaybackState();  // Save before cleanup
+    }
+    
     std::lock_guard<std::mutex> lock1(audioMutex);
     std::lock_guard<std::mutex> lock2(playlistMutex);
     
@@ -309,4 +350,40 @@ void Player::shutdown() {
 
 bool Player::isRunning() const {
     return running;
+}
+
+void Player::savePlaybackState() {
+    std::ofstream file("playback_state.dat");
+    if (!file) return;
+    
+    file << loadedFile << "\n";
+    file << currentTime << "\n";
+    file << activePlaylist << "\n";
+}
+
+void Player::loadPlaybackState() {
+    std::ifstream file("playback_state.dat");
+    if (!file) return;
+    
+    std::string savedFile;
+    double savedTime;
+    int savedPlaylist;
+    
+    std::getline(file, savedFile);
+    file >> savedTime;
+    file >> savedPlaylist;
+    
+    if (!savedFile.empty() && savedTime >= 0) {
+        if (savedPlaylist >= 0 && savedPlaylist < (int)playlists.size()) {
+            activePlaylist = savedPlaylist;
+            sessionPlayCounts.resize(playlists[activePlaylist].songs.size(), 0);
+            currentPlayLevel = 0;
+        }
+        
+        if (loadAudioFile(savedFile)) {
+            SDL_Delay(100);  // Give audio system time to initialize
+            seekTo(savedTime);
+            playAudio();
+        }
+    }
 }

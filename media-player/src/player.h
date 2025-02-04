@@ -135,9 +135,17 @@ private:
     void incrementPlayCount(const std::string& filepath);
 
 
-
+    // Playback persistence
+    void savePlaybackState();
+    void loadPlaybackState();
+    std::string lastPlayedFile;
+    double lastPlayedPosition;
     
-
+    // Session play tracking
+    std::vector<int> sessionPlayCounts;
+    int currentPlayLevel;
+    void shuffleCurrentPlaylist();
+    
     // Audio callback
     void audioCallback(Uint8* stream, int len);
     static void sdlAudioCallback(void* userdata, Uint8* stream, int len);

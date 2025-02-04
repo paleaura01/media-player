@@ -9,13 +9,15 @@ bool Player::loadAudioFile(const std::string &filename) {
     std::lock_guard<std::mutex> lock(audioMutex);
     std::cout << "[Debug] Loading file: " << filename << "\n";
     
+    if (activePlaylist >= 0 && sessionPlayCounts.empty()) {
+        sessionPlayCounts.resize(playlists[activePlaylist].songs.size(), 0);
+        currentPlayLevel = 0;
+    }
 
-
-    isLoading.store(true);  // Set loading flag
+    isLoading.store(true);
     reachedEOF.store(false);
     currentTime = 0;
     
-    // Clean up old resources first
     cleanup_audio_resources();
 
     // Make sure we have our packet and frame
@@ -105,10 +107,13 @@ bool Player::loadAudioFile(const std::string &filename) {
     loadedFile = filename;
     playingAudio = false;
     ensurePlayingTrackVisible = true;
-    isLoading.store(false);
 
-    // Increment play count for new track
-    incrementPlayCount(filename);
+    if (lastPlayedPosition > 0) {
+        seekTo(lastPlayedPosition);
+        lastPlayedPosition = 0; // Reset after using
+    }
+
+    isLoading.store(false);
     return true;
 }
 

@@ -324,22 +324,49 @@ void Player::drawSongPanel() {
             SDL_RenderFillRect(renderer, &songRect);
             songRects.push_back(songRect);
 
-            std::string filename = song.substr(song.find_last_of("/\\") + 1);
-            int plays = playlists[activePlaylist].playCounts[i];
-            std::string displayName = "(played " + std::to_string(plays) + ") " + filename;
+std::string filename = song.substr(song.find_last_of("/\\") + 1);
+int plays = playlists[activePlaylist].playCounts[i];
+std::string displayName = "(played " + std::to_string(plays) + ") " + filename;
 
-            SDL_Texture* songTex = renderText(displayName, white);
-            if (songTex) {
-                int w, h;
-                SDL_QueryTexture(songTex, nullptr, nullptr, &w, &h);
-                SDL_Rect dest = {
-                    songRect.x + 5,
-                    songRect.y + (songRect.h - h)/2,
-                    w, h
-                };
-                SDL_RenderCopy(renderer, songTex, nullptr, &dest);
-                SDL_DestroyTexture(songTex);
+// Calculate maximum width available for text (accounting for padding and delete button)
+int maxTextWidth = songRect.w - 40;  // 5px left padding + 30px delete button + 5px safety margin
+
+// Create texture first to measure its width
+SDL_Texture* songTex = renderText(displayName, white);
+if (songTex) {
+    int w, h;
+    SDL_QueryTexture(songTex, nullptr, nullptr, &w, &h);
+    
+    // If text is too wide, truncate it
+    if (w > maxTextWidth) {
+        SDL_DestroyTexture(songTex);
+        // Truncate string and add ellipsis
+        while (displayName.length() > 3) {  // Keep at least "..."
+            displayName = displayName.substr(0, displayName.length() - 1);
+            SDL_Texture* tempTex = renderText(displayName + "...", white);
+            if (tempTex) {
+                SDL_QueryTexture(tempTex, nullptr, nullptr, &w, &h);
+                SDL_DestroyTexture(tempTex);
+                if (w <= maxTextWidth) {
+                    displayName += "...";
+                    songTex = renderText(displayName, white);
+                    break;
+                }
             }
+        }
+    }
+
+    if (songTex) {
+        SDL_QueryTexture(songTex, nullptr, nullptr, &w, &h);
+        SDL_Rect dest = {
+            songRect.x + 5,
+            songRect.y + (songRect.h - h)/2,
+            w, h
+        };
+        SDL_RenderCopy(renderer, songTex, nullptr, &dest);
+        SDL_DestroyTexture(songTex);
+    }
+}
 
             if ((int)i == hoveredSongIndex) {
                 SDL_Rect deleteRect = {
