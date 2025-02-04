@@ -191,7 +191,7 @@ void Player::update() {
                 SDL_StopTextInput();
             }
         }
-        else if (event.type == SDL_MOUSEMOTION) {
+        if (event.type == SDL_MOUSEMOTION) {
             if (activePlaylist >= 0) {
                 hoveredSongIndex = -1;  // Reset first
                 for (size_t i = 0; i < songRects.size(); i++) {
@@ -200,7 +200,7 @@ void Player::update() {
                         event.motion.y >= songRects[i].y &&
                         event.motion.y <= songRects[i].y + songRects[i].h)
                     {
-                        hoveredSongIndex = i;
+                        hoveredSongIndex = i + songScrollOffset;  // Add scroll offset
                         break;
                     }
                 }
