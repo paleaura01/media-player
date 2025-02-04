@@ -1,4 +1,3 @@
-// player.cpp
 #include "player.h"
 #include <iostream>
 #include <cmath> // llround
@@ -140,6 +139,8 @@ void Player::update() {
         savePlaybackState();
         lastSaveTime = currentTicks;
     }
+
+    // Poll SDL events
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
@@ -207,15 +208,23 @@ void Player::update() {
         }
     }
 
-    // Update current time
+    // If audio is playing, check for track finish
     if (playingAudio) {
         currentTime = lastPTS.load(std::memory_order_relaxed);
 
-        if ((currentTime >= totalDuration && totalDuration > 0) || 
-            reachedEOF.load(std::memory_order_relaxed)) {
+        // If track is finished
+        if ((currentTime >= totalDuration && totalDuration > 0) ||
+            reachedEOF.load(std::memory_order_relaxed))
+        {
             std::cout << "[Debug] Track finished. Moving to next song...\n";
-            reachedEOF.store(false, std::memory_order_relaxed);
+            
+            // 1) Increment counts for the track that truly finished
+            incrementFinishedTrack();
+
+            // 2) Then pick next track
             playNextTrack();
+
+            reachedEOF.store(false, std::memory_order_relaxed);
         }
     }
 
@@ -233,60 +242,108 @@ void Player::update() {
     SDL_Delay(16);
 }
 
-void Player::playNextTrack() {
-    std::lock_guard<std::mutex> lock(playlistMutex);
-    
-    if (activePlaylist < 0 || 
-        activePlaylist >= (int)playlists.size() || 
-        playlists[activePlaylist].songs.empty()) {
+//
+// 1) We only call this when the track actually finishes.
+//
+void Player::incrementFinishedTrack() {
+    // If there's no loaded file, or no active playlist, do nothing
+    if (loadedFile.empty() || activePlaylist < 0
+        || activePlaylist >= (int)playlists.size()) 
+    {
         return;
     }
 
-    // Increment play count for the track that just finished
-    if (!loadedFile.empty()) {
-        for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
-            if (playlists[activePlaylist].songs[i] == loadedFile) {
-                playlists[activePlaylist].playCounts[i]++;
+    // Which index was that file in the playlist?
+    auto &pl = playlists[activePlaylist];
+    for (size_t i = 0; i < pl.songs.size(); i++) {
+        if (pl.songs[i] == loadedFile) {
+            // Overall count
+            pl.playCounts[i]++;
+            // Per-session count
+            if (i < sessionPlayCounts.size()) {
                 sessionPlayCounts[i]++;
-                savePlaylistState();
+            }
+            savePlaylistState();
+            break;
+        }
+    }
+}
+
+//
+// 2) This picks from unplayed tracks only, resetting if needed.
+//    No increment logic here—only selection.
+//
+void Player::playNextTrack() {
+    std::lock_guard<std::mutex> lock(playlistMutex);
+
+    if (activePlaylist < 0 || activePlaylist >= (int)playlists.size() ||
+        playlists[activePlaylist].songs.empty())
+    {
+        return;
+    }
+
+    auto &pl = playlists[activePlaylist];
+    sessionPlayCounts.resize(pl.songs.size(), 0);
+
+    size_t nextIndex;
+    if (isShuffled) {
+        // Keep random selection for shuffle mode
+        std::vector<size_t> unplayed;
+        for (size_t i = 0; i < pl.songs.size(); i++) {
+            if (sessionPlayCounts[i] == 0) {
+                unplayed.push_back(i);
+            }
+        }
+        if (unplayed.empty()) {
+            for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
+                sessionPlayCounts[i] = 0;
+            }
+            unplayed = std::vector<size_t>(pl.songs.size());
+            for (size_t i = 0; i < pl.songs.size(); i++) {
+                unplayed[i] = i;
+            }
+        }
+        nextIndex = unplayed[rand() % unplayed.size()];
+    } else {
+        // Find current track and play next one
+        size_t currentIndex = 0;
+        for (size_t i = 0; i < pl.songs.size(); i++) {
+            if (pl.songs[i] == loadedFile) {
+                currentIndex = i;
                 break;
             }
         }
+        nextIndex = (currentIndex + 1) % pl.songs.size();
     }
 
-    // First try to find any unplayed tracks in this session
-    std::vector<size_t> unplayedTracks;
+    if (loadAudioFile(pl.songs[nextIndex])) {
+        playAudio();
+    }
+}
+
+//
+// 3) Called when user clicks a song in handleMouseClick() to ensure
+//    we obey the "one round" rule. If the track is already played
+//    and there are still unplayed tracks left, return false.
+//
+bool Player::canPlayThisTrack(size_t index) {
+    // If this track is unplayed, fine
+    if (sessionPlayCounts[index] == 0) {
+        return true;
+    }
+    // Otherwise, check if ANY track is still unplayed
     for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
-        if (sessionPlayCounts[i] == 0) {  // Hasn't been played this session
-            unplayedTracks.push_back(i);
+        if (sessionPlayCounts[i] == 0) {
+            // Means we do have some unplayed track left,
+            // so we can't replay this one yet.
+            return false;
         }
     }
-
-    // If no unplayed tracks, reset session counts and increment level
-    if (unplayedTracks.empty()) {
-        currentPlayLevel++;
-        for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
-            sessionPlayCounts[i] = 0;
-        }
-        // Get all tracks again
-        for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
-            unplayedTracks.push_back(i);
-        }
+    // If we get here, everything was played, so reset them all
+    for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
+        sessionPlayCounts[i] = 0;
     }
-
-    // Pick next track
-    if (!unplayedTracks.empty()) {
-        size_t nextTrack;
-        if (isShuffled) {
-            nextTrack = unplayedTracks[rand() % unplayedTracks.size()];
-        } else {
-            nextTrack = unplayedTracks[0];
-        }
-
-        if (loadAudioFile(playlists[activePlaylist].songs[nextTrack])) {
-            playAudio();
-        }
-    }
+    return true; // now it's allowed
 }
 
 void Player::seekTo(double seconds) {
@@ -312,7 +369,7 @@ void Player::seekTo(double seconds) {
 }
 
 void Player::shutdown() {
-  if (!loadedFile.empty()) {
+    if (!loadedFile.empty()) {
         savePlaybackState();  // Save before cleanup
     }
     

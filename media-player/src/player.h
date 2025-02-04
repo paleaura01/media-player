@@ -118,7 +118,8 @@ private:
     void handleFileDrop(const char* filePath);
     void handlePlaylistCreation();
     void calculateSongDuration();
-
+bool canPlayThisTrack(size_t index);   // <== Enforces "one round" rule for manual selection
+    void incrementFinishedTrack();         // <== Called in update() when track actually ends
     // Audio
     bool loadAudioFile(const std::string &filename);
     void playAudio();
@@ -145,7 +146,7 @@ private:
     std::vector<int> sessionPlayCounts;
     int currentPlayLevel;
     void shuffleCurrentPlaylist();
-    
+
     // Audio callback
     void audioCallback(Uint8* stream, int len);
     static void sdlAudioCallback(void* userdata, Uint8* stream, int len);

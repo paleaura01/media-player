@@ -108,9 +108,10 @@ void Player::handleFileDrop(const char* filePath) {
 
 
 void Player::handleMouseClick(int x, int y) {
-    std::lock_guard<std::mutex> lock(playlistMutex);
+    // Use a unique_lock so we can release the lock when needed.
+    std::unique_lock<std::mutex> lock(playlistMutex);
 
-        // Add bounds checking at the start
+    // Bounds check
     if (x < 0 || x >= 800 || y < 0 || y >= 600) {
         return;  // Ignore clicks outside window bounds
     }
@@ -120,12 +121,11 @@ void Player::handleMouseClick(int x, int y) {
         return;  // Audio system busy, ignore click
     }
     audioMutex.unlock();
+
     // 1) If the confirmation dialog is open, only handle Yes/No
     if (isConfirmingDeletion) {
-        // Check Yes button
         if (x >= confirmYesButton.x && x <= confirmYesButton.x + confirmYesButton.w &&
-            y >= confirmYesButton.y && y <= confirmYesButton.y + confirmYesButton.h)
-        {
+            y >= confirmYesButton.y && y <= confirmYesButton.y + confirmYesButton.h) {
             // Confirm deletion
             if (deleteCandidateIndex >= 0 && deleteCandidateIndex < (int)playlists.size()) {
                 playlists.erase(playlists.begin() + deleteCandidateIndex);
@@ -142,56 +142,43 @@ void Player::handleMouseClick(int x, int y) {
             deleteCandidateIndex  = -1;
             return;
         }
-        // Check No button
         if (x >= confirmNoButton.x && x <= confirmNoButton.x + confirmNoButton.w &&
-            y >= confirmNoButton.y && y <= confirmNoButton.y + confirmNoButton.h)
-        {
-            // Cancel
+            y >= confirmNoButton.y && y <= confirmNoButton.y + confirmNoButton.h) {
+            // Cancel deletion
             isConfirmingDeletion = false;
             deleteCandidateIndex = -1;
             return;
         }
-
-        // Else clicked elsewhere while dialog is open, do nothing
-        return;
+        return;  // Do nothing if clicked elsewhere
     }
 
     // 2) No dialog open -> normal logic
 
     // Check "New Playlist"
     if (x >= newPlaylistButton.x && x <= newPlaylistButton.x + newPlaylistButton.w &&
-        y >= newPlaylistButton.y && y <= newPlaylistButton.y + newPlaylistButton.h)
-    {
+        y >= newPlaylistButton.y && y <= newPlaylistButton.y + newPlaylistButton.h) {
         handlePlaylistCreation();
         return;
     }
 
     // Check if we clicked a playlist row or "X"
     for (size_t i = 0; i < playlists.size(); i++) {
-        // "X" button
         SDL_Rect del = playlistDeleteRects[i];
         if (x >= del.x && x <= del.x + del.w &&
-            y >= del.y && y <= del.y + del.h)
-        {
-            // Instead of immediate deletion, prompt
+            y >= del.y && y <= del.y + del.h) {
             isConfirmingDeletion = true;
             deleteCandidateIndex  = (int)i;
             return;
         }
 
-        // Main row
         SDL_Rect row = playlistRects[i];
         if (x >= row.x && x <= row.x + row.w &&
-            y >= row.y && y <= row.y + row.h)
-        {
-            // Double-click detection
+            y >= row.y && y <= row.y + row.h) {
             Uint32 now = SDL_GetTicks();
             const Uint32 DBLCLICK_TIME = 400; // ms
 
             if ((int)i == lastPlaylistClickIndex &&
-                (now - lastPlaylistClickTime) < DBLCLICK_TIME)
-            {
-                // Double-click => rename
+                (now - lastPlaylistClickTime) < DBLCLICK_TIME) {
                 std::cout << "[Debug] Double-click => rename: " << playlists[i].name << "\n";
                 isRenaming   = true;
                 renameIndex  = (int)i;
@@ -199,7 +186,6 @@ void Player::handleMouseClick(int x, int y) {
                 SDL_StartTextInput();
             }
             else {
-                // Single-click => activate
                 std::cout << "[Debug] Single-click => activate: " << playlists[i].name << "\n";
                 activePlaylist = (int)i;
             }
@@ -210,136 +196,97 @@ void Player::handleMouseClick(int x, int y) {
     }
 
     // 3) Check if clicked a song
-// In handleMouseClick, in the song selection section:
-if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
-    for (size_t s = 0; s < songRects.size(); s++) {
-        SDL_Rect r = songRects[s];
-        if (x >= r.x && x <= r.x + r.w &&
-            y >= r.y && y <= r.y + r.h)
-        {
-            size_t actualIndex = s + songScrollOffset;
-            if (actualIndex < playlists[activePlaylist].songs.size()) {
-                const std::string& path = playlists[activePlaylist].songs[actualIndex];
-                if (!path.empty() && loadAudioFile(path)) {
-                    playAudio();
+    if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
+        for (size_t s = 0; s < songRects.size(); s++) {
+            SDL_Rect r = songRects[s];
+            if (x >= r.x && x <= r.x + r.w &&
+                y >= r.y && y <= r.y + r.h) {
+                size_t actualIndex = s + songScrollOffset;
+                if (actualIndex < playlists[activePlaylist].songs.size()) {
+                    const std::string& path = playlists[activePlaylist].songs[actualIndex];
+                    if (!path.empty() && loadAudioFile(path)) {
+                        playAudio();
+                    }
                 }
+                return;
             }
-            return;
-        }
-    
-        
-        // Then check for normal song click
-        if (x >= r.x && x <= r.x + r.w &&
-            y >= r.y && y <= r.y + r.h)
-        {
-            size_t actualIndex = s + songScrollOffset;
-            if (actualIndex < playlists[activePlaylist].songs.size()) {
-                const std::string& path = playlists[activePlaylist].songs[actualIndex];
-                if (loadAudioFile(path)) {
-                    playAudio();
+            if (x >= r.x && x <= r.x + r.w &&
+                y >= r.y && y <= r.y + r.h) {
+                size_t actualIndex = s + songScrollOffset;
+                if (actualIndex < playlists[activePlaylist].songs.size()) {
+                    const std::string& path = playlists[activePlaylist].songs[actualIndex];
+                    if (loadAudioFile(path)) {
+                        playAudio();
+                    }
                 }
+                return;
             }
-            return;
         }
     }
-}
 
     // 4) Check transport controls
-// 4) Check transport controls
-if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
-    if (x >= prevButton.x && x <= prevButton.x + prevButton.w) {
-        // Previous button
-        if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
-            size_t currentIndex = 0;
-            bool found = false;
-            for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
-                if (playlists[activePlaylist].songs[i] == loadedFile) {
-                    currentIndex = i;
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (found && currentIndex > 0) {
-                if (loadAudioFile(playlists[activePlaylist].songs[currentIndex - 1])) {
-                    playAudio();
-                }
-            }
-        }
-    }
-    else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
-        // Next button
-        if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
-            if (isShuffled) {
-                const auto& songs = playlists[activePlaylist].songs;
-                if (songs.size() == 1) {
-                    if (loadAudioFile(songs[0])) {
-                        playAudio();
-                    }
-                } else {
-                    int currentIndex = -1;
-                    for (size_t i = 0; i < songs.size(); i++) {
-                        if (songs[i] == loadedFile) {
-                            currentIndex = (int)i;
-                            break;
-                        }
-                    }
-
-                    int randomIndex;
-                    do {
-                        randomIndex = rand() % songs.size();
-                    } while (randomIndex == currentIndex);
-
-                    if (loadAudioFile(songs[randomIndex])) {
-                        playAudio();
-                    }
-                }
-            } else {
+    // (These controls are drawn in a separate area so we assume the following y-range)
+    if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
+        if (x >= prevButton.x && x <= prevButton.x + prevButton.w) {
+            // Previous button
+            if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
+                size_t currentIndex = 0;
+                bool found = false;
                 for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
-                    if (playlists[activePlaylist].songs[i] == loadedFile &&
-                        i < playlists[activePlaylist].songs.size() - 1)
-                    {
-                        if (loadAudioFile(playlists[activePlaylist].songs[i + 1])) {
-                            playAudio();
-                        }
+                    if (playlists[activePlaylist].songs[i] == loadedFile) {
+                        currentIndex = i;
+                        found = true;
                         break;
                     }
                 }
+                if (found && currentIndex > 0) {
+                    if (loadAudioFile(playlists[activePlaylist].songs[currentIndex - 1])) {
+                        playAudio();
+                    }
+                }
             }
         }
-    }
-    else if (x >= playButton.x && x <= playButton.x + playButton.w) {
-        if (!loadedFile.empty()) {
-            if (playingAudio) {
-                stopAudio();
-            } else {
-                playAudio();
+        // Next button: call the unified playNextTrack() logic.
+        else if (x >= nextButton.x && x <= nextButton.x + nextButton.w) {
+            // Keep the lock while checking validity
+            if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
+                // Only unlock right before calling playNextTrack
+                lock.unlock();
+                playNextTrack();
+                return;
             }
         }
+        else if (x >= playButton.x && x <= playButton.x + playButton.w) {
+            if (!loadedFile.empty()) {
+                if (playingAudio) {
+                    stopAudio();
+                } else {
+                    playAudio();
+                }
+            }
+        }
+        else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
+            isShuffled = !isShuffled;
+        }
+        else if (x >= muteButton.x && x <= muteButton.x + muteButton.w) {
+            isMuted = !isMuted;
+        }
+        else if (x >= rewindButton.x && x <= rewindButton.x + rewindButton.w) {
+            seekTo(currentTime - 10.0);
+        }
+        else if (x >= forwardButton.x && x <= forwardButton.x + forwardButton.w) {
+            seekTo(currentTime + 10.0);
+        }
+        else if (x >= volumeBar.x && x <= volumeBar.x + volumeBar.w) {
+            volume = ((float)(x - volumeBar.x) / volumeBar.w) * 100.0f;
+            if (volume < 0) volume = 0;
+            if (volume > 100) volume = 100;
+        }
     }
-    else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
-        isShuffled = !isShuffled;
-    }
-    else if (x >= muteButton.x && x <= muteButton.x + muteButton.w) {
-        isMuted = !isMuted;
-    }
-    else if (x >= rewindButton.x && x <= rewindButton.x + rewindButton.w) {
-        seekTo(currentTime - 10.0);
-    }
-    else if (x >= forwardButton.x && x <= forwardButton.x + forwardButton.w) {
-        seekTo(currentTime + 10.0);
-    }
-    else if (x >= volumeBar.x && x <= volumeBar.x + volumeBar.w) {
-        volume = ((float)(x - volumeBar.x) / volumeBar.w) * 100.0f;
-        if (volume < 0) volume = 0;
-        if (volume > 100) volume = 100;
-    }
-}
 
     // Handle time bar clicks
     if (y >= timeBar.y && y <= timeBar.y + timeBar.h &&
-        x >= timeBar.x && x <= timeBar.x + timeBar.w) 
-    {
+        x >= timeBar.x && x <= timeBar.x + timeBar.w) {
         if (totalDuration > 0.0) {
             double fraction = double(x - timeBar.x) / double(timeBar.w);
             if (fraction < 0) fraction = 0;
@@ -347,7 +294,6 @@ if (y >= prevButton.y && y <= prevButton.y + prevButton.h) {
             double newTime = fraction * totalDuration;
             seekTo(newTime);
         }
-        
         return;
     }
 }
