@@ -5,3 +5,6 @@
 /dist
 /dist
 media-player/dist/playlists.dat
+/media-player/build
+media-player/dist/playback_state.dat
+/media-player/build/Release

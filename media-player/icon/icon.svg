@@ -1,0 +1,35 @@
+<svg
+  width="100"
+  height="100"
+  viewBox="0 0 100 100"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Define a cool gradient for the background -->
+  <defs>
+    <linearGradient id="mediaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff5f6d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffc371;stop-opacity:1" />
+    </linearGradient>
+    <!-- Optional drop shadow filter for a subtle 3D effect -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Draw the circular background -->
+  <circle
+    cx="50"
+    cy="50"
+    r="45"
+    fill="url(#mediaGradient)"
+    filter="url(#shadow)"
+  />
+
+  <!-- Draw the play triangle -->
+  <polygon
+    points="40,30 70,50 40,70"
+    fill="#ffffff"
+    stroke="#ffffff"
+    stroke-width="1"
+  />
+</svg>
