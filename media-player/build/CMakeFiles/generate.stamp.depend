@@ -92,6 +92,10 @@ C:/Program Files/CMake/share/cmake-3.31/Modules/Compiler/zOS-C-DetermineCompiler
 C:/Program Files/CMake/share/cmake-3.31/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/CompilerId/VS-10.vcxproj.in
 C:/Program Files/CMake/share/cmake-3.31/Modules/FeatureSummary.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/FindPNG.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/FindZLIB.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Internal/CMakeCLinkerInformation.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Internal/CMakeCXXLinkerInformation.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Internal/CMakeCommonLinkerInformation.cmake
@@ -107,11 +111,17 @@ C:/Program Files/CMake/share/cmake-3.31/Modules/Platform/Windows-MSVC-CXX.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Platform/Windows-MSVC.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Platform/Windows.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Platform/WindowsPaths.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/SelectLibraryConfigurations.cmake
 D:/Github/media-player/media-player/CMakeLists.txt
 D:/Github/media-player/media-player/build/CMakeFiles/3.31.2/CMakeCCompiler.cmake
 D:/Github/media-player/media-player/build/CMakeFiles/3.31.2/CMakeCXXCompiler.cmake
 D:/Github/media-player/media-player/build/CMakeFiles/3.31.2/CMakeRCCompiler.cmake
 D:/Github/media-player/media-player/build/CMakeFiles/3.31.2/CMakeSystem.cmake
+D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_image/SDL2_image-shared-targets-debug.cmake
+D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_image/SDL2_image-shared-targets-release.cmake
+D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_image/SDL2_image-shared-targets.cmake
+D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_image/SDL2_imageConfig.cmake
+D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_image/SDL2_imageConfigVersion.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_mixer/SDL2_mixer-shared-targets-debug.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_mixer/SDL2_mixer-shared-targets-release.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_mixer/SDL2_mixer-shared-targets.cmake
@@ -122,6 +132,7 @@ D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_ttf/SDL2_ttf-share
 D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_ttf/SDL2_ttf-shared-targets.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_ttf/SDL2_ttfConfig.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/SDL2_ttf/SDL2_ttfConfigVersion.cmake
+D:/Github/media-player/vcpkg/installed/x64-windows/share/png/vcpkg-cmake-wrapper.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/sdl2/SDL2Config.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/sdl2/SDL2ConfigVersion.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/sdl2/SDL2Targets-debug.cmake
@@ -131,4 +142,5 @@ D:/Github/media-player/vcpkg/installed/x64-windows/share/sdl2/SDL2mainTargets-de
 D:/Github/media-player/vcpkg/installed/x64-windows/share/sdl2/SDL2mainTargets-release.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/sdl2/SDL2mainTargets.cmake
 D:/Github/media-player/vcpkg/installed/x64-windows/share/sdl2/sdlfind.cmake
+D:/Github/media-player/vcpkg/installed/x64-windows/share/zlib/vcpkg-cmake-wrapper.cmake
 D:/Github/media-player/vcpkg/scripts/buildsystems/vcpkg.cmake

@@ -49,7 +49,7 @@ Player::~Player() {
 }
 
 bool Player::init() {
-    loadPlaylistState();  // Load playlists first
+    loadPlaylistState();
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -57,6 +57,12 @@ bool Player::init() {
     }
     if (TTF_Init() != 0) {
         std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    // Initialize SDL_image
+    if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG) == 0) {
+        std::cerr << "SDL_image Init Error: " << IMG_GetError() << std::endl;
         return false;
     }
 
@@ -72,6 +78,15 @@ bool Player::init() {
     if (!window) {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         return false;
+    }
+    
+    // Load icon after window creation
+    SDL_Surface* icon = IMG_Load("assets/icon.ico");
+    if (icon) {
+        SDL_SetWindowIcon(window, icon);
+        SDL_FreeSurface(icon);
+    } else {
+        std::cerr << "Failed to load icon: " << IMG_GetError() << std::endl;
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -401,6 +416,7 @@ void Player::shutdown() {
         window = nullptr;
     }
     
+    IMG_Quit();
     TTF_Quit();
     SDL_Quit();
 }

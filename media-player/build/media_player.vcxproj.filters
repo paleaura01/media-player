@@ -30,6 +30,11 @@
     <CustomBuild Include="D:\Github\media-player\media-player\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="D:\Github\media-player\media-player\app.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{3577AAFA-3410-3756-B3F3-FF254D4ADDAF}</UniqueIdentifier>
     </Filter>
