@@ -1,3 +1,4 @@
+// player_audio.cpp
 #include "player.h"
 #include <iostream>
 #include <libavutil/mathematics.h>
@@ -9,7 +10,8 @@ bool Player::loadAudioFile(const std::string &filename) {
     std::cout << "[Debug] Loading file: " << filename << "\n";
     reachedEOF.store(false, std::memory_order_relaxed);
     currentTime = 0;
-
+    
+    // Clean up previous audio contexts.
     if (audioDev != 0) {
         SDL_CloseAudioDevice(audioDev);
         audioDev = 0;
@@ -26,22 +28,16 @@ bool Player::loadAudioFile(const std::string &filename) {
         swr_free(&swrCtx);
         swrCtx = nullptr;
     }
-
+    
     if (avformat_open_input(&fmtCtx, filename.c_str(), nullptr, nullptr) != 0) {
         std::cerr << "Could not open audio file: " << filename << std::endl;
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Audio File Error",
-            ("Could not open audio file: " + filename).c_str(), window);
         return false;
     }
     if (avformat_find_stream_info(fmtCtx, nullptr) < 0) {
         std::cerr << "Could not find stream info.\n";
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Stream Info Error",
-            "Could not find stream info.", window);
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
         return false;
     }
-
+    
     audioStreamIndex = -1;
     for (unsigned int i = 0; i < fmtCtx->nb_streams; i++) {
         if (fmtCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -51,52 +47,28 @@ bool Player::loadAudioFile(const std::string &filename) {
     }
     if (audioStreamIndex < 0) {
         std::cerr << "No audio stream found.\n";
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Audio Stream Error",
-            "No audio stream found.", window);
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
         return false;
     }
-
+    
     const AVCodec* codec = avcodec_find_decoder(fmtCtx->streams[audioStreamIndex]->codecpar->codec_id);
     if (!codec) {
         std::cerr << "Codec not found.\n";
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Codec Error",
-            "Codec not found.", window);
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
         return false;
     }
     codecCtx = avcodec_alloc_context3(codec);
     if (!codecCtx) {
         std::cerr << "Could not allocate codec context.\n";
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Codec Context Error",
-            "Could not allocate codec context.", window);
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
         return false;
     }
     if (avcodec_parameters_to_context(codecCtx, fmtCtx->streams[audioStreamIndex]->codecpar) < 0) {
         std::cerr << "Could not copy codec parameters.\n";
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Codec Parameters Error",
-            "Could not copy codec parameters.", window);
-        avcodec_free_context(&codecCtx);
-        codecCtx = nullptr;
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
         return false;
     }
     if (avcodec_open2(codecCtx, codec, nullptr) < 0) {
         std::cerr << "Could not open codec.\n";
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Codec Open Error",
-            "Could not open codec.", window);
-        avcodec_free_context(&codecCtx);
-        codecCtx = nullptr;
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
         return false;
     }
-
+    
     SDL_AudioSpec desired;
     SDL_zero(desired);
     desired.freq = 44100;
@@ -105,40 +77,23 @@ bool Player::loadAudioFile(const std::string &filename) {
     desired.samples = 4096;
     desired.callback = Player::sdlAudioCallback;
     desired.userdata = this;
-
+    
     SDL_AudioSpec obtained;
     audioDev = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
     if (audioDev == 0) {
         std::cerr << "SDL_OpenAudioDevice Error: " << SDL_GetError() << std::endl;
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Audio Device Error", SDL_GetError(), window);
-        avcodec_free_context(&codecCtx);
-        codecCtx = nullptr;
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
         return false;
     }
-
+    
     loadedFile = filename;
     playingAudio = false;
-
+    
     if (fmtCtx->duration != AV_NOPTS_VALUE)
         totalDuration = static_cast<double>(fmtCtx->duration) / AV_TIME_BASE;
     else
         totalDuration = 0;
     std::cout << "[Debug] Loaded file duration: " << totalDuration << " seconds\n";
-
-    if (activePlaylist >= 0) {
-        for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
-            if (playlists[activePlaylist].songs[i] == filename) {
-                double savedProgress = playlists[activePlaylist].progressTimes[i];
-                if (savedProgress > 0 && savedProgress < totalDuration) {
-                    seekTo(savedProgress);
-                }
-                break;
-            }
-        }
-    }
-
+    
     return true;
 }
 
@@ -180,16 +135,16 @@ void Player::audioCallback(Uint8* stream, int len) {
         memset(stream, 0, len);
         return;
     }
-
+    
     int remaining = len;
     uint8_t* out = stream;
-
+    
     while (remaining > 0) {
         if (audioBufferIndex >= audioBufferSize) {
             audioBufferSize = 0;
             audioBufferIndex = 0;
             bool frameDecoded = false;
-
+            
             while (!frameDecoded) {
                 int readResult = av_read_frame(fmtCtx, packet);
                 if (readResult < 0) {
@@ -197,6 +152,7 @@ void Player::audioCallback(Uint8* stream, int len) {
                     reachedEOF.store(true, std::memory_order_relaxed);
                     return;
                 }
+                
                 if (packet->stream_index == audioStreamIndex) {
                     int sendResult = avcodec_send_packet(codecCtx, packet);
                     if (sendResult >= 0) {
@@ -207,26 +163,20 @@ void Player::audioCallback(Uint8* stream, int len) {
                                 lastPTS.store(frame->pts * base, std::memory_order_relaxed);
                                 totalDuration = base * fmtCtx->streams[audioStreamIndex]->duration;
                             }
+                            
                             if (!swrCtx) {
                                 swrCtx = swr_alloc();
-                                if (!swrCtx) {
-                                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "swr_alloc Error", "Failed to allocate swrCtx", window);
-                                    memset(out, 0, remaining);
-                                    return;
-                                }
                                 AVChannelLayout stereo_layout = AV_CHANNEL_LAYOUT_STEREO;
                                 av_opt_set_chlayout(swrCtx, "in_chlayout", &frame->ch_layout, 0);
                                 av_opt_set_int(swrCtx, "in_sample_rate", codecCtx->sample_rate, 0);
                                 av_opt_set_sample_fmt(swrCtx, "in_sample_fmt", (AVSampleFormat)frame->format, 0);
+                                
                                 av_opt_set_chlayout(swrCtx, "out_chlayout", &stereo_layout, 0);
                                 av_opt_set_int(swrCtx, "out_sample_rate", 44100, 0);
                                 av_opt_set_sample_fmt(swrCtx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
-                                if (swr_init(swrCtx) < 0) {
-                                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "swr_init Error", "swr_init failed", window);
-                                    memset(out, 0, remaining);
-                                    return;
-                                }
+                                swr_init(swrCtx);
                             }
+                            
                             int dst_nb_samples = av_rescale_rnd(
                                 swr_get_delay(swrCtx, codecCtx->sample_rate) + frame->nb_samples,
                                 44100, codecCtx->sample_rate, AV_ROUND_UP
@@ -235,8 +185,10 @@ void Player::audioCallback(Uint8* stream, int len) {
                             if (audioBuffer)
                                 av_free(audioBuffer);
                             audioBuffer = (uint8_t*)av_malloc(buffer_size);
+                            
                             swr_convert(swrCtx, &audioBuffer, dst_nb_samples,
                                         (const uint8_t**)frame->data, frame->nb_samples);
+                            
                             audioBufferSize = buffer_size;
                             audioBufferIndex = 0;
                             frameDecoded = true;
@@ -246,10 +198,11 @@ void Player::audioCallback(Uint8* stream, int len) {
                 av_packet_unref(packet);
             }
         }
-
+        
         int bytesToCopy = audioBufferSize - audioBufferIndex;
         if (bytesToCopy > remaining)
             bytesToCopy = remaining;
+        
         if (!isMuted) {
             int16_t* samples = (int16_t*)(audioBuffer + audioBufferIndex);
             int numSamples = bytesToCopy / 2;
@@ -261,6 +214,7 @@ void Player::audioCallback(Uint8* stream, int len) {
         } else {
             memset(out, 0, bytesToCopy);
         }
+        
         audioBufferIndex += bytesToCopy;
         remaining -= bytesToCopy;
         out += bytesToCopy;

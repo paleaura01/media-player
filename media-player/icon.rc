@@ -1,4 +1,5 @@
-// icon.rc
+// app.rc
 #include <windows.h>
 
-IDI_ICON1 ICON "assets\\icon.ico"
+IDI_ICON1 ICON "assets/icon.ico"
+

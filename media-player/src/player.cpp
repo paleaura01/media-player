@@ -5,10 +5,6 @@
 #include <cstdlib>
 #include <algorithm>  // for std::swap
 
-// Legacy ICO-loading helper was removed here to avoid the overload conflict
-// that was originally caused by having multiple functions with the same parameter types
-// but differing only by return type. We now load the icon using PNG (via IMG_Load).
-
 // Helper: Fisher–Yates shuffle using rand()
 // (Retained here for potential future use)
 template<typename RandomIt>
@@ -30,7 +26,7 @@ Player::Player()
       audioBuffer(nullptr), audioBufferSize(0), audioBufferIndex(0),
       audioDev(0), playingAudio(false), loadedFile(""),
       currentTime(0), totalDuration(0), isMuted(false), isShuffled(false),
-      activePlaylist(-1), shuffleIndex(0), lastPlayedTime(0.0)
+      activePlaylist(-1), shuffleIndex(0)
 {
     // Set up UI rectangles
     timeBar       = { 10, 10, 780, 20 };
@@ -65,112 +61,53 @@ bool Player::init() {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL Init Error", SDL_GetError(), nullptr);
         return false;
     }
     if (TTF_Init() != 0) {
         std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "TTF Init Error", TTF_GetError(), nullptr);
         return false;
     }
- 
+    if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0) {
+        std::cerr << "IMG_Init Error: " << IMG_GetError() << std::endl;
+        // Not fatal—just warn.
+    }
+
     window = SDL_CreateWindow("Twink Audio Player",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               800, 600, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Window Creation Error", SDL_GetError(), nullptr);
         return false;
     }
-    
-#ifndef _WIN32
     {
-        // --- NEW ICON LOADING CODE WITH FALLBACK FOR NON-WINDOWS ---
-        // Use SDL_GetBasePath() to determine the correct base path.
-        char* basePath = SDL_GetBasePath();
-        std::string base;
-        if (basePath) {
-            base = std::string(basePath);
-            SDL_free(basePath);
-        } else {
-            base = "";
-        }
-        // If the executable is in a "dist" folder, remove that folder from the base path.
-        size_t pos = base.rfind("dist");
-        if (pos != std::string::npos) {
-            base = base.substr(0, pos);
-        }
-        // Try to load the PNG icon first.
-        std::string iconPath = base + "assets\\icon.png";
-        std::cout << "[Debug] Loading icon from: " << iconPath << "\n";
-        SDL_Surface* icon = IMG_Load(iconPath.c_str());
-        if (!icon) {
-            std::cerr << "[Warning] Failed to load PNG icon from: " << iconPath 
-                      << ". Trying ICO." << std::endl;
-            std::string icoPath = base + "assets\\icon.ico";
-            std::cout << "[Debug] Loading icon from: " << icoPath << "\n";
-            icon = IMG_Load(icoPath.c_str());
-        }
-        if (!icon) {
-            std::cerr << "[Warning] Failed to load icon from both PNG and ICO paths. Creating default icon." << std::endl;
-            // Create a default icon surface (32x32) filled with a light gray color.
-            icon = SDL_CreateRGBSurface(0, 32, 32, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-            if (icon) {
-                SDL_FillRect(icon, NULL, SDL_MapRGB(icon->format, 200, 200, 200));
-            }
-        }
+        SDL_Surface* icon = IMG_Load("assets/icon.ico");
         if (icon) {
             SDL_SetWindowIcon(window, icon);
             SDL_FreeSurface(icon);
         } else {
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Icon Load Error",
-                "Failed to load icon and create a default icon.", window);
+            std::cerr << "Failed to load icon: " << IMG_GetError() << std::endl;
         }
-        // --- END ICON LOADING CODE FOR NON-WINDOWS ---
     }
-#endif
-
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Renderer Creation Error", SDL_GetError(), window);
         return false;
     }
     font = TTF_OpenFont("Arial.ttf", 12);
     if (!font) {
-        // Try fallback font
-        font = TTF_OpenFont("C:\\Windows\\Fonts\\arial.ttf", 12);
-        if (!font) {
-            std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Font Load Error", TTF_GetError(), window);
-            return false;
-        }
+        std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
+        return false;
     }
     TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 
     packet = av_packet_alloc();
-    frame  = av_frame_alloc();
+    frame = av_frame_alloc();
     if (!packet || !frame) {
         std::cerr << "Failed to allocate FFmpeg packet/frame." << std::endl;
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "FFmpeg Allocation Error", "Could not allocate packet or frame.", window);
         return false;
     }
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
     srand(static_cast<unsigned>(SDL_GetTicks()));
-
-    // If a track was recovered from the dat file, resume playback.
-    if (!loadedFile.empty() && activePlaylist != -1) {
-        if (loadAudioFile(loadedFile)) {
-            if (totalDuration > 0 && lastPlayedTime > 0 && lastPlayedTime < totalDuration) {
-                seekTo(lastPlayedTime);
-                SDL_Delay(100); // Allow a short delay after seeking
-            } else {
-                std::cout << "[Debug] Skipping seek because lastPlayedTime (" << lastPlayedTime
-                          << ") is not valid (totalDuration=" << totalDuration << ")." << std::endl;
-            }
-            playAudio();
-        }
-    }
 
     std::cout << "Initialization successful.\n";
     return true;
@@ -179,6 +116,8 @@ bool Player::init() {
 void Player::update() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        // IMPORTANT: If the click is within the progress bar (timeBar),
+        // process it exclusively and skip further processing.
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             int mx = event.button.x;
             int my = event.button.y;
@@ -191,7 +130,7 @@ void Player::update() {
                     double newTime = fraction * totalDuration;
                     seekTo(newTime);
                 }
-                continue;
+                continue;  // consume the event so it doesn’t fall through
             }
         }
         if (event.type == SDL_QUIT)
@@ -236,7 +175,6 @@ void Player::update() {
         currentTime = lastPTS.load(std::memory_order_relaxed);
         if ((currentTime >= totalDuration && totalDuration > 0) ||
             reachedEOF.load(std::memory_order_relaxed)) {
-            updateProgressForCurrentSong(totalDuration);
             incrementFinishedTrack();
             reachedEOF.store(false, std::memory_order_relaxed);
             playNextTrack();
@@ -263,25 +201,10 @@ void Player::incrementFinishedTrack() {
         if (playlists[activePlaylist].songs[i] == loadedFile) {
             if (i < playlists[activePlaylist].playCounts.size())
                 playlists[activePlaylist].playCounts[i]++;
-            if (i < playlists[activePlaylist].progressTimes.size())
-                playlists[activePlaylist].progressTimes[i] = totalDuration;
             break;
         }
     }
     savePlaylistState();
-}
-
-void Player::updateProgressForCurrentSong(double time) {
-    if (activePlaylist < 0)
-        return;
-    if (playlists[activePlaylist].progressTimes.size() < playlists[activePlaylist].songs.size())
-        playlists[activePlaylist].progressTimes.resize(playlists[activePlaylist].songs.size(), 0.0);
-    for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
-        if (playlists[activePlaylist].songs[i] == loadedFile) {
-            playlists[activePlaylist].progressTimes[i] = time;
-            break;
-        }
-    }
 }
 
 void Player::playNextTrack() {
@@ -295,6 +218,7 @@ void Player::playNextTrack() {
                 playAudio();
             return;
         }
+        // Use playCounts: select among those with the minimum play count.
         const auto &counts = playlists[activePlaylist].playCounts;
         int minCount = counts[0];
         for (size_t i = 1; i < counts.size(); i++) {
@@ -338,16 +262,19 @@ void Player::playNextTrack() {
 void Player::handleMouseClick(int x, int y) {
     std::lock_guard<std::mutex> lock(playlistMutex);
 
+    // (The progress bar click is handled in update(), so here we only process other areas.)
     if (isConfirmingDeletion) {
         if (x >= confirmYesButton.x && x <= confirmYesButton.x + confirmYesButton.w &&
             y >= confirmYesButton.y && y <= confirmYesButton.y + confirmYesButton.h) {
-            playlists.erase(playlists.begin() + deleteCandidateIndex);
-            playlistRects.erase(playlistRects.begin() + deleteCandidateIndex);
-            playlistDeleteRects.erase(playlistDeleteRects.begin() + deleteCandidateIndex);
-            if (deleteCandidateIndex == activePlaylist)
-                activePlaylist = -1;
-            else if (deleteCandidateIndex < activePlaylist)
-                activePlaylist--;
+            if (deleteCandidateIndex >= 0 && deleteCandidateIndex < (int)playlists.size()) {
+                playlists.erase(playlists.begin() + deleteCandidateIndex);
+                playlistRects.erase(playlistRects.begin() + deleteCandidateIndex);
+                playlistDeleteRects.erase(playlistDeleteRects.begin() + deleteCandidateIndex);
+                if (deleteCandidateIndex == activePlaylist)
+                    activePlaylist = -1;
+                else if (deleteCandidateIndex < activePlaylist)
+                    activePlaylist--;
+            }
             isConfirmingDeletion = false;
             deleteCandidateIndex = -1;
             return;
@@ -367,7 +294,6 @@ void Player::handleMouseClick(int x, int y) {
         if (x >= songR.x + songR.w - 30 && x <= songR.x + songR.w) {
             playlists[activePlaylist].songs.erase(playlists[activePlaylist].songs.begin() + hoveredSongIndex);
             playlists[activePlaylist].playCounts.erase(playlists[activePlaylist].playCounts.begin() + hoveredSongIndex);
-            playlists[activePlaylist].progressTimes.erase(playlists[activePlaylist].progressTimes.begin() + hoveredSongIndex);
             return;
         }
     }
@@ -484,24 +410,13 @@ void Player::seekTo(double seconds) {
         audioBufferIndex = 0;
         currentTime = seconds;
         lastPTS.store(seconds, std::memory_order_relaxed);
-        updateProgressForCurrentSong(seconds);
         std::cout << "[Debug] Seeked to " << seconds << " sec.\n";
     } else {
         std::cerr << "[Warn] av_seek_frame failed.\n";
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Seek Error", "av_seek_frame failed.", window);
-    }    
+    }
 }
 
 void Player::shutdown() {
-    if (activePlaylist >= 0 && !loadedFile.empty()) {
-        for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
-            if (playlists[activePlaylist].songs[i] == loadedFile) {
-                playlists[activePlaylist].progressTimes[i] = currentTime;
-                break;
-            }
-        }
-    }
-
     if (audioDev != 0) {
         SDL_CloseAudioDevice(audioDev);
         audioDev = 0;
@@ -552,4 +467,16 @@ void Player::shutdown() {
 
 bool Player::isRunning() const {
     return running;
+}
+
+void Player::handleFileDrop(const char* filePath) {
+    std::lock_guard<std::mutex> lock(playlistMutex);
+    if (activePlaylist >= 0) {
+        playlists[activePlaylist].songs.push_back(filePath);
+        playlists[activePlaylist].playCounts.push_back(0);
+        if (playlists[activePlaylist].songs.size() == 1) {
+            if (loadAudioFile(filePath))
+                playAudio();
+        }
+    }
 }

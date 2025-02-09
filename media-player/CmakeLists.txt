@@ -59,14 +59,7 @@ target_link_libraries(media_player PRIVATE
 )
 
 add_custom_command(TARGET media_player POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/dist/assets
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/assets/icon.ico ${CMAKE_SOURCE_DIR}/dist/assets/icon.ico
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:media_player> ${CMAKE_SOURCE_DIR}/dist/
 )
-if(EXISTS "${CMAKE_SOURCE_DIR}/assets/icon.png")
-    add_custom_command(TARGET media_player POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/assets/icon.png ${CMAKE_SOURCE_DIR}/dist/assets/icon.png
-    )
-endif()
 
 install(TARGETS media_player RUNTIME DESTINATION .)

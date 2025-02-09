@@ -246,6 +246,7 @@ void Player::drawSongPanel() {
         for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
             SDL_Rect songRect = { libraryPanel.x + 10, yOffset, libraryPanel.w - 20, 25 };
             
+            // Highlight the currently loaded song.
             if (playlists[activePlaylist].songs[i] == loadedFile)
                 SDL_SetRenderDrawColor(renderer, 0, 100, 0, 255);
             else
@@ -253,6 +254,7 @@ void Player::drawSongPanel() {
             SDL_RenderFillRect(renderer, &songRect);
             songRects.push_back(songRect);
             
+            // Prepare display text with play count.
             std::string filename = playlists[activePlaylist].songs[i];
             size_t pos = filename.find_last_of("/\\");
             if (pos != std::string::npos)
@@ -260,9 +262,10 @@ void Player::drawSongPanel() {
             int plays = playlists[activePlaylist].playCounts[i];
             std::string displayName = "(played " + std::to_string(plays) + ") " + filename;
             
+            // Clip text if it exceeds the song row width.
             int textW, textH;
             TTF_SizeText(font, displayName.c_str(), &textW, &textH);
-            const int maxWidth = songRect.w - 10;
+            const int maxWidth = songRect.w - 10; // 10px padding.
             if (textW > maxWidth) {
                 while (displayName.size() > 3) {
                     displayName = displayName.substr(0, displayName.size()-1);
@@ -284,6 +287,7 @@ void Player::drawSongPanel() {
                 SDL_DestroyTexture(songTex);
             }
             
+            // If this song row is hovered, draw a red "X" button on its right.
             if (static_cast<int>(i) == hoveredSongIndex) {
                 SDL_Rect deleteRect = { songRect.x + songRect.w - 30, songRect.y, 25, songRect.h };
                 SDL_SetRenderDrawColor(renderer, 90, 30, 30, 255);

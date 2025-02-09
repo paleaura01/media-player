@@ -1,3 +1,4 @@
+// player.h
 #ifndef PLAYER_H
 #define PLAYER_H
 
@@ -58,7 +59,6 @@ private:
         std::string name;
         std::vector<std::string> songs;
         std::vector<int> playCounts;
-        std::vector<double> progressTimes; // progress (in seconds) for each song
     };
     std::vector<Playlist> playlists;
     std::vector<SDL_Rect> playlistRects;
@@ -68,11 +68,11 @@ private:
     void savePlaylistState();
     void loadPlaylistState();
 
-    // For double-click renaming (added now)
+    // For double-click renaming
     int    lastPlaylistClickIndex = -1;
     Uint32 lastPlaylistClickTime  = 0;
-    bool   isRenaming = false;
-    int    renameIndex = -1;
+    bool        isRenaming    = false;
+    int         renameIndex   = -1;
     std::string renameBuffer;
     
     // Playback state
@@ -125,15 +125,11 @@ private:
     // For song deletion via “X” button on a song row.
     int hoveredSongIndex = -1;
     
-    // New: store last–played position for the last played song.
-    double lastPlayedTime = 0.0;
-    
     // UI / mouse logic
     void handleMouseClick(int x, int y);
     void handleFileDrop(const char* filePath);
     void handlePlaylistCreation();
     void calculateSongDuration();
-    void updateProgressForCurrentSong(double time); // update saved progress for current song
     
     // Audio methods
     bool loadAudioFile(const std::string &filename);
