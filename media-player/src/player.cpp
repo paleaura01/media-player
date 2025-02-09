@@ -1,59 +1,16 @@
-#ifdef _WIN32
-#include <windows.h>
-#include <string>
-// Helper function to load an ICO file and convert it into an SDL_Surface.
-// Renamed to avoid overloading conflicts.
-SDL_Surface* LoadIconFromICOHelper(const char* path) {
-    int len = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-    if (len == 0) return nullptr;
-    std::wstring wpath(len, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, path, -1, &wpath[0], len);
-    HICON hIcon = (HICON)LoadImageW(NULL, wpath.c_str(), IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
-    if (!hIcon) {
-        return nullptr;
-    }
-    ICONINFO iconInfo;
-    if (!GetIconInfo(hIcon, &iconInfo)) {
-        DestroyIcon(hIcon);
-        return nullptr;
-    }
-    BITMAP bmp;
-    GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
-    int width = bmp.bmWidth;
-    int height = bmp.bmHeight;
-    SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
-        0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-    if (!surface) {
-        DeleteObject(iconInfo.hbmColor);
-        DeleteObject(iconInfo.hbmMask);
-        DestroyIcon(hIcon);
-        return nullptr;
-    }
-    BITMAPINFO bmi;
-    ZeroMemory(&bmi, sizeof(bmi));
-    bmi.bmiHeader.biSize = sizeof(bmi.bmiHeader);
-    bmi.bmiHeader.biWidth = width;
-    bmi.bmiHeader.biHeight = -height;
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 32;
-    bmi.bmiHeader.biCompression = BI_RGB;
-    HDC hdc = GetDC(NULL);
-    GetDIBits(hdc, iconInfo.hbmColor, 0, height, surface->pixels, &bmi, DIB_RGB_COLORS);
-    ReleaseDC(NULL, hdc);
-    DeleteObject(iconInfo.hbmColor);
-    DeleteObject(iconInfo.hbmMask);
-    DestroyIcon(hIcon);
-    return surface;
-}
-#endif
-
+// player.cpp
 #include "player.h"
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
-#include <algorithm>
-#include <fstream>
+#include <algorithm>  // for std::swap
 
+// Legacy ICO-loading helper was removed here to avoid the overload conflict
+// that was originally caused by having multiple functions with the same parameter types
+// but differing only by return type. We now load the icon using PNG (via IMG_Load).
+
+// Helper: Fisher–Yates shuffle using rand()
+// (Retained here for potential future use)
 template<typename RandomIt>
 void my_shuffle(RandomIt first, RandomIt last) {
     for (auto i = (last - first) - 1; i > 0; --i) {
@@ -75,6 +32,7 @@ Player::Player()
       currentTime(0), totalDuration(0), isMuted(false), isShuffled(false),
       activePlaylist(-1), shuffleIndex(0), lastPlayedTime(0.0)
 {
+    // Set up UI rectangles
     timeBar       = { 10, 10, 780, 20 };
     prevButton    = { 10,  40, 40, 40 };
     playButton    = { 55,  40, 80, 40 };
@@ -90,6 +48,7 @@ Player::Player()
     newPlaylistButton = { playlistPanel.x + 10, playlistPanel.y + 10, playlistPanel.w - 20, 30 };
     mainPanel     = {0,0,0,0};
 
+    // Confirmation dialog for playlist deletion.
     confirmDialogRect = { 250,200,300,150 };
     confirmYesButton  = { 280,300,100,30 };
     confirmNoButton   = { 420,300,100,30 };
@@ -101,6 +60,7 @@ Player::~Player() {
 }
 
 bool Player::init() {
+    // Load playlist state (if any)
     loadPlaylistState();
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
@@ -122,7 +82,11 @@ bool Player::init() {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Window Creation Error", SDL_GetError(), nullptr);
         return false;
     }
+    
+#ifndef _WIN32
     {
+        // --- NEW ICON LOADING CODE WITH FALLBACK FOR NON-WINDOWS ---
+        // Use SDL_GetBasePath() to determine the correct base path.
         char* basePath = SDL_GetBasePath();
         std::string base;
         if (basePath) {
@@ -131,29 +95,41 @@ bool Player::init() {
         } else {
             base = "";
         }
+        // If the executable is in a "dist" folder, remove that folder from the base path.
         size_t pos = base.rfind("dist");
         if (pos != std::string::npos) {
             base = base.substr(0, pos);
         }
+        // Try to load the PNG icon first.
         std::string iconPath = base + "assets\\icon.png";
         std::cout << "[Debug] Loading icon from: " << iconPath << "\n";
         SDL_Surface* icon = IMG_Load(iconPath.c_str());
-#ifdef _WIN32
         if (!icon) {
-            std::cerr << "[Debug] PNG icon not found or failed to load, attempting ICO fallback.\n";
+            std::cerr << "[Warning] Failed to load PNG icon from: " << iconPath 
+                      << ". Trying ICO." << std::endl;
             std::string icoPath = base + "assets\\icon.ico";
-            icon = LoadIconFromICOHelper(icoPath.c_str());
+            std::cout << "[Debug] Loading icon from: " << icoPath << "\n";
+            icon = IMG_Load(icoPath.c_str());
         }
-#endif
+        if (!icon) {
+            std::cerr << "[Warning] Failed to load icon from both PNG and ICO paths. Creating default icon." << std::endl;
+            // Create a default icon surface (32x32) filled with a light gray color.
+            icon = SDL_CreateRGBSurface(0, 32, 32, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+            if (icon) {
+                SDL_FillRect(icon, NULL, SDL_MapRGB(icon->format, 200, 200, 200));
+            }
+        }
         if (icon) {
             SDL_SetWindowIcon(window, icon);
             SDL_FreeSurface(icon);
         } else {
-            std::string err = std::string("Failed to load icon: ") + IMG_GetError();
-            std::cerr << err << std::endl;
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Icon Load Error", ("Failed to load icon from: " + iconPath).c_str(), window);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Icon Load Error",
+                "Failed to load icon and create a default icon.", window);
         }
+        // --- END ICON LOADING CODE FOR NON-WINDOWS ---
     }
+#endif
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
@@ -162,6 +138,7 @@ bool Player::init() {
     }
     font = TTF_OpenFont("Arial.ttf", 12);
     if (!font) {
+        // Try fallback font
         font = TTF_OpenFont("C:\\Windows\\Fonts\\arial.ttf", 12);
         if (!font) {
             std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
@@ -181,31 +158,17 @@ bool Player::init() {
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
     srand(static_cast<unsigned>(SDL_GetTicks()));
 
-    // Check if last played file exists
-    if (!loadedFile.empty()) {
-        std::ifstream checkFile(loadedFile);
-        if (!checkFile.good()) {
-            std::cout << "[Warning] Last played file not found: " << loadedFile << std::endl;
-            loadedFile = "";
-            lastPlayedTime = 0.0;
-        }
-    }
-
-    // Resume playback if a last played file was saved.
+    // If a track was recovered from the dat file, resume playback.
     if (!loadedFile.empty() && activePlaylist != -1) {
-        std::cout << "[Debug] Attempting to resume: " << loadedFile 
-                  << " at " << lastPlayedTime << " seconds\n";
         if (loadAudioFile(loadedFile)) {
-            SDL_Delay(100);
-            if (lastPlayedTime > 0 && lastPlayedTime < totalDuration) {
+            if (totalDuration > 0 && lastPlayedTime > 0 && lastPlayedTime < totalDuration) {
                 seekTo(lastPlayedTime);
-                SDL_Delay(100);
+                SDL_Delay(100); // Allow a short delay after seeking
+            } else {
+                std::cout << "[Debug] Skipping seek because lastPlayedTime (" << lastPlayedTime
+                          << ") is not valid (totalDuration=" << totalDuration << ")." << std::endl;
             }
             playAudio();
-        } else {
-            std::cout << "[Error] Failed to load last played file\n";
-            loadedFile = "";
-            lastPlayedTime = 0.0;
         }
     }
 
@@ -403,7 +366,6 @@ void Player::handleMouseClick(int x, int y) {
         SDL_Rect songR = songRects[hoveredSongIndex];
         if (x >= songR.x + songR.w - 30 && x <= songR.x + songR.w) {
             playlists[activePlaylist].songs.erase(playlists[activePlaylist].songs.begin() + hoveredSongIndex);
-            // Fixed: Erase from playCounts using the correct vector iterator.
             playlists[activePlaylist].playCounts.erase(playlists[activePlaylist].playCounts.begin() + hoveredSongIndex);
             playlists[activePlaylist].progressTimes.erase(playlists[activePlaylist].progressTimes.begin() + hoveredSongIndex);
             return;
@@ -539,6 +501,7 @@ void Player::shutdown() {
             }
         }
     }
+
     if (audioDev != 0) {
         SDL_CloseAudioDevice(audioDev);
         audioDev = 0;
@@ -582,6 +545,7 @@ void Player::shutdown() {
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
+
     std::cout << "Player shutdown.\n";
     running = false;
 }
