@@ -285,29 +285,7 @@ void Player::audioCallback(Uint8* stream, int len) {
                                 double newTime = frame->pts * base;
                                 lastPTS.store(newTime, std::memory_order_relaxed);
                                 totalDuration = base * fmtCtx->streams[audioStreamIndex]->duration;
-                                
-                                // Check playback status and save more frequently (every 0.5 seconds)
-                                if (newTime - lastCountCheckTime >= 0.5) {
-                                    if (activePlaylist >= 0 && !loadedFile.empty()) {
-                                        auto &pl = playlists[activePlaylist];
-                                        if (pl.lastPositions.size() < pl.songs.size()) {
-                                            pl.lastPositions.resize(pl.songs.size(), 0.0);
-                                        }
-                                        for (size_t i = 0; i < pl.songs.size(); i++) {
-                                            if (pl.songs[i] == loadedFile) {
-                                                pl.lastPositions[i] = newTime;
-                                                // Don't save state here to avoid too many writes
-                                                if (newTime - lastSaveTime >= 2.0) {
-                                                    std::cout << "[Debug] Saving position " << newTime << " for track " << i << std::endl;
-                                                    savePlaylistState();
-                                                    lastSaveTime = newTime;
-                                                }
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    lastCountCheckTime = newTime;
-                                }
+                                // --- REMOVED: Periodic playlist state update from the audio callback.
                             }
                             
                             if (!swrCtx) {

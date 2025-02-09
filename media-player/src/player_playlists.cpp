@@ -16,6 +16,9 @@ void Player::handlePlaylistCreation() {
 }
 
 void Player::savePlaylistState() {
+    // --- NEW: Lock the playlist state while saving.
+    std::lock_guard<std::recursive_mutex> lock(playlistMutex);
+    
     json j = json::array();
     for (const auto& pl : playlists) {
         json playlistJson;
@@ -38,6 +41,9 @@ void Player::savePlaylistState() {
 }
 
 void Player::loadPlaylistState() {
+    // --- NEW: Lock the playlist state while loading.
+    std::lock_guard<std::recursive_mutex> lock(playlistMutex);
+    
     std::ifstream file("playlists.json");
     if (!file) {
         // If the file does not exist, there's nothing to load.

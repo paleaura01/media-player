@@ -225,6 +225,26 @@ void Player::update() {
         }
     }
 
+    // --- NEW: Update the current track’s saved position periodically from the main (UI) thread.
+    if (playingAudio && activePlaylist >= 0 && !loadedFile.empty()) {
+        std::lock_guard<std::recursive_mutex> lock(playlistMutex);
+        auto &pl = playlists[activePlaylist];
+        if (pl.lastPositions.size() < pl.songs.size()) {
+            pl.lastPositions.resize(pl.songs.size(), 0.0);
+        }
+        for (size_t i = 0; i < pl.songs.size(); i++) {
+            if (pl.songs[i] == loadedFile) {
+                pl.lastPositions[i] = currentTime;
+                if (currentTime - lastSaveTime >= 2.0) {
+                    std::cout << "[Debug] Saving position " << currentTime << " for track " << i << " from update()\n";
+                    savePlaylistState();
+                    lastSaveTime = currentTime;
+                }
+                break;
+            }
+        }
+    }
+
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderClear(renderer);
 
@@ -252,6 +272,9 @@ void Player::incrementFinishedTrack() {
 }
 
 void Player::playNextTrack() {
+    // --- NEW: Lock playlist state while choosing the next track.
+    std::lock_guard<std::recursive_mutex> lock(playlistMutex);
+    
     if (activePlaylist < 0 || playlists[activePlaylist].songs.empty())
         return;
 
@@ -308,7 +331,7 @@ void Player::playNextTrack() {
 }
 
 void Player::handleMouseClick(int x, int y) {
-    std::lock_guard<std::mutex> lock(playlistMutex);
+    std::lock_guard<std::recursive_mutex> lock(playlistMutex);
 
     // (The progress bar click is handled in update(), so here we only process other areas.)
     if (isConfirmingDeletion) {
@@ -509,7 +532,6 @@ bool Player::isRunning() const {
 }
 
 void Player::handleFileDrop(const char* filePath) {
-    std::lock_guard<std::mutex> lock(playlistMutex);
     if (activePlaylist >= 0) {
         playlists[activePlaylist].songs.push_back(filePath);
         playlists[activePlaylist].playCounts.push_back(0);

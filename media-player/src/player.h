@@ -125,7 +125,8 @@ private:
     
     // For thread safety
     std::mutex audioMutex;
-    std::mutex playlistMutex;
+    // --- CHANGED: Use a recursive mutex for playlist operations (to allow nested locking)
+    std::recursive_mutex playlistMutex;
     
     // For song deletion via "X" button on a song row.
     int hoveredSongIndex = -1;
