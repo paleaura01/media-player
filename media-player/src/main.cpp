@@ -5,7 +5,7 @@
 int main(int argc, char* argv[]) {
     (void)argc;
     (void)argv;
-    std::cout << "Starting Barebones Audio Player..." << std::endl;
+    std::cout << "Starting Twink Audio Player..." << std::endl;
     
     Player player;
     if (!player.init()) {

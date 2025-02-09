@@ -42,6 +42,10 @@ if(MSVC)
     add_compile_options(/MP)  # Enable parallel compilation in MSVC.
 endif()
 
+if(WIN32)
+    target_sources(media_player PRIVATE ${CMAKE_SOURCE_DIR}/icon.rc)
+endif()
+
 target_link_libraries(media_player PRIVATE
     SDL2::SDL2
     SDL2_ttf::SDL2_ttf

@@ -72,7 +72,7 @@ bool Player::init() {
         // Not fatal—just warn.
     }
 
-    window = SDL_CreateWindow("Barebones Audio Player",
+    window = SDL_CreateWindow("Twink Audio Player",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               800, 600, SDL_WINDOW_SHOWN);
     if (!window) {
