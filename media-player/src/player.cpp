@@ -179,6 +179,28 @@ void Player::update() {
                 SDL_StopTextInput();
             }
         }
+        else if (event.type == SDL_MOUSEWHEEL) {
+            int mx, my;
+            SDL_GetMouseState(&mx, &my);
+            // If mouse is over the song list (libraryPanel), adjust the scroll offset.
+            if (mx >= libraryPanel.x && mx <= libraryPanel.x + libraryPanel.w &&
+                my >= libraryPanel.y && my <= libraryPanel.y + libraryPanel.h) {
+                // Multiply wheel.y by 27 (row height) to scroll one row per wheel notch.
+                songListScrollOffset -= event.wheel.y * 27;
+                if (songListScrollOffset < 0)
+                    songListScrollOffset = 0;
+                if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
+                    int totalHeight = 10 + playlists[activePlaylist].songs.size() * (25 + 2);
+                    if (totalHeight > libraryPanel.h) {
+                        int maxOffset = totalHeight - libraryPanel.h;
+                        if (songListScrollOffset > maxOffset)
+                            songListScrollOffset = maxOffset;
+                    } else {
+                        songListScrollOffset = 0;
+                    }
+                }
+            }
+        }
     }
 
     if (playingAudio) {
@@ -304,6 +326,8 @@ void Player::handleMouseClick(int x, int y) {
         if (x >= songR.x + songR.w - 30 && x <= songR.x + songR.w) {
             playlists[activePlaylist].songs.erase(playlists[activePlaylist].songs.begin() + hoveredSongIndex);
             playlists[activePlaylist].playCounts.erase(playlists[activePlaylist].playCounts.begin() + hoveredSongIndex);
+            playlists[activePlaylist].lastPositions.erase(playlists[activePlaylist].lastPositions.begin() + hoveredSongIndex);  // Add this line
+            savePlaylistState();  // Save state after modifying playlist
             return;
         }
     }
@@ -405,7 +429,6 @@ void Player::handleMouseClick(int x, int y) {
     }
 }
 
-
 void Player::shutdown() {
     // CHANGE #1: Lock the audio mutex so the callback can't run while we free resources.
     std::lock_guard<std::mutex> lock(audioMutex);
@@ -467,9 +490,11 @@ void Player::handleFileDrop(const char* filePath) {
     if (activePlaylist >= 0) {
         playlists[activePlaylist].songs.push_back(filePath);
         playlists[activePlaylist].playCounts.push_back(0);
+        playlists[activePlaylist].lastPositions.push_back(0.0);  // Add this line
         if (playlists[activePlaylist].songs.size() == 1) {
             if (loadAudioFile(filePath))
                 playAudio();
         }
+        savePlaylistState();  // Save state after modifying playlist
     }
 }

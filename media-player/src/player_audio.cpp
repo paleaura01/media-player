@@ -8,10 +8,16 @@
 bool Player::loadAudioFile(const std::string &filename) {
     std::lock_guard<std::mutex> lock(audioMutex);
     std::cout << "[Debug] Loading file: " << filename << "\n";
+    
+    // Reset all tracking variables at the start
     reachedEOF.store(false, std::memory_order_relaxed);
-    resumePosition = 0.0;  // Reset resume position
+    resumePosition = 0.0;
     resumed = false;
     currentTime = 0;
+    lastCountCheckTime = 0.0;  // Add this
+    lastSaveTime = 0.0;       // Add this
+    lastPTS.store(0.0, std::memory_order_relaxed);  // Add this
+    
     
     // Clean up previous audio contexts.
     if (audioDev != 0) {
@@ -135,6 +141,10 @@ void Player::playAudio() {
         if (audioDev == 0 || playingAudio) {
             return;
         }
+        
+        // Reset tracking variables when starting playback
+        lastCountCheckTime = 0.0;
+        lastSaveTime = 0.0;
         playingAudio = true;
     }
 
@@ -161,6 +171,22 @@ void Player::stopAudio() {
     if (audioDev != 0 && playingAudio) {
         SDL_PauseAudioDevice(audioDev, 1);
         playingAudio = false;
+        
+        // Save state when stopping
+        if (activePlaylist >= 0 && !loadedFile.empty()) {
+            auto &pl = playlists[activePlaylist];
+            if (pl.lastPositions.size() < pl.songs.size()) {
+                pl.lastPositions.resize(pl.songs.size(), 0.0);
+            }
+            for (size_t i = 0; i < pl.songs.size(); i++) {
+                if (pl.songs[i] == loadedFile) {
+                    pl.lastPositions[i] = currentTime;
+                    std::cout << "[Debug] Saving position " << currentTime << " on stop for track " << i << std::endl;
+                    savePlaylistState();
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -194,6 +220,19 @@ bool Player::seekTo(double seconds) {
         currentTime = seconds;
         lastPTS.store(seconds, std::memory_order_relaxed);
         success = true;
+        
+        // Save state after successful seek
+        if (activePlaylist >= 0 && !loadedFile.empty()) {
+            auto &pl = playlists[activePlaylist];
+            for (size_t i = 0; i < pl.songs.size(); i++) {
+                if (pl.songs[i] == loadedFile) {
+                    pl.lastPositions[i] = seconds;
+                    break;
+                }
+            }
+            savePlaylistState();
+        }
+        
         std::cout << "[Debug] Seek successful\n";
     } else {
         std::cerr << "[Error] Seek failed\n";
@@ -243,8 +282,32 @@ void Player::audioCallback(Uint8* stream, int len) {
                         if (recvResult >= 0) {
                             if (frame->pts != AV_NOPTS_VALUE) {
                                 double base = av_q2d(fmtCtx->streams[audioStreamIndex]->time_base);
-                                lastPTS.store(frame->pts * base, std::memory_order_relaxed);
+                                double newTime = frame->pts * base;
+                                lastPTS.store(newTime, std::memory_order_relaxed);
                                 totalDuration = base * fmtCtx->streams[audioStreamIndex]->duration;
+                                
+                                // Check playback status and save more frequently (every 0.5 seconds)
+                                if (newTime - lastCountCheckTime >= 0.5) {
+                                    if (activePlaylist >= 0 && !loadedFile.empty()) {
+                                        auto &pl = playlists[activePlaylist];
+                                        if (pl.lastPositions.size() < pl.songs.size()) {
+                                            pl.lastPositions.resize(pl.songs.size(), 0.0);
+                                        }
+                                        for (size_t i = 0; i < pl.songs.size(); i++) {
+                                            if (pl.songs[i] == loadedFile) {
+                                                pl.lastPositions[i] = newTime;
+                                                // Don't save state here to avoid too many writes
+                                                if (newTime - lastSaveTime >= 2.0) {
+                                                    std::cout << "[Debug] Saving position " << newTime << " for track " << i << std::endl;
+                                                    savePlaylistState();
+                                                    lastSaveTime = newTime;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    lastCountCheckTime = newTime;
+                                }
                             }
                             
                             if (!swrCtx) {

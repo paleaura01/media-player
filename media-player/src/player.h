@@ -87,6 +87,7 @@ private:
     std::vector<int> shuffleOrder;
     int shuffleIndex = 0;
     std::vector<bool> playedInCycle;
+    double lastCountCheckTime = 0.0;
 
     // "Are you sure?" deletion confirmation for playlists
     bool isConfirmingDeletion = false;
@@ -126,7 +127,8 @@ private:
     
     // For song deletion via "X" button on a song row.
     int hoveredSongIndex = -1;
-    
+    int songListScrollOffset = 0;  // NEW: Scroll offset for the song list
+
     // UI / mouse logic
     void handleMouseClick(int x, int y);
     void handleFileDrop(const char* filePath);
@@ -153,6 +155,7 @@ private:
 
     // NEW: Variables to store resume information.
     double resumePosition = 0.0;
+    double lastSaveTime = 0.0;
     bool resumed = false;
 };
 

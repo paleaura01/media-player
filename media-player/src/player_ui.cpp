@@ -240,10 +240,23 @@ void Player::drawSongPanel() {
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderFillRect(renderer, &libraryPanel);
     
+    // Set clipping to libraryPanel so songs are confined within its bounds.
+    SDL_RenderSetClipRect(renderer, &libraryPanel);
+    
     if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
         SDL_Color white = {255, 255, 255, 255};
-        int yOffset = libraryPanel.y + 10;
+        // Start drawing at an offset that factors in the vertical scroll.
+        int yOffset = libraryPanel.y + 10 - songListScrollOffset;
         for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+            // If the current song row is completely above the visible area, skip drawing.
+            if (yOffset + 25 < libraryPanel.y) {
+                yOffset += 25 + 2;
+                continue;
+            }
+            // If the current song row is completely below the visible area, stop drawing.
+            if (yOffset > libraryPanel.y + libraryPanel.h)
+                break;
+                
             SDL_Rect songRect = { libraryPanel.x + 10, yOffset, libraryPanel.w - 20, 25 };
             
             // Highlight the currently loaded song.
@@ -302,6 +315,9 @@ void Player::drawSongPanel() {
             yOffset += songRect.h + 2;
         }
     }
+    
+    // Remove clipping.
+    SDL_RenderSetClipRect(renderer, NULL);
 }
 
 void Player::drawConfirmDialog() {
