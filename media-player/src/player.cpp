@@ -1,12 +1,59 @@
-// player.cpp
+#ifdef _WIN32
+#include <windows.h>
+#include <string>
+// Helper function to load an ICO file and convert it into an SDL_Surface.
+// Renamed to avoid overloading conflicts.
+SDL_Surface* LoadIconFromICOHelper(const char* path) {
+    int len = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+    if (len == 0) return nullptr;
+    std::wstring wpath(len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, &wpath[0], len);
+    HICON hIcon = (HICON)LoadImageW(NULL, wpath.c_str(), IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+    if (!hIcon) {
+        return nullptr;
+    }
+    ICONINFO iconInfo;
+    if (!GetIconInfo(hIcon, &iconInfo)) {
+        DestroyIcon(hIcon);
+        return nullptr;
+    }
+    BITMAP bmp;
+    GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
+    int width = bmp.bmWidth;
+    int height = bmp.bmHeight;
+    SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
+        0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+    if (!surface) {
+        DeleteObject(iconInfo.hbmColor);
+        DeleteObject(iconInfo.hbmMask);
+        DestroyIcon(hIcon);
+        return nullptr;
+    }
+    BITMAPINFO bmi;
+    ZeroMemory(&bmi, sizeof(bmi));
+    bmi.bmiHeader.biSize = sizeof(bmi.bmiHeader);
+    bmi.bmiHeader.biWidth = width;
+    bmi.bmiHeader.biHeight = -height;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    HDC hdc = GetDC(NULL);
+    GetDIBits(hdc, iconInfo.hbmColor, 0, height, surface->pixels, &bmi, DIB_RGB_COLORS);
+    ReleaseDC(NULL, hdc);
+    DeleteObject(iconInfo.hbmColor);
+    DeleteObject(iconInfo.hbmMask);
+    DestroyIcon(hIcon);
+    return surface;
+}
+#endif
+
 #include "player.h"
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
-#include <algorithm>  // for std::swap
+#include <algorithm>
+#include <fstream>
 
-// Helper: Fisher–Yates shuffle using rand()
-// (Retained here for potential future use)
 template<typename RandomIt>
 void my_shuffle(RandomIt first, RandomIt last) {
     for (auto i = (last - first) - 1; i > 0; --i) {
@@ -26,9 +73,8 @@ Player::Player()
       audioBuffer(nullptr), audioBufferSize(0), audioBufferIndex(0),
       audioDev(0), playingAudio(false), loadedFile(""),
       currentTime(0), totalDuration(0), isMuted(false), isShuffled(false),
-      activePlaylist(-1), shuffleIndex(0)
+      activePlaylist(-1), shuffleIndex(0), lastPlayedTime(0.0)
 {
-    // Set up UI rectangles
     timeBar       = { 10, 10, 780, 20 };
     prevButton    = { 10,  40, 40, 40 };
     playButton    = { 55,  40, 80, 40 };
@@ -44,7 +90,6 @@ Player::Player()
     newPlaylistButton = { playlistPanel.x + 10, playlistPanel.y + 10, playlistPanel.w - 20, 30 };
     mainPanel     = {0,0,0,0};
 
-    // Confirmation dialog for playlist deletion.
     confirmDialogRect = { 250,200,300,150 };
     confirmYesButton  = { 280,300,100,30 };
     confirmNoButton   = { 420,300,100,30 };
@@ -56,58 +101,113 @@ Player::~Player() {
 }
 
 bool Player::init() {
-    // Load playlist state (if any)
     loadPlaylistState();
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL Init Error", SDL_GetError(), nullptr);
         return false;
     }
     if (TTF_Init() != 0) {
         std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "TTF Init Error", TTF_GetError(), nullptr);
         return false;
     }
-    if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0) {
-        std::cerr << "IMG_Init Error: " << IMG_GetError() << std::endl;
-        // Not fatal—just warn.
-    }
-
+ 
     window = SDL_CreateWindow("Twink Audio Player",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               800, 600, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Window Creation Error", SDL_GetError(), nullptr);
         return false;
     }
     {
-        SDL_Surface* icon = IMG_Load("assets/icon.ico");
+        char* basePath = SDL_GetBasePath();
+        std::string base;
+        if (basePath) {
+            base = std::string(basePath);
+            SDL_free(basePath);
+        } else {
+            base = "";
+        }
+        size_t pos = base.rfind("dist");
+        if (pos != std::string::npos) {
+            base = base.substr(0, pos);
+        }
+        std::string iconPath = base + "assets\\icon.png";
+        std::cout << "[Debug] Loading icon from: " << iconPath << "\n";
+        SDL_Surface* icon = IMG_Load(iconPath.c_str());
+#ifdef _WIN32
+        if (!icon) {
+            std::cerr << "[Debug] PNG icon not found or failed to load, attempting ICO fallback.\n";
+            std::string icoPath = base + "assets\\icon.ico";
+            icon = LoadIconFromICOHelper(icoPath.c_str());
+        }
+#endif
         if (icon) {
             SDL_SetWindowIcon(window, icon);
             SDL_FreeSurface(icon);
         } else {
-            std::cerr << "Failed to load icon: " << IMG_GetError() << std::endl;
+            std::string err = std::string("Failed to load icon: ") + IMG_GetError();
+            std::cerr << err << std::endl;
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Icon Load Error", ("Failed to load icon from: " + iconPath).c_str(), window);
         }
     }
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Renderer Creation Error", SDL_GetError(), window);
         return false;
     }
     font = TTF_OpenFont("Arial.ttf", 12);
     if (!font) {
-        std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
-        return false;
+        font = TTF_OpenFont("C:\\Windows\\Fonts\\arial.ttf", 12);
+        if (!font) {
+            std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Font Load Error", TTF_GetError(), window);
+            return false;
+        }
     }
     TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 
     packet = av_packet_alloc();
-    frame = av_frame_alloc();
+    frame  = av_frame_alloc();
     if (!packet || !frame) {
         std::cerr << "Failed to allocate FFmpeg packet/frame." << std::endl;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "FFmpeg Allocation Error", "Could not allocate packet or frame.", window);
         return false;
     }
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
     srand(static_cast<unsigned>(SDL_GetTicks()));
+
+    // Check if last played file exists
+    if (!loadedFile.empty()) {
+        std::ifstream checkFile(loadedFile);
+        if (!checkFile.good()) {
+            std::cout << "[Warning] Last played file not found: " << loadedFile << std::endl;
+            loadedFile = "";
+            lastPlayedTime = 0.0;
+        }
+    }
+
+    // Resume playback if a last played file was saved.
+    if (!loadedFile.empty() && activePlaylist != -1) {
+        std::cout << "[Debug] Attempting to resume: " << loadedFile 
+                  << " at " << lastPlayedTime << " seconds\n";
+        if (loadAudioFile(loadedFile)) {
+            SDL_Delay(100);
+            if (lastPlayedTime > 0 && lastPlayedTime < totalDuration) {
+                seekTo(lastPlayedTime);
+                SDL_Delay(100);
+            }
+            playAudio();
+        } else {
+            std::cout << "[Error] Failed to load last played file\n";
+            loadedFile = "";
+            lastPlayedTime = 0.0;
+        }
+    }
 
     std::cout << "Initialization successful.\n";
     return true;
@@ -116,8 +216,6 @@ bool Player::init() {
 void Player::update() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        // IMPORTANT: If the click is within the progress bar (timeBar),
-        // process it exclusively and skip further processing.
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             int mx = event.button.x;
             int my = event.button.y;
@@ -130,7 +228,7 @@ void Player::update() {
                     double newTime = fraction * totalDuration;
                     seekTo(newTime);
                 }
-                continue;  // consume the event so it doesn’t fall through
+                continue;
             }
         }
         if (event.type == SDL_QUIT)
@@ -175,6 +273,7 @@ void Player::update() {
         currentTime = lastPTS.load(std::memory_order_relaxed);
         if ((currentTime >= totalDuration && totalDuration > 0) ||
             reachedEOF.load(std::memory_order_relaxed)) {
+            updateProgressForCurrentSong(totalDuration);
             incrementFinishedTrack();
             reachedEOF.store(false, std::memory_order_relaxed);
             playNextTrack();
@@ -201,10 +300,25 @@ void Player::incrementFinishedTrack() {
         if (playlists[activePlaylist].songs[i] == loadedFile) {
             if (i < playlists[activePlaylist].playCounts.size())
                 playlists[activePlaylist].playCounts[i]++;
+            if (i < playlists[activePlaylist].progressTimes.size())
+                playlists[activePlaylist].progressTimes[i] = totalDuration;
             break;
         }
     }
     savePlaylistState();
+}
+
+void Player::updateProgressForCurrentSong(double time) {
+    if (activePlaylist < 0)
+        return;
+    if (playlists[activePlaylist].progressTimes.size() < playlists[activePlaylist].songs.size())
+        playlists[activePlaylist].progressTimes.resize(playlists[activePlaylist].songs.size(), 0.0);
+    for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+        if (playlists[activePlaylist].songs[i] == loadedFile) {
+            playlists[activePlaylist].progressTimes[i] = time;
+            break;
+        }
+    }
 }
 
 void Player::playNextTrack() {
@@ -218,7 +332,6 @@ void Player::playNextTrack() {
                 playAudio();
             return;
         }
-        // Use playCounts: select among those with the minimum play count.
         const auto &counts = playlists[activePlaylist].playCounts;
         int minCount = counts[0];
         for (size_t i = 1; i < counts.size(); i++) {
@@ -262,19 +375,16 @@ void Player::playNextTrack() {
 void Player::handleMouseClick(int x, int y) {
     std::lock_guard<std::mutex> lock(playlistMutex);
 
-    // (The progress bar click is handled in update(), so here we only process other areas.)
     if (isConfirmingDeletion) {
         if (x >= confirmYesButton.x && x <= confirmYesButton.x + confirmYesButton.w &&
             y >= confirmYesButton.y && y <= confirmYesButton.y + confirmYesButton.h) {
-            if (deleteCandidateIndex >= 0 && deleteCandidateIndex < (int)playlists.size()) {
-                playlists.erase(playlists.begin() + deleteCandidateIndex);
-                playlistRects.erase(playlistRects.begin() + deleteCandidateIndex);
-                playlistDeleteRects.erase(playlistDeleteRects.begin() + deleteCandidateIndex);
-                if (deleteCandidateIndex == activePlaylist)
-                    activePlaylist = -1;
-                else if (deleteCandidateIndex < activePlaylist)
-                    activePlaylist--;
-            }
+            playlists.erase(playlists.begin() + deleteCandidateIndex);
+            playlistRects.erase(playlistRects.begin() + deleteCandidateIndex);
+            playlistDeleteRects.erase(playlistDeleteRects.begin() + deleteCandidateIndex);
+            if (deleteCandidateIndex == activePlaylist)
+                activePlaylist = -1;
+            else if (deleteCandidateIndex < activePlaylist)
+                activePlaylist--;
             isConfirmingDeletion = false;
             deleteCandidateIndex = -1;
             return;
@@ -293,7 +403,9 @@ void Player::handleMouseClick(int x, int y) {
         SDL_Rect songR = songRects[hoveredSongIndex];
         if (x >= songR.x + songR.w - 30 && x <= songR.x + songR.w) {
             playlists[activePlaylist].songs.erase(playlists[activePlaylist].songs.begin() + hoveredSongIndex);
+            // Fixed: Erase from playCounts using the correct vector iterator.
             playlists[activePlaylist].playCounts.erase(playlists[activePlaylist].playCounts.begin() + hoveredSongIndex);
+            playlists[activePlaylist].progressTimes.erase(playlists[activePlaylist].progressTimes.begin() + hoveredSongIndex);
             return;
         }
     }
@@ -410,13 +522,23 @@ void Player::seekTo(double seconds) {
         audioBufferIndex = 0;
         currentTime = seconds;
         lastPTS.store(seconds, std::memory_order_relaxed);
+        updateProgressForCurrentSong(seconds);
         std::cout << "[Debug] Seeked to " << seconds << " sec.\n";
     } else {
         std::cerr << "[Warn] av_seek_frame failed.\n";
-    }
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Seek Error", "av_seek_frame failed.", window);
+    }    
 }
 
 void Player::shutdown() {
+    if (activePlaylist >= 0 && !loadedFile.empty()) {
+        for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+            if (playlists[activePlaylist].songs[i] == loadedFile) {
+                playlists[activePlaylist].progressTimes[i] = currentTime;
+                break;
+            }
+        }
+    }
     if (audioDev != 0) {
         SDL_CloseAudioDevice(audioDev);
         audioDev = 0;
@@ -460,23 +582,10 @@ void Player::shutdown() {
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
-
     std::cout << "Player shutdown.\n";
     running = false;
 }
 
 bool Player::isRunning() const {
     return running;
-}
-
-void Player::handleFileDrop(const char* filePath) {
-    std::lock_guard<std::mutex> lock(playlistMutex);
-    if (activePlaylist >= 0) {
-        playlists[activePlaylist].songs.push_back(filePath);
-        playlists[activePlaylist].playCounts.push_back(0);
-        if (playlists[activePlaylist].songs.size() == 1) {
-            if (loadAudioFile(filePath))
-                playAudio();
-        }
-    }
 }
