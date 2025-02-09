@@ -2,8 +2,10 @@
 #include "player.h"
 #include <fstream>
 #include <iostream>
-#include <limits>
 #include <mutex>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 void Player::handlePlaylistCreation() {
     std::string name = "Playlist " + std::to_string(playlists.size() + 1);
@@ -14,41 +16,50 @@ void Player::handlePlaylistCreation() {
 }
 
 void Player::savePlaylistState() {
-    std::ofstream file("playlists.dat");
-    if (!file) return;
-    for (auto& pl : playlists) {
-        file << pl.name << "\n";
-        file << pl.songs.size() << "\n";
-        for (auto& song : pl.songs) {
-            file << song << "\n";
-        }
-        for (auto count : pl.playCounts) {
-            file << count << "\n";
-        }
+    json j = json::array();
+    for (const auto& pl : playlists) {
+        json playlistJson;
+        playlistJson["name"] = pl.name;
+        playlistJson["songs"] = pl.songs;
+        playlistJson["playCounts"] = pl.playCounts;
+        // NEW: Save the last played timestamp for each song.
+        playlistJson["lastPositions"] = pl.lastPositions;
+        j.push_back(playlistJson);
     }
+    
+    std::ofstream file("playlists.json");
+    if (!file) {
+        std::cerr << "Failed to open playlists.json for writing." << std::endl;
+        return;
+    }
+    file << j.dump(4); // Pretty-print with an indent of 4 spaces
 }
 
 void Player::loadPlaylistState() {
-    std::ifstream file("playlists.dat");
-    if (!file) return;
+    std::ifstream file("playlists.json");
+    if (!file) {
+        // If the file does not exist, there's nothing to load.
+        return;
+    }
+    json j;
+    try {
+        file >> j;
+    } catch (json::parse_error& e) {
+        std::cerr << "Failed to parse playlists.json: " << e.what() << std::endl;
+        return;
+    }
+    
     playlists.clear();
-    std::string line;
-    while (std::getline(file, line)) {
+    for (const auto& playlistJson : j) {
         Playlist p;
-        p.name = line;
-        size_t count = 0;
-        file >> count;
-        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        for (size_t i = 0; i < count; i++) {
-            std::string s;
-            std::getline(file, s);
-            p.songs.push_back(s);
-        }
-        for (size_t i = 0; i < count; i++) {
-            int c;
-            file >> c;
-            file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            p.playCounts.push_back(c);
+        p.name = playlistJson.value("name", "");
+        p.songs = playlistJson.value("songs", std::vector<std::string>{});
+        p.playCounts = playlistJson.value("playCounts", std::vector<int>{});
+        // NEW: Load lastPositions if available; otherwise, initialize with zeros.
+        if (playlistJson.contains("lastPositions")) {
+            p.lastPositions = playlistJson.value("lastPositions", std::vector<double>{});
+        } else {
+            p.lastPositions.resize(p.songs.size(), 0.0);
         }
         playlists.push_back(p);
     }

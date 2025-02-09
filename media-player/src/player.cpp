@@ -6,7 +6,6 @@
 #include <algorithm>  // for std::swap
 
 // Helper: Fisher–Yates shuffle using rand()
-// (Retained here for potential future use)
 template<typename RandomIt>
 void my_shuffle(RandomIt first, RandomIt last) {
     for (auto i = (last - first) - 1; i > 0; --i) {
@@ -51,6 +50,19 @@ Player::Player()
 }
 
 Player::~Player() {
+    // NEW: Before saving state, update the last played timestamp for the current song.
+    if (activePlaylist >= 0 && !loadedFile.empty()) {
+        auto &pl = playlists[activePlaylist];
+        if (pl.lastPositions.size() < pl.songs.size()) {
+            pl.lastPositions.resize(pl.songs.size(), 0.0);
+        }
+        for (size_t i = 0; i < pl.songs.size(); i++) {
+            if (pl.songs[i] == loadedFile) {
+                pl.lastPositions[i] = currentTime;
+                break;
+            }
+        }
+    }
     savePlaylistState();
     shutdown();
 }
@@ -116,8 +128,6 @@ bool Player::init() {
 void Player::update() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        // IMPORTANT: If the click is within the progress bar (timeBar),
-        // process it exclusively and skip further processing.
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             int mx = event.button.x;
             int my = event.button.y;
@@ -128,9 +138,9 @@ void Player::update() {
                     if (fraction < 0) fraction = 0;
                     if (fraction > 1) fraction = 1;
                     double newTime = fraction * totalDuration;
-                    seekTo(newTime);
+                    seekTo(newTime);  // Now returns bool but we don't need to check it here
                 }
-                continue;  // consume the event so it doesn’t fall through
+                continue;
             }
         }
         if (event.type == SDL_QUIT)
@@ -395,28 +405,11 @@ void Player::handleMouseClick(int x, int y) {
     }
 }
 
-void Player::seekTo(double seconds) {
-    std::lock_guard<std::mutex> lock(audioMutex);
-    if (!fmtCtx || audioStreamIndex < 0)
-        return;
-    if (seconds < 0)
-        seconds = 0;
-    if (totalDuration > 0 && seconds > totalDuration)
-        seconds = totalDuration;
-    int64_t target = static_cast<int64_t>(llround(seconds * AV_TIME_BASE));
-    if (av_seek_frame(fmtCtx, -1, target, AVSEEK_FLAG_BACKWARD) >= 0) {
-        avcodec_flush_buffers(codecCtx);
-        audioBufferSize = 0;
-        audioBufferIndex = 0;
-        currentTime = seconds;
-        lastPTS.store(seconds, std::memory_order_relaxed);
-        std::cout << "[Debug] Seeked to " << seconds << " sec.\n";
-    } else {
-        std::cerr << "[Warn] av_seek_frame failed.\n";
-    }
-}
 
 void Player::shutdown() {
+    // CHANGE #1: Lock the audio mutex so the callback can't run while we free resources.
+    std::lock_guard<std::mutex> lock(audioMutex);
+
     if (audioDev != 0) {
         SDL_CloseAudioDevice(audioDev);
         audioDev = 0;

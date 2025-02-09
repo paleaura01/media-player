@@ -1,0 +1,20 @@
+[
+    {
+        "lastPositions": [
+            17.832925170068027,
+            0.0,
+            0.0
+        ],
+        "name": "Playlist 1",
+        "playCounts": [
+            0,
+            0,
+            0
+        ],
+        "songs": [
+            "Z:\\Music\\Lidarr\\Metal-Rock\\Djent\\Periphery\\2011 - Icarus (EP)\\01 - New Groove.flac",
+            "Z:\\Music\\Lidarr\\Metal-Rock\\Djent\\Periphery\\2011 - Icarus (EP)\\02 - Frak the Gods.flac",
+            "Z:\\Music\\Lidarr\\Metal-Rock\\Djent\\Periphery\\2011 - Icarus (EP)\\03 - Jetpacks Was Yes! (v2.0).flac"
+        ]
+    }
+]

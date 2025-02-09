@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(media_player)
 
-set(CMAKE_GENERATOR "Ninja")
+# Removed forced generator specification.
+# set(CMAKE_GENERATOR "Ninja")
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -14,6 +16,9 @@ find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 find_package(SDL2_mixer CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
+
+# Find nlohmann_json via vcpkg
+find_package(nlohmann_json CONFIG REQUIRED)
 
 # Locate FFmpeg libraries
 find_library(AVFORMAT_LIB avformat)
@@ -51,6 +56,7 @@ target_link_libraries(media_player PRIVATE
     SDL2_ttf::SDL2_ttf
     SDL2_mixer::SDL2_mixer
     SDL2_image::SDL2_image
+    nlohmann_json::nlohmann_json
     ${AVFORMAT_LIB}
     ${AVCODEC_LIB}
     ${AVUTIL_LIB}

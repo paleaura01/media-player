@@ -59,6 +59,8 @@ private:
         std::string name;
         std::vector<std::string> songs;
         std::vector<int> playCounts;
+        // NEW: Last played timestamp (in seconds) for each song.
+        std::vector<double> lastPositions;
     };
     std::vector<Playlist> playlists;
     std::vector<SDL_Rect> playlistRects;
@@ -122,7 +124,7 @@ private:
     std::mutex audioMutex;
     std::mutex playlistMutex;
     
-    // For song deletion via “X” button on a song row.
+    // For song deletion via "X" button on a song row.
     int hoveredSongIndex = -1;
     
     // UI / mouse logic
@@ -136,7 +138,7 @@ private:
     void playAudio();
     void stopAudio();
     void playNextTrack();
-    void seekTo(double seconds);
+    bool seekTo(double seconds);   // Changed to just one declaration with void return type
     void audioCallback(Uint8* stream, int len);
     static void sdlAudioCallback(void* userdata, Uint8* stream, int len);
     
@@ -148,6 +150,10 @@ private:
     void drawPlaylistPanel();
     void drawSongPanel();
     void drawConfirmDialog();
+
+    // NEW: Variables to store resume information.
+    double resumePosition = 0.0;
+    bool resumed = false;
 };
 
 #endif // PLAYER_H

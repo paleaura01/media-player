@@ -9,6 +9,8 @@ bool Player::loadAudioFile(const std::string &filename) {
     std::lock_guard<std::mutex> lock(audioMutex);
     std::cout << "[Debug] Loading file: " << filename << "\n";
     reachedEOF.store(false, std::memory_order_relaxed);
+    resumePosition = 0.0;  // Reset resume position
+    resumed = false;
     currentTime = 0;
     
     // Clean up previous audio contexts.
@@ -16,17 +18,21 @@ bool Player::loadAudioFile(const std::string &filename) {
         SDL_CloseAudioDevice(audioDev);
         audioDev = 0;
     }
-    if (fmtCtx) {
-        avformat_close_input(&fmtCtx);
-        fmtCtx = nullptr;
+    if (audioBuffer) {
+        av_free(audioBuffer);
+        audioBuffer = nullptr;
+    }
+    if (swrCtx) {
+        swr_free(&swrCtx);
+        swrCtx = nullptr;
     }
     if (codecCtx) {
         avcodec_free_context(&codecCtx);
         codecCtx = nullptr;
     }
-    if (swrCtx) {
-        swr_free(&swrCtx);
-        swrCtx = nullptr;
+    if (fmtCtx) {
+        avformat_close_input(&fmtCtx);
+        fmtCtx = nullptr;
     }
     
     if (avformat_open_input(&fmtCtx, filename.c_str(), nullptr, nullptr) != 0) {
@@ -94,6 +100,21 @@ bool Player::loadAudioFile(const std::string &filename) {
         totalDuration = 0;
     std::cout << "[Debug] Loaded file duration: " << totalDuration << " seconds\n";
     
+    // Handle resume position
+    if (activePlaylist >= 0) {
+        auto &pl = playlists[activePlaylist];
+        for (size_t i = 0; i < pl.songs.size(); i++) {
+            if (pl.songs[i] == filename && i < pl.lastPositions.size()) {
+                double pos = pl.lastPositions[i];
+                if (pos > 0.0 && pos < totalDuration - 1.0) {
+                    std::cout << "[Debug] Found resume position: " << pos << " seconds\n";
+                    resumePosition = pos;
+                }
+                break;
+            }
+        }
+    }
+    
     return true;
 }
 
@@ -109,10 +130,29 @@ void Player::calculateSongDuration() {
 }
 
 void Player::playAudio() {
-    std::lock_guard<std::mutex> lock(audioMutex);
-    if (audioDev != 0 && !playingAudio) {
-        SDL_PauseAudioDevice(audioDev, 0);
+    {
+        std::lock_guard<std::mutex> lock(audioMutex);
+        if (audioDev == 0 || playingAudio) {
+            return;
+        }
         playingAudio = true;
+    }
+
+    // Handle seeking outside the lock
+    if (!resumed && resumePosition > 0.0) {
+        std::cout << "[Debug] Attempting to seek to resume position: " << resumePosition << "\n";
+        if (seekTo(resumePosition)) {
+            std::cout << "[Debug] Successfully seeked to resume position\n";
+        } else {
+            std::cout << "[Debug] Failed to seek to resume position\n";
+        }
+        resumed = true;
+    }
+
+    // Start playback
+    {
+        std::lock_guard<std::mutex> lock(audioMutex);
+        SDL_PauseAudioDevice(audioDev, 0);
     }
 }
 
@@ -122,6 +162,49 @@ void Player::stopAudio() {
         SDL_PauseAudioDevice(audioDev, 1);
         playingAudio = false;
     }
+}
+
+bool Player::seekTo(double seconds) {
+    std::lock_guard<std::mutex> lock(audioMutex);
+    if (!fmtCtx || audioStreamIndex < 0)
+        return false;
+
+    if (seconds < 0)
+        seconds = 0;
+    if (totalDuration > 0 && seconds >= totalDuration - 1.0)
+        seconds = totalDuration - 1.0;
+
+    std::cout << "[Debug] Seeking to " << seconds << " seconds\n";
+
+    int64_t target = static_cast<int64_t>(llround(seconds * AV_TIME_BASE));
+    
+    // Temporarily pause audio
+    bool wasPlaying = playingAudio;
+    if (wasPlaying) {
+        SDL_PauseAudioDevice(audioDev, 1);
+    }
+
+    // Clear buffers before seeking
+    audioBufferSize = 0;
+    audioBufferIndex = 0;
+    avcodec_flush_buffers(codecCtx);
+
+    bool success = false;
+    if (av_seek_frame(fmtCtx, -1, target, AVSEEK_FLAG_BACKWARD) >= 0) {
+        currentTime = seconds;
+        lastPTS.store(seconds, std::memory_order_relaxed);
+        success = true;
+        std::cout << "[Debug] Seek successful\n";
+    } else {
+        std::cerr << "[Error] Seek failed\n";
+    }
+
+    // Resume audio if it was playing
+    if (wasPlaying) {
+        SDL_PauseAudioDevice(audioDev, 0);
+    }
+
+    return success;
 }
 
 void Player::sdlAudioCallback(void* userdata, Uint8* stream, int len) {
