@@ -1,4 +1,4 @@
-// src/main.cpp
+// main.cpp
 #include <iostream>
 #include "player.h"
 
@@ -6,6 +6,7 @@ int main(int argc, char* argv[]) {
     (void)argc;
     (void)argv;
     std::cout << "Starting Barebones Audio Player..." << std::endl;
+    
     Player player;
     if (!player.init()) {
         std::cerr << "Failed to initialize the audio player!" << std::endl;

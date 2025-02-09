@@ -1,18 +1,15 @@
-#CMakeLists.txt
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 project(media_player)
-
-if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        CACHE STRING "")
-endif()
 
 set(CMAKE_GENERATOR "Ninja")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Find all required packages first
+# Disable Windows min/max macros.
+add_compile_definitions(NOMINMAX)
+
+# Find SDL2 and related libraries.
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
 find_package(SDL2_mixer CONFIG REQUIRED)
@@ -25,37 +22,24 @@ find_library(AVUTIL_LIB avutil)
 find_library(SWSCALE_LIB swscale)
 find_library(SWRESAMPLE_LIB swresample)
 
-if(WIN32)
-    enable_language(RC)
-    set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/app.rc")
-endif()
-
 add_executable(media_player
     src/main.cpp
-    src/player.cpp
-    src/player_ui.cpp
-    src/player_playlists.cpp
-    src/player_audio.cpp
+    src/player.cpp            # The "orchestrator"
+    src/player_ui.cpp         # UI code
+    src/player_playlists.cpp  # Playlist code
+    src/player_audio.cpp      # Audio code
     src/bluetooth_server.cpp
     src/protocol.cpp
     src/state_manager.cpp
-    ${APP_ICON_RESOURCE_WINDOWS}
 )
 
-# Copy all necessary DLLs
-if(WIN32)
-    add_custom_command(TARGET media_player POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:SDL2::SDL2>
-            $<TARGET_FILE:SDL2_image::SDL2_image>
-            $<TARGET_FILE:SDL2_ttf::SDL2_ttf>
-            $<TARGET_FILE:SDL2_mixer::SDL2_mixer>
-            $<TARGET_FILE_DIR:media_player>
-    )
-endif()
+# Enable unity builds for faster compile times.
+set_target_properties(media_player PROPERTIES UNITY_BUILD ON)
 
+# On Windows, hide the console if desired.
 if(MSVC)
     set_target_properties(media_player PROPERTIES WIN32_EXECUTABLE TRUE)
+    add_compile_options(/MP)  # Enable parallel compilation in MSVC.
 endif()
 
 target_link_libraries(media_player PRIVATE
@@ -70,7 +54,6 @@ target_link_libraries(media_player PRIVATE
     ${SWRESAMPLE_LIB}
 )
 
-# Copy to dist folder
 add_custom_command(TARGET media_player POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:media_player> ${CMAKE_SOURCE_DIR}/dist/
 )

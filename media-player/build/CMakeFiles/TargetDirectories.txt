@@ -1,4 +1,0 @@
-D:/Github/media-player/media-player/build/CMakeFiles/media_player.dir
-D:/Github/media-player/media-player/build/CMakeFiles/INSTALL.dir
-D:/Github/media-player/media-player/build/CMakeFiles/ALL_BUILD.dir
-D:/Github/media-player/media-player/build/CMakeFiles/ZERO_CHECK.dir

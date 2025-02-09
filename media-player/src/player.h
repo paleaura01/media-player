@@ -1,4 +1,4 @@
-// src/player.h
+// player.h
 #ifndef PLAYER_H
 #define PLAYER_H
 
@@ -6,10 +6,10 @@
 #include <string>
 #include <vector>
 #include <atomic>
+#include <mutex>
 #include <SDL.h>
 #include <SDL_ttf.h>
-#include <SDL_image.h>
-#include <mutex>
+#include <SDL_image.h>  // For icon loading
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -30,16 +30,20 @@ public:
     void shutdown();
     bool isRunning() const;
 
-private:
-    bool running;
+    // Increments the play count for the finished track.
+    void incrementFinishedTrack();
 
-    // UI Layout
+private:
+    // Runtime state
+    bool running;
+    
+    // UI layout rectangles
     SDL_Rect timeBar;
     SDL_Rect volumeBar;
     SDL_Rect playlistPanel;
     SDL_Rect libraryPanel;
     SDL_Rect mainPanel;
-
+    
     // Transport Buttons
     SDL_Rect prevButton;
     SDL_Rect playButton;
@@ -49,8 +53,8 @@ private:
     SDL_Rect newPlaylistButton;
     SDL_Rect rewindButton;
     SDL_Rect forwardButton;
-
-    // Playlist
+    
+    // Playlist structure
     struct Playlist {
         std::string name;
         std::vector<std::string> songs;
@@ -60,44 +64,41 @@ private:
     std::vector<SDL_Rect> playlistRects;
     std::vector<SDL_Rect> playlistDeleteRects;
     std::vector<SDL_Rect> songRects;
-     int playlistScrollOffset = 0;
-    int songScrollOffset = 0;
-    int visibleSongRows = 0;  // Will be calculated based on panel height
-    bool ensurePlayingTrackVisible = false;  // Flag to trigger scrolling to playing track
+    
     void savePlaylistState();
     void loadPlaylistState();
-    
 
-    // Double-click
+    // For double-click renaming
     int    lastPlaylistClickIndex = -1;
     Uint32 lastPlaylistClickTime  = 0;
-
-    // Inline rename
     bool        isRenaming    = false;
     int         renameIndex   = -1;
     std::string renameBuffer;
-
-    // Playback
+    
+    // Playback state
     double currentTime;
     double totalDuration;
     bool isMuted;
     bool isShuffled;
     int activePlaylist;
-   std::atomic<bool> reachedEOF{false};
+    std::atomic<bool> reachedEOF{false};
+    std::vector<int> shuffleOrder;
+    int shuffleIndex = 0;
+    std::vector<bool> playedInCycle;
 
-    // "Are you sure?" confirm deletion
+    // "Are you sure?" deletion confirmation for playlists
     bool isConfirmingDeletion = false;
     int  deleteCandidateIndex = -1;
     SDL_Rect confirmDialogRect;
     SDL_Rect confirmYesButton;
     SDL_Rect confirmNoButton;
-
-    // SDL
+    
+    // SDL objects
     SDL_Window* window;
     SDL_Renderer* renderer;
     TTF_Font* font;
-
-    // FFmpeg
+    
+    // FFmpeg objects
     AVFormatContext* fmtCtx;
     AVCodecContext*  codecCtx;
     SwrContext*      swrCtx;
@@ -110,48 +111,35 @@ private:
     SDL_AudioDeviceID audioDev;
     bool             playingAudio;
     std::string      loadedFile;
-
-    // The last decoded PTS (in seconds), updated in audioCallback
+    
+    // Last decoded PTS (in seconds) from the audio callback.
     std::atomic<double> lastPTS{0.0};
 
-    // UI / Mouse logic
+    // Volume (0 to 100)
+    float volume = 100.0f;
+    
+    // For thread safety
+    std::mutex audioMutex;
+    std::mutex playlistMutex;
+    
+    // For song deletion via “X” button on a song row.
+    int hoveredSongIndex = -1;
+    
+    // UI / mouse logic
     void handleMouseClick(int x, int y);
     void handleFileDrop(const char* filePath);
     void handlePlaylistCreation();
     void calculateSongDuration();
-bool canPlayThisTrack(size_t index);   // <== Enforces "one round" rule for manual selection
-    void incrementFinishedTrack();         // <== Called in update() when track actually ends
-    // Audio
+    
+    // Audio methods
     bool loadAudioFile(const std::string &filename);
     void playAudio();
     void stopAudio();
     void playNextTrack();
-    void cleanup_audio_resources();
-    std::atomic<bool> isLoading{false};
-    float volume = 100.0f;
-    // If you want seeking in time bar
     void seekTo(double seconds);
-    std::mutex audioMutex;
-    std::mutex playlistMutex;
-    int hoveredSongIndex = -1;
-    void incrementPlayCount(const std::string& filepath);
-
-
-    // Playback persistence
-    void savePlaybackState();
-    void loadPlaybackState();
-    std::string lastPlayedFile;
-    double lastPlayedPosition;
-    
-    // Session play tracking
-    std::vector<int> sessionPlayCounts;
-    int currentPlayLevel;
-    void shuffleCurrentPlaylist();
-
-    // Audio callback
     void audioCallback(Uint8* stream, int len);
     static void sdlAudioCallback(void* userdata, Uint8* stream, int len);
-
+    
     // Draw methods
     SDL_Texture* renderText(const std::string &text, SDL_Color color);
     void renderButtonText(SDL_Texture* texture, const SDL_Rect& button);
@@ -161,7 +149,5 @@ bool canPlayThisTrack(size_t index);   // <== Enforces "one round" rule for manu
     void drawSongPanel();
     void drawConfirmDialog();
 };
-
-
 
 #endif // PLAYER_H

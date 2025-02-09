@@ -1,21 +1,35 @@
+// player.cpp
 #include "player.h"
 #include <iostream>
-#include <cmath> // llround
-#include <cstdlib> // for srand, rand
+#include <cmath>
+#include <cstdlib>
+#include <algorithm>  // for std::swap
+
+// Helper: Fisher–Yates shuffle using rand()
+// (Retained here for potential future use)
+template<typename RandomIt>
+void my_shuffle(RandomIt first, RandomIt last) {
+    for (auto i = (last - first) - 1; i > 0; --i) {
+        auto j = rand() % (i + 1);
+        std::swap(first[i], first[j]);
+    }
+}
+
+#ifdef _WIN32
+#pragma comment(lib, "SDL2_image.lib")
+#endif
 
 Player::Player()
-
-    : currentPlayLevel(0), running(true), window(nullptr), renderer(nullptr), font(nullptr),
+    : running(true), window(nullptr), renderer(nullptr), font(nullptr),
       fmtCtx(nullptr), codecCtx(nullptr), swrCtx(nullptr),
       audioStreamIndex(-1), packet(nullptr), frame(nullptr),
       audioBuffer(nullptr), audioBufferSize(0), audioBufferIndex(0),
       audioDev(0), playingAudio(false), loadedFile(""),
       currentTime(0), totalDuration(0), isMuted(false), isShuffled(false),
-      activePlaylist(-1),
-      isConfirmingDeletion(false), deleteCandidateIndex(-1)
+      activePlaylist(-1), shuffleIndex(0)
 {
-    timeBar = { 10, 10, 780, 20 };
-    // Transport buttons
+    // Set up UI rectangles
+    timeBar       = { 10, 10, 780, 20 };
     prevButton    = { 10,  40, 40, 40 };
     playButton    = { 55,  40, 80, 40 };
     nextButton    = { 140, 40, 40, 40 };
@@ -25,30 +39,24 @@ Player::Player()
     forwardButton = { 450, 40, 40, 40 };
     volumeBar     = { 545, 40, 240, 40 };
 
-    // Panels
     playlistPanel = { 0,  90, 200, 510 };
     libraryPanel  = { 200, 90, 600, 510 };
-    newPlaylistButton = { 
-        playlistPanel.x + 10,
-        playlistPanel.y + 10,
-        playlistPanel.w - 20,
-        30
-    };
-    mainPanel = {0,0,0,0};
+    newPlaylistButton = { playlistPanel.x + 10, playlistPanel.y + 10, playlistPanel.w - 20, 30 };
+    mainPanel     = {0,0,0,0};
 
-    // Confirm Deletion
+    // Confirmation dialog for playlist deletion.
     confirmDialogRect = { 250,200,300,150 };
     confirmYesButton  = { 280,300,100,30 };
     confirmNoButton   = { 420,300,100,30 };
 }
 
 Player::~Player() {
-    savePlaybackState();
     savePlaylistState();
     shutdown();
 }
 
 bool Player::init() {
+    // Load playlist state (if any)
     loadPlaylistState();
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
@@ -59,41 +67,38 @@ bool Player::init() {
         std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
         return false;
     }
-
-    // Initialize SDL_image
-    if (IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG) == 0) {
-        std::cerr << "SDL_image Init Error: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    font = TTF_OpenFont("Arial.ttf", 14);
-    if (!font) {
-        std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
-        return false;
+    if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0) {
+        std::cerr << "IMG_Init Error: " << IMG_GetError() << std::endl;
+        // Not fatal—just warn.
     }
 
     window = SDL_CreateWindow("Barebones Audio Player",
-                            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                            800, 600, SDL_WINDOW_SHOWN);
+                              SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              800, 600, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    
-    // Load icon after window creation
-    SDL_Surface* icon = IMG_Load("assets/icon.ico");
-    if (icon) {
-        SDL_SetWindowIcon(window, icon);
-        SDL_FreeSurface(icon);
-    } else {
-        std::cerr << "Failed to load icon: " << IMG_GetError() << std::endl;
+    {
+        SDL_Surface* icon = IMG_Load("assets/icon.ico");
+        if (icon) {
+            SDL_SetWindowIcon(window, icon);
+            SDL_FreeSurface(icon);
+        } else {
+            std::cerr << "Failed to load icon: " << IMG_GetError() << std::endl;
+        }
     }
-
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         return false;
     }
+    font = TTF_OpenFont("Arial.ttf", 12);
+    if (!font) {
+        std::cerr << "TTF_OpenFont Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+    TTF_SetFontStyle(font, TTF_STYLE_BOLD);
 
     packet = av_packet_alloc();
     frame = av_frame_alloc();
@@ -101,149 +106,81 @@ bool Player::init() {
         std::cerr << "Failed to allocate FFmpeg packet/frame." << std::endl;
         return false;
     }
-
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
-    
-    // Seed random generator
-    srand(static_cast<unsigned>(SDL_GetTicks())); 
-
-    // Now that everything is initialized, load the playback state
-    loadPlaybackState();  // Move this here, after all initialization
+    srand(static_cast<unsigned>(SDL_GetTicks()));
 
     std::cout << "Initialization successful.\n";
     return true;
 }
 
-void Player::shuffleCurrentPlaylist() {
-    if (activePlaylist < 0 || activePlaylist >= (int)playlists.size()) return;
-    
-    auto& songs = playlists[activePlaylist].songs;
-    auto& counts = playlists[activePlaylist].playCounts;
-    auto& sessionCounts = sessionPlayCounts;
-
-    // Create indices array
-    std::vector<size_t> indices(songs.size());
-    for (size_t i = 0; i < indices.size(); i++) {
-        indices[i] = i;
-    }
-    
-    // Fisher-Yates shuffle
-    for (size_t i = indices.size() - 1; i > 0; i--) {
-        size_t j = rand() % (i + 1);
-        std::swap(indices[i], indices[j]);
-    }
-    
-    // Apply shuffle using temporary vectors
-    std::vector<std::string> tempSongs = songs;
-    std::vector<int> tempCounts = counts;
-    std::vector<int> tempSessionCounts = sessionCounts;
-    
-    for (size_t i = 0; i < indices.size(); i++) {
-        songs[i] = tempSongs[indices[i]];
-        counts[i] = tempCounts[indices[i]];
-        sessionCounts[i] = tempSessionCounts[indices[i]];
-    }
-}
-
 void Player::update() {
-    static Uint32 lastSaveTime = 0;
-    Uint32 currentTicks = SDL_GetTicks();
-    
-    // Save playback state every 5 seconds if playing
-    if (playingAudio && currentTicks - lastSaveTime > 5000) {
-        savePlaybackState();
-        lastSaveTime = currentTicks;
-    }
-
-    // Poll SDL events
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            running = false;
+        // IMPORTANT: If the click is within the progress bar (timeBar),
+        // process it exclusively and skip further processing.
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
+            int mx = event.button.x;
+            int my = event.button.y;
+            if (my >= timeBar.y && my <= timeBar.y + timeBar.h &&
+                mx >= timeBar.x && mx <= timeBar.x + timeBar.w) {
+                if (totalDuration > 0.0) {
+                    double fraction = double(mx - timeBar.x) / double(timeBar.w);
+                    if (fraction < 0) fraction = 0;
+                    if (fraction > 1) fraction = 1;
+                    double newTime = fraction * totalDuration;
+                    seekTo(newTime);
+                }
+                continue;  // consume the event so it doesn’t fall through
+            }
         }
-        else if (event.type == SDL_MOUSEWHEEL) {
-            int mouseX, mouseY;
-            SDL_GetMouseState(&mouseX, &mouseY);
-            
-            // Check if mouse is over song panel
-            if (mouseX >= libraryPanel.x && mouseX <= libraryPanel.x + libraryPanel.w &&
-                mouseY >= libraryPanel.y && mouseY <= libraryPanel.y + libraryPanel.h) 
-            {
-                songScrollOffset -= event.wheel.y;
-                
-                // Clamp scrolling
-                if (activePlaylist >= 0) {
-                    int maxOffset = (int)playlists[activePlaylist].songs.size() - visibleSongRows;
-                    if (maxOffset < 0) maxOffset = 0;
-                    if (songScrollOffset < 0) songScrollOffset = 0;
-                    if (songScrollOffset > maxOffset) songScrollOffset = maxOffset;
+        if (event.type == SDL_QUIT)
+            running = false;
+        else if (event.type == SDL_MOUSEMOTION) {
+            int mx = event.motion.x;
+            int my = event.motion.y;
+            hoveredSongIndex = -1;
+            for (size_t i = 0; i < songRects.size(); i++) {
+                SDL_Rect r = songRects[i];
+                if (mx >= r.x && mx <= r.x + r.w &&
+                    my >= r.y && my <= r.y + r.h) {
+                    hoveredSongIndex = static_cast<int>(i);
+                    break;
                 }
             }
         }
-        else if (event.type == SDL_MOUSEBUTTONDOWN) {
+        else if (event.type == SDL_MOUSEBUTTONDOWN)
             handleMouseClick(event.button.x, event.button.y);
-        }
         else if (event.type == SDL_DROPFILE) {
             handleFileDrop(event.drop.file);
             SDL_free(event.drop.file);
         }
-        else if (event.type == SDL_TEXTINPUT && isRenaming) {
+        else if (event.type == SDL_TEXTINPUT && isRenaming)
             renameBuffer += event.text.text;
-        }
         else if (event.type == SDL_KEYDOWN && isRenaming) {
             if (event.key.keysym.sym == SDLK_RETURN) {
-                if (renameIndex >= 0 && renameIndex < (int)playlists.size()) {
+                if (renameIndex >= 0 && renameIndex < (int)playlists.size())
                     playlists[renameIndex].name = renameBuffer;
-                }
                 isRenaming = false;
                 SDL_StopTextInput();
-            }
-            else if (event.key.keysym.sym == SDLK_BACKSPACE && !renameBuffer.empty()) {
+            } else if (event.key.keysym.sym == SDLK_BACKSPACE && !renameBuffer.empty())
                 renameBuffer.pop_back();
-            }
             else if (event.key.keysym.sym == SDLK_ESCAPE) {
                 isRenaming = false;
                 SDL_StopTextInput();
             }
         }
-        if (event.type == SDL_MOUSEMOTION) {
-            if (activePlaylist >= 0) {
-                hoveredSongIndex = -1;  // Reset first
-                for (size_t i = 0; i < songRects.size(); i++) {
-                    if (event.motion.x >= songRects[i].x &&
-                        event.motion.x <= songRects[i].x + songRects[i].w &&
-                        event.motion.y >= songRects[i].y &&
-                        event.motion.y <= songRects[i].y + songRects[i].h)
-                    {
-                        hoveredSongIndex = i + songScrollOffset;  // Add scroll offset
-                        break;
-                    }
-                }
-            }
-        }
     }
 
-    // If audio is playing, check for track finish
     if (playingAudio) {
         currentTime = lastPTS.load(std::memory_order_relaxed);
-
-        // If track is finished
         if ((currentTime >= totalDuration && totalDuration > 0) ||
-            reachedEOF.load(std::memory_order_relaxed))
-        {
-            std::cout << "[Debug] Track finished. Moving to next song...\n";
-            
-            // 1) Increment counts for the track that truly finished
+            reachedEOF.load(std::memory_order_relaxed)) {
             incrementFinishedTrack();
-
-            // 2) Then pick next track
-            playNextTrack();
-
             reachedEOF.store(false, std::memory_order_relaxed);
+            playNextTrack();
         }
     }
 
-    // UI Rendering
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderClear(renderer);
 
@@ -257,143 +194,249 @@ void Player::update() {
     SDL_Delay(16);
 }
 
-//
-// 1) We only call this when the track actually finishes.
-//
 void Player::incrementFinishedTrack() {
-    // If there's no loaded file, or no active playlist, do nothing
-    if (loadedFile.empty() || activePlaylist < 0
-        || activePlaylist >= (int)playlists.size()) 
-    {
+    if (activePlaylist < 0 || playlists[activePlaylist].songs.empty())
         return;
-    }
-
-    // Which index was that file in the playlist?
-    auto &pl = playlists[activePlaylist];
-    for (size_t i = 0; i < pl.songs.size(); i++) {
-        if (pl.songs[i] == loadedFile) {
-            // Overall count
-            pl.playCounts[i]++;
-            // Per-session count
-            if (i < sessionPlayCounts.size()) {
-                sessionPlayCounts[i]++;
-            }
-            savePlaylistState();
+    for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+        if (playlists[activePlaylist].songs[i] == loadedFile) {
+            if (i < playlists[activePlaylist].playCounts.size())
+                playlists[activePlaylist].playCounts[i]++;
             break;
         }
     }
+    savePlaylistState();
 }
 
-//
-// 2) This picks from unplayed tracks only, resetting if needed.
-//    No increment logic here—only selection.
-//
 void Player::playNextTrack() {
-    std::lock_guard<std::mutex> lock(playlistMutex);
-
-    if (activePlaylist < 0 || activePlaylist >= (int)playlists.size() ||
-        playlists[activePlaylist].songs.empty())
-    {
+    if (activePlaylist < 0 || playlists[activePlaylist].songs.empty())
         return;
-    }
 
-    auto &pl = playlists[activePlaylist];
-    sessionPlayCounts.resize(pl.songs.size(), 0);
-
-    size_t nextIndex;
+    const auto &songs = playlists[activePlaylist].songs;
     if (isShuffled) {
-        // Keep random selection for shuffle mode
-        std::vector<size_t> unplayed;
-        for (size_t i = 0; i < pl.songs.size(); i++) {
-            if (sessionPlayCounts[i] == 0) {
-                unplayed.push_back(i);
+        if (songs.size() == 1) {
+            if (loadAudioFile(songs[0]))
+                playAudio();
+            return;
+        }
+        // Use playCounts: select among those with the minimum play count.
+        const auto &counts = playlists[activePlaylist].playCounts;
+        int minCount = counts[0];
+        for (size_t i = 1; i < counts.size(); i++) {
+            if (counts[i] < minCount)
+                minCount = counts[i];
+        }
+        std::vector<int> candidates;
+        int currentIndex = -1;
+        for (size_t i = 0; i < songs.size(); i++) {
+            if (songs[i] == loadedFile)
+                currentIndex = static_cast<int>(i);
+            if (counts[i] == minCount) {
+                if (static_cast<int>(i) == currentIndex && songs.size() > 1)
+                    continue;
+                candidates.push_back(static_cast<int>(i));
             }
         }
-        if (unplayed.empty()) {
-            for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
-                sessionPlayCounts[i] = 0;
-            }
-            unplayed = std::vector<size_t>(pl.songs.size());
-            for (size_t i = 0; i < pl.songs.size(); i++) {
-                unplayed[i] = i;
+        if (candidates.empty()) {
+            for (size_t i = 0; i < songs.size(); i++) {
+                if (counts[i] == minCount)
+                    candidates.push_back(static_cast<int>(i));
             }
         }
-        nextIndex = unplayed[rand() % unplayed.size()];
+        int chosenIndex = candidates[rand() % candidates.size()];
+        if (loadAudioFile(songs[chosenIndex]))
+            playAudio();
     } else {
-        // Find current track and play next one
-        size_t currentIndex = 0;
-        for (size_t i = 0; i < pl.songs.size(); i++) {
-            if (pl.songs[i] == loadedFile) {
-                currentIndex = i;
+        int currentIndex = -1;
+        for (size_t i = 0; i < songs.size(); i++) {
+            if (songs[i] == loadedFile) {
+                currentIndex = static_cast<int>(i);
                 break;
             }
         }
-        nextIndex = (currentIndex + 1) % pl.songs.size();
-    }
-
-    if (loadAudioFile(pl.songs[nextIndex])) {
-        playAudio();
+        int nextIndex = (currentIndex + 1) % songs.size();
+        if (loadAudioFile(songs[nextIndex]))
+            playAudio();
     }
 }
 
-//
-// 3) Called when user clicks a song in handleMouseClick() to ensure
-//    we obey the "one round" rule. If the track is already played
-//    and there are still unplayed tracks left, return false.
-//
-bool Player::canPlayThisTrack(size_t index) {
-    // If this track is unplayed, fine
-    if (sessionPlayCounts[index] == 0) {
-        return true;
+void Player::handleMouseClick(int x, int y) {
+    std::lock_guard<std::mutex> lock(playlistMutex);
+
+    // (The progress bar click is handled in update(), so here we only process other areas.)
+    if (isConfirmingDeletion) {
+        if (x >= confirmYesButton.x && x <= confirmYesButton.x + confirmYesButton.w &&
+            y >= confirmYesButton.y && y <= confirmYesButton.y + confirmYesButton.h) {
+            if (deleteCandidateIndex >= 0 && deleteCandidateIndex < (int)playlists.size()) {
+                playlists.erase(playlists.begin() + deleteCandidateIndex);
+                playlistRects.erase(playlistRects.begin() + deleteCandidateIndex);
+                playlistDeleteRects.erase(playlistDeleteRects.begin() + deleteCandidateIndex);
+                if (deleteCandidateIndex == activePlaylist)
+                    activePlaylist = -1;
+                else if (deleteCandidateIndex < activePlaylist)
+                    activePlaylist--;
+            }
+            isConfirmingDeletion = false;
+            deleteCandidateIndex = -1;
+            return;
+        }
+        if (x >= confirmNoButton.x && x <= confirmNoButton.x + confirmNoButton.w &&
+            y >= confirmNoButton.y && y <= confirmNoButton.y + confirmNoButton.h) {
+            isConfirmingDeletion = false;
+            deleteCandidateIndex = -1;
+            return;
+        }
+        return;
     }
-    // Otherwise, check if ANY track is still unplayed
-    for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
-        if (sessionPlayCounts[i] == 0) {
-            // Means we do have some unplayed track left,
-            // so we can't replay this one yet.
-            return false;
+
+    if (activePlaylist >= 0 && activePlaylist < (int)playlists.size() &&
+        hoveredSongIndex >= 0 && hoveredSongIndex < (int)songRects.size()) {
+        SDL_Rect songR = songRects[hoveredSongIndex];
+        if (x >= songR.x + songR.w - 30 && x <= songR.x + songR.w) {
+            playlists[activePlaylist].songs.erase(playlists[activePlaylist].songs.begin() + hoveredSongIndex);
+            playlists[activePlaylist].playCounts.erase(playlists[activePlaylist].playCounts.begin() + hoveredSongIndex);
+            return;
         }
     }
-    // If we get here, everything was played, so reset them all
-    for (size_t i = 0; i < sessionPlayCounts.size(); i++) {
-        sessionPlayCounts[i] = 0;
+
+    if (x >= newPlaylistButton.x && x <= newPlaylistButton.x + newPlaylistButton.w &&
+        y >= newPlaylistButton.y && y <= newPlaylistButton.y + newPlaylistButton.h) {
+        handlePlaylistCreation();
+        return;
     }
-    return true; // now it's allowed
+
+    for (size_t i = 0; i < playlists.size(); i++) {
+        SDL_Rect del = playlistDeleteRects[i];
+        if (x >= del.x && x <= del.x + del.w &&
+            y >= del.y && y <= del.y + del.h) {
+            isConfirmingDeletion = true;
+            deleteCandidateIndex = static_cast<int>(i);
+            return;
+        }
+        SDL_Rect row = playlistRects[i];
+        if (x >= row.x && x <= row.x + row.w &&
+            y >= row.y && y <= row.y + row.h) {
+            Uint32 now = SDL_GetTicks();
+            const Uint32 DBLCLICK_TIME = 400;
+            if ((int)i == lastPlaylistClickIndex && (now - lastPlaylistClickTime) < DBLCLICK_TIME) {
+                isRenaming = true;
+                renameIndex = static_cast<int>(i);
+                renameBuffer = playlists[i].name;
+                SDL_StartTextInput();
+            } else {
+                activePlaylist = static_cast<int>(i);
+            }
+            lastPlaylistClickIndex = static_cast<int>(i);
+            lastPlaylistClickTime = now;
+            return;
+        }
+    }
+
+    if (activePlaylist >= 0 && activePlaylist < (int)playlists.size()) {
+        for (size_t s = 0; s < songRects.size(); s++) {
+            SDL_Rect r = songRects[s];
+            if (x >= r.x && x <= r.x + r.w &&
+                y >= r.y && y <= r.y + r.h) {
+                const std::string& path = playlists[activePlaylist].songs[s];
+                if (!path.empty() && loadAudioFile(path))
+                    playAudio();
+                return;
+            }
+        }
+    }
+
+    if (y >= prevButton.y && y <= prevButton.y + prevButton.h &&
+        x >= prevButton.x && x <= prevButton.x + prevButton.w) {
+        if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty()) {
+            int foundIndex = -1;
+            for (size_t i = 0; i < playlists[activePlaylist].songs.size(); i++) {
+                if (playlists[activePlaylist].songs[i] == loadedFile) {
+                    foundIndex = static_cast<int>(i);
+                    break;
+                }
+            }
+            if (foundIndex <= 0) {
+                if (loadAudioFile(playlists[activePlaylist].songs.back()))
+                    playAudio();
+            } else {
+                if (loadAudioFile(playlists[activePlaylist].songs[foundIndex - 1]))
+                    playAudio();
+            }
+        }
+    }
+    else if (y >= nextButton.y && y <= nextButton.y + nextButton.h &&
+             x >= nextButton.x && x <= nextButton.x + nextButton.w) {
+        if (activePlaylist >= 0 && !playlists[activePlaylist].songs.empty())
+            playNextTrack();
+    }
+    else if (x >= playButton.x && x <= playButton.x + playButton.w) {
+        if (!loadedFile.empty()) {
+            if (playingAudio)
+                stopAudio();
+            else
+                playAudio();
+        }
+    }
+    else if (x >= shuffleButton.x && x <= shuffleButton.x + shuffleButton.w) {
+        isShuffled = !isShuffled;
+    }
+    else if (x >= muteButton.x && x <= muteButton.x + muteButton.w) {
+        isMuted = !isMuted;
+    }
+    else if (x >= rewindButton.x && x <= rewindButton.x + rewindButton.w) {
+        seekTo(currentTime - 10.0);
+    }
+    else if (x >= forwardButton.x && x <= forwardButton.x + forwardButton.w) {
+        seekTo(currentTime + 10.0);
+    }
+    else if (x >= volumeBar.x && x <= volumeBar.x + volumeBar.w) {
+        volume = ((float)(x - volumeBar.x) / volumeBar.w) * 100.0f;
+        if (volume < 0) volume = 0;
+        if (volume > 100) volume = 100;
+    }
 }
 
 void Player::seekTo(double seconds) {
     std::lock_guard<std::mutex> lock(audioMutex);
-    
-    if (!fmtCtx || audioStreamIndex < 0 || isLoading.load()) {
+    if (!fmtCtx || audioStreamIndex < 0)
         return;
-    }
-
-    if (seconds < 0) seconds = 0;
-    if (seconds > totalDuration) seconds = totalDuration;
-
-    try {
-        int64_t target = (int64_t)llround(seconds * AV_TIME_BASE);
-        if (av_seek_frame(fmtCtx, -1, target, AVSEEK_FLAG_BACKWARD) >= 0) {
-            avcodec_flush_buffers(codecCtx);
-            currentTime = seconds;
-            lastPTS.store(seconds, std::memory_order_relaxed);
-        }
-    } catch (...) {
-        std::cerr << "Error during seek operation" << std::endl;
+    if (seconds < 0)
+        seconds = 0;
+    if (totalDuration > 0 && seconds > totalDuration)
+        seconds = totalDuration;
+    int64_t target = static_cast<int64_t>(llround(seconds * AV_TIME_BASE));
+    if (av_seek_frame(fmtCtx, -1, target, AVSEEK_FLAG_BACKWARD) >= 0) {
+        avcodec_flush_buffers(codecCtx);
+        audioBufferSize = 0;
+        audioBufferIndex = 0;
+        currentTime = seconds;
+        lastPTS.store(seconds, std::memory_order_relaxed);
+        std::cout << "[Debug] Seeked to " << seconds << " sec.\n";
+    } else {
+        std::cerr << "[Warn] av_seek_frame failed.\n";
     }
 }
 
 void Player::shutdown() {
-    if (!loadedFile.empty()) {
-        savePlaybackState();  // Save before cleanup
+    if (audioDev != 0) {
+        SDL_CloseAudioDevice(audioDev);
+        audioDev = 0;
     }
-    
-    std::lock_guard<std::mutex> lock1(audioMutex);
-    std::lock_guard<std::mutex> lock2(playlistMutex);
-    
-    running = false;
-    cleanup_audio_resources();
-    
+    if (audioBuffer) {
+        av_free(audioBuffer);
+        audioBuffer = nullptr;
+    }
+    if (swrCtx) {
+        swr_free(&swrCtx);
+        swrCtx = nullptr;
+    }
+    if (codecCtx) {
+        avcodec_free_context(&codecCtx);
+        codecCtx = nullptr;
+    }
+    if (fmtCtx) {
+        avformat_close_input(&fmtCtx);
+        fmtCtx = nullptr;
+    }
     if (packet) {
         av_packet_free(&packet);
         packet = nullptr;
@@ -402,7 +445,6 @@ void Player::shutdown() {
         av_frame_free(&frame);
         frame = nullptr;
     }
-    
     if (font) {
         TTF_CloseFont(font);
         font = nullptr;
@@ -415,48 +457,26 @@ void Player::shutdown() {
         SDL_DestroyWindow(window);
         window = nullptr;
     }
-    
-    IMG_Quit();
     TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
+
+    std::cout << "Player shutdown.\n";
+    running = false;
 }
 
 bool Player::isRunning() const {
     return running;
 }
 
-void Player::savePlaybackState() {
-    std::ofstream file("playback_state.dat");
-    if (!file) return;
-    
-    file << loadedFile << "\n";
-    file << currentTime << "\n";
-    file << activePlaylist << "\n";
-}
-
-void Player::loadPlaybackState() {
-    std::ifstream file("playback_state.dat");
-    if (!file) return;
-    
-    std::string savedFile;
-    double savedTime;
-    int savedPlaylist;
-    
-    std::getline(file, savedFile);
-    file >> savedTime;
-    file >> savedPlaylist;
-    
-    if (!savedFile.empty() && savedTime >= 0) {
-        if (savedPlaylist >= 0 && savedPlaylist < (int)playlists.size()) {
-            activePlaylist = savedPlaylist;
-            sessionPlayCounts.resize(playlists[activePlaylist].songs.size(), 0);
-            currentPlayLevel = 0;
-        }
-        
-        if (loadAudioFile(savedFile)) {
-            SDL_Delay(100);  // Give audio system time to initialize
-            seekTo(savedTime);
-            playAudio();
+void Player::handleFileDrop(const char* filePath) {
+    std::lock_guard<std::mutex> lock(playlistMutex);
+    if (activePlaylist >= 0) {
+        playlists[activePlaylist].songs.push_back(filePath);
+        playlists[activePlaylist].playCounts.push_back(0);
+        if (playlists[activePlaylist].songs.size() == 1) {
+            if (loadAudioFile(filePath))
+                playAudio();
         }
     }
 }
