@@ -22,8 +22,10 @@ void Player::savePlaylistState() {
         playlistJson["name"] = pl.name;
         playlistJson["songs"] = pl.songs;
         playlistJson["playCounts"] = pl.playCounts;
-        // NEW: Save the last played timestamp for each song.
+        // Save the last played timestamp for each song.
         playlistJson["lastPositions"] = pl.lastPositions;
+        // NEW: Save the index of the last played song.
+        playlistJson["lastPlayedIndex"] = pl.lastPlayedIndex;
         j.push_back(playlistJson);
     }
     
@@ -55,12 +57,14 @@ void Player::loadPlaylistState() {
         p.name = playlistJson.value("name", "");
         p.songs = playlistJson.value("songs", std::vector<std::string>{});
         p.playCounts = playlistJson.value("playCounts", std::vector<int>{});
-        // NEW: Load lastPositions if available; otherwise, initialize with zeros.
+        // Load lastPositions if available; otherwise, initialize with zeros.
         if (playlistJson.contains("lastPositions")) {
             p.lastPositions = playlistJson.value("lastPositions", std::vector<double>{});
         } else {
             p.lastPositions.resize(p.songs.size(), 0.0);
         }
+        // NEW: Load the last played song index (default to -1 if not present).
+        p.lastPlayedIndex = playlistJson.value("lastPlayedIndex", -1);
         playlists.push_back(p);
     }
 }

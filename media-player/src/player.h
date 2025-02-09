@@ -59,8 +59,10 @@ private:
         std::string name;
         std::vector<std::string> songs;
         std::vector<int> playCounts;
-        // NEW: Last played timestamp (in seconds) for each song.
+        // Last played timestamp (in seconds) for each song.
         std::vector<double> lastPositions;
+        // NEW: Index of the last played track (or -1 if none)
+        int lastPlayedIndex = -1;
     };
     std::vector<Playlist> playlists;
     std::vector<SDL_Rect> playlistRects;

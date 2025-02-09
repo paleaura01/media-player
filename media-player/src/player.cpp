@@ -121,6 +121,18 @@ bool Player::init() {
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
     srand(static_cast<unsigned>(SDL_GetTicks()));
 
+    // NEW: Auto-resume the last played track if available.
+    if (!playlists.empty()) {
+        if (activePlaylist < 0)
+            activePlaylist = 0;
+        if (playlists[activePlaylist].lastPlayedIndex >= 0 &&
+            playlists[activePlaylist].lastPlayedIndex < static_cast<int>(playlists[activePlaylist].songs.size())) {
+            std::string resumeSong = playlists[activePlaylist].songs[playlists[activePlaylist].lastPlayedIndex];
+            if (loadAudioFile(resumeSong))
+                playAudio();
+        }
+    }
+
     std::cout << "Initialization successful.\n";
     return true;
 }
@@ -275,8 +287,10 @@ void Player::playNextTrack() {
             }
         }
         int chosenIndex = candidates[rand() % candidates.size()];
-        if (loadAudioFile(songs[chosenIndex]))
+        if (loadAudioFile(songs[chosenIndex])) {
+            playlists[activePlaylist].lastPlayedIndex = chosenIndex;
             playAudio();
+        }
     } else {
         int currentIndex = -1;
         for (size_t i = 0; i < songs.size(); i++) {
@@ -286,8 +300,10 @@ void Player::playNextTrack() {
             }
         }
         int nextIndex = (currentIndex + 1) % songs.size();
-        if (loadAudioFile(songs[nextIndex]))
+        if (loadAudioFile(songs[nextIndex])) {
+            playlists[activePlaylist].lastPlayedIndex = nextIndex;
             playAudio();
+        }
     }
 }
 
@@ -326,8 +342,8 @@ void Player::handleMouseClick(int x, int y) {
         if (x >= songR.x + songR.w - 30 && x <= songR.x + songR.w) {
             playlists[activePlaylist].songs.erase(playlists[activePlaylist].songs.begin() + hoveredSongIndex);
             playlists[activePlaylist].playCounts.erase(playlists[activePlaylist].playCounts.begin() + hoveredSongIndex);
-            playlists[activePlaylist].lastPositions.erase(playlists[activePlaylist].lastPositions.begin() + hoveredSongIndex);  // Add this line
-            savePlaylistState();  // Save state after modifying playlist
+            playlists[activePlaylist].lastPositions.erase(playlists[activePlaylist].lastPositions.begin() + hoveredSongIndex);
+            savePlaylistState();
             return;
         }
     }
@@ -371,8 +387,11 @@ void Player::handleMouseClick(int x, int y) {
             if (x >= r.x && x <= r.x + r.w &&
                 y >= r.y && y <= r.y + r.h) {
                 const std::string& path = playlists[activePlaylist].songs[s];
-                if (!path.empty() && loadAudioFile(path))
+                if (!path.empty() && loadAudioFile(path)) {
+                    // NEW: Update the last played song index when a song is clicked.
+                    playlists[activePlaylist].lastPlayedIndex = static_cast<int>(s);
                     playAudio();
+                }
                 return;
             }
         }
@@ -389,11 +408,15 @@ void Player::handleMouseClick(int x, int y) {
                 }
             }
             if (foundIndex <= 0) {
-                if (loadAudioFile(playlists[activePlaylist].songs.back()))
+                if (loadAudioFile(playlists[activePlaylist].songs.back())) {
+                    playlists[activePlaylist].lastPlayedIndex = static_cast<int>(playlists[activePlaylist].songs.size() - 1);
                     playAudio();
+                }
             } else {
-                if (loadAudioFile(playlists[activePlaylist].songs[foundIndex - 1]))
+                if (loadAudioFile(playlists[activePlaylist].songs[foundIndex - 1])) {
+                    playlists[activePlaylist].lastPlayedIndex = foundIndex - 1;
                     playAudio();
+                }
             }
         }
     }
