@@ -1,9 +1,8 @@
-tests
-target
-sample.mp3
+/target
+**/*.rs.bk
 Cargo.lock
-Cargo.toml
-README.md
-sample.mp3
-old-src
-old-Cargo.toml
+.DS_Store
+*.mp3
+*.wav
+*.flac
+sample.*

@@ -1,23 +1,22 @@
 {
-    "terminal.integrated.profiles.windows": {
-      "64-bit Developer Command Prompt": {
-        "path": "C:\\Windows\\System32\\cmd.exe",
-        "args": [
-          "/k",
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat",
-          "-arch=amd64"
-        ],
-        "icon": "terminal-cmd"
-      }
-    },
-    "rust-analyzer.checkOnSave.enable": false,
+  "terminal.integrated.profiles.windows": {
+    "64-bit Developer Command Prompt": {
+      "path": "C:\\Windows\\System32\\cmd.exe",
+      "args": [
+        "/k",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat",
+        "-arch=amd64"
+      ],
+      "icon": "terminal-cmd"
+    }
+  },
+  "rust-analyzer.checkOnSave.enable": false,
   "rust-analyzer.cargo.buildScripts.enable": false,
   "rust-analyzer.procMacro.enable": false,
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/target/**": true
   },
-    "terminal.integrated.defaultProfile.windows": "64-bit Developer Command Prompt"
-  }
-  
- 
+  "terminal.integrated.defaultProfile.windows": "64-bit Developer Command Prompt",
+  "rust-analyzer.linkedProjects": ["Cargo.toml"]
+}

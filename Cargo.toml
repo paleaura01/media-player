@@ -1,9 +1,20 @@
 [workspace]
 resolver = "2"
 members = [
-    "media-core",
-    "media-audio",
-    "media-gui",
-    "media-bluetooth",
-    "media-app"
+    "app",
+    "core",
+    "ui"
 ]
+
+[package]
+name = "media-player-dev"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "dev"
+path = "dev.rs"
+
+[dependencies]
+notify = "5.0"
+ctrlc = "3.2"

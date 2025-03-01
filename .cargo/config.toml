@@ -3,10 +3,10 @@ VCPKG_DEFAULT_TRIPLET = "x64-windows"
 VCPKG_TRIPLET = "x64-windows"
 
 [build]
-jobs = 8
 incremental = true
-rustc-wrapper = "sccache"
-target-dir = "target"  # Changed from "R:/rust_target" to a local "target" directory
+# Comment out sccache until properly configured
+# rustc-wrapper = "sccache"
+target-dir = "target"
 rustflags = ["-C", "target-cpu=native"]
 
 [target.x86_64-pc-windows-msvc]
@@ -15,11 +15,12 @@ rustflags = ["-C", "link-arg=-fuse-ld=lld", "-C", "link-arg=/LTCG", "-C", "targe
 
 [profile.dev]
 opt-level = 0
-debug = 1
-split-debuginfo = "unpacked"
+debug = false  # Set to false for faster compiles, true for better debugging
+split-debuginfo = "unpacked"  # Helps with incremental builds
+codegen-units = 256  # Maximum parallelism
+lto = false
+panic = "abort"  # Slightly faster builds
 
-[profile.release]
-opt-level = 3
-
-[unstable]
-build-std = ["std", "panic_abort"]
+# Only use these if you're on nightly and have cranelift installed
+# [unstable]
+# build-std = ["std", "panic_abort"]
