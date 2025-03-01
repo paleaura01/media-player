@@ -1,10 +1,8 @@
-
-/vcpkg
-/dist
-/dist
-/dist
-/dist
-media-player/dist/playlists.dat
+Cargo.lock
 /media-player/build
-media-player/dist/playback_state.dat
-/media-player/build/Release
+/media-player/build
+/media-player/build/CMakeFiles
+/media-player/build/CMakeFiles/3.31.2
+media-player/build/CMakeFiles/3.31.2/CMakeSystem.cmake
+/rust_test
+/target
