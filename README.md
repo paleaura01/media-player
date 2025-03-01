@@ -14,6 +14,7 @@ A simple audio player using Rust with Symphonia and cpal.
 
 3. **Build and Run the Media Player**
    - Navigate to the project directory
+   - If developing Run `cargo watch -x run`
    - Run `cargo build`
    - To play an audio file: `cargo run -- path/to/audio/file.mp3`
 

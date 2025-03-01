@@ -1,6 +1,9 @@
-use iced::widget::{Column, Container, Row, Text, Button, progress_bar, Scrollable};
+use iced::widget::{Column, Container, Row, Text, TextInput, Button, progress_bar, Scrollable};
 use iced::{Alignment, Element, Length, Application, Command, Theme, Subscription};
+use iced::subscription;
+use iced::window; // Add this import
 use media_audio::player::Player;
+use media_core::settings::AppSettings;
 use log::info;
 
 pub struct MediaPlayer {
@@ -10,6 +13,7 @@ pub struct MediaPlayer {
     progress: f32,
     playlist: Vec<String>,
     current_track: Option<usize>,
+    settings: AppSettings,
 }
 
 #[derive(Debug, Clone)]
@@ -19,6 +23,8 @@ pub enum Message {
     PausePressed,
     ResumePressed,
     StopPressed,
+    WindowMoved(i32, i32),
+    WindowClose,
 }
 
 impl Application for MediaPlayer {
@@ -28,14 +34,21 @@ impl Application for MediaPlayer {
     type Flags = ();
 
     fn new(_flags: ()) -> (Self, Command<Message>) {
+        let settings = AppSettings::load();
+        let file_path = settings.last_file_path.clone().unwrap_or_else(|| String::from("sample.mp3"));
+        
+        // We can't set the window position directly in the initialization in Iced 0.9
+        // But we can read it from disk to restore position later in subscription
+        
         (
             Self {
-                file_path: String::from("sample.mp3"),
+                file_path,
                 status: String::from("Ready"),
                 player: None,
                 progress: 0.0,
                 playlist: Vec::new(),
                 current_track: None,
+                settings,
             },
             Command::none()
         )
@@ -49,6 +62,8 @@ impl Application for MediaPlayer {
         match message {
             Message::FilePathChanged(new_path) => {
                 self.file_path = new_path;
+                self.settings.last_file_path = Some(self.file_path.clone());
+                let _ = self.settings.save();
             }
             Message::PlayPressed => {
                 info!("Play pressed with file: {}", self.file_path);
@@ -91,17 +106,29 @@ impl Application for MediaPlayer {
                     self.progress = 0.0;
                 }
             }
+            Message::WindowMoved(x, y) => {
+                // Update window position when moved
+                self.settings.window_position = Some((x, y));
+                let _ = self.settings.save();
+            }
+            Message::WindowClose => {
+                // Save settings before closing the window
+                let _ = self.settings.save();
+                // Return close command to actually close the window
+                return window::close();
+            }
         }
         Command::none()
     }
 
     fn view(&self) -> Element<Message> {
-        // Build progress bar
-        let progress_bar = progress_bar(0.0..=1.0, self.progress)
-            .width(Length::Fill)
-            .height(Length::Fixed(20.0));
+        let file_input = TextInput::new(
+            "Enter audio file path...",
+            &self.file_path,
+        )
+        .on_input(Message::FilePathChanged)
+        .padding(10);
 
-        // Control buttons
         let play_button = Button::new(Text::new("Play"))
             .on_press(Message::PlayPressed)
             .padding(10);
@@ -125,6 +152,10 @@ impl Application for MediaPlayer {
             stop_button.into(),
         ])
         .spacing(10);
+
+        let progress_bar = progress_bar(0.0..=1.0, self.progress)
+            .width(Length::Fill)
+            .height(Length::Fixed(20.0));
 
         let drag_and_drop_area = Container::new(Text::new("Drag and Drop Files Here"))
             .width(Length::Fill)
@@ -154,15 +185,11 @@ impl Application for MediaPlayer {
             .height(Length::Fixed(150.0))
             .width(Length::Fill);
 
-        // Build content with reordered widgets:
-        // 1. Progress bar at the top.
-        // 2. Control buttons beneath the progress bar.
-        // 3. Drag & drop area.
-        // 4. Status text.
-        // 5. Playlist view.
         let content = Column::with_children(vec![
-            progress_bar.into(),
+            Text::new("Rust Media Player").size(30).into(),
+            file_input.into(),
             controls.into(),
+            progress_bar.into(),
             drag_and_drop_area.into(),
             Text::new(&self.status).into(),
             playlist_view.into(),
@@ -180,7 +207,23 @@ impl Application for MediaPlayer {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        Subscription::none()
+        // Subscribe to iced runtime events
+        subscription::events_with(|event, _status| {
+            match event {
+                iced::Event::Window(window_event) => {
+                    match window_event {
+                        iced::window::Event::Moved { x, y } => {
+                            Some(Message::WindowMoved(x, y))
+                        }
+                        iced::window::Event::CloseRequested => {
+                            Some(Message::WindowClose)
+                        }
+                        _ => None,
+                    }
+                }
+                _ => None,
+            }
+        })
     }
 }
 
@@ -198,4 +241,4 @@ impl iced::widget::container::StyleSheet for HighlightedTrack {
             border_color: iced::Color::TRANSPARENT,
         }
     }
-}
+} 
