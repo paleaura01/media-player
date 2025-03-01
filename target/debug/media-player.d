@@ -1,1 +1,0 @@
-D:\Github\media-player\target\debug\media-player.exe: D:\Github\media-player\scripts\build.rs D:\Github\media-player\src\audio.rs D:\Github\media-player\src\lib.rs D:\Github\media-player\src\main.rs D:\Github\media-player\src\player.rs
