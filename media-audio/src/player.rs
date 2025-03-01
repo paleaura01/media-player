@@ -1,9 +1,6 @@
-// src/player.rs
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 use std::thread;
-
 use anyhow::Result;
-
 use crate::audio;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -35,17 +32,14 @@ impl Player {
     }
 
     pub fn play(&mut self, path: &str) -> Result<()> {
-        // Reset flags and state
         self.stop_flag.store(false, Ordering::SeqCst);
         self.pause_flag.store(false, Ordering::SeqCst);
         self.state = PlayerState::Playing;
         
-        // Create clones of the flags for the playback thread
         let path_string = path.to_string();
         let pause_flag = Arc::clone(&self.pause_flag);
         let stop_flag = Arc::clone(&self.stop_flag);
         
-        // Start playback in a new thread
         self.playback_thread = Some(thread::spawn(move || {
             match audio::play_audio_file(&path_string, pause_flag, stop_flag) {
                 Ok(_) => log::info!("Playback finished successfully"),
@@ -78,7 +72,6 @@ impl Player {
             self.state = PlayerState::Stopped;
             log::info!("Playback stopped");
             
-            // Wait for playback thread to finish
             if let Some(handle) = self.playback_thread.take() {
                 let _ = handle.join();
             }

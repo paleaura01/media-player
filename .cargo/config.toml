@@ -1,3 +1,25 @@
 [env]
 VCPKG_DEFAULT_TRIPLET = "x64-windows"
 VCPKG_TRIPLET = "x64-windows"
+
+[build]
+jobs = 8
+incremental = true
+rustc-wrapper = "sccache"
+target-dir = "target"  # Changed from "R:/rust_target" to a local "target" directory
+rustflags = ["-C", "target-cpu=native"]
+
+[target.x86_64-pc-windows-msvc]
+linker = "lld-link"
+rustflags = ["-C", "link-arg=-fuse-ld=lld", "-C", "link-arg=/LTCG", "-C", "target-cpu=native"]
+
+[profile.dev]
+opt-level = 0
+debug = 1
+split-debuginfo = "unpacked"
+
+[profile.release]
+opt-level = 3
+
+[unstable]
+build-std = ["std", "panic_abort"]

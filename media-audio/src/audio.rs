@@ -1,4 +1,3 @@
-// src/audio.rs
 use std::fs::File;
 use std::path::Path;
 use std::sync::{Arc, atomic::{AtomicBool, AtomicUsize, Ordering}, Mutex};
@@ -18,7 +17,6 @@ pub fn init() -> Result<()> {
     Ok(())
 }
 
-/// Decode the given audio file and play it through the default audio output.
 pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<AtomicBool>) -> Result<()> {
     log::info!("Opening file: {}", path);
     let file = Box::new(File::open(path)?);
@@ -68,11 +66,9 @@ pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<A
     let file_sample_rate = track.codec_params.sample_rate.unwrap_or(44100);
     log::info!("Audio track parameters: {} Hz, {} channels", file_sample_rate, channel_count);
 
-    // Setup CPAL audio output
     let host = cpal::default_host();
     let device = host.default_output_device().ok_or_else(|| anyhow!("No output audio device available"))?;
     
-    // Find a suitable audio config
     let supported_configs = device.supported_output_configs()?;
     let device_config = supported_configs
         .filter(|cfg| cfg.channels() >= channel_count as u16)
@@ -88,22 +84,17 @@ pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<A
     log::info!("Output device: {} with config: {:?}", 
         device.name().unwrap_or_else(|_| "Unknown".to_string()), config);
 
-    // Check if sample rates match
     if file_sample_rate != config.sample_rate.0 {
         log::warn!("File sample rate {} Hz does not match output device rate {} Hz.",
             file_sample_rate, config.sample_rate.0);
     }
 
-    // Create a fixed-size ring buffer and counter for used space
-    let buffer_capacity = file_sample_rate as usize * channel_count as usize; // 1 second of audio
+    let buffer_capacity = file_sample_rate as usize * channel_count as usize;
     let audio_buffer = Arc::new(Mutex::new(Vec::<f32>::with_capacity(buffer_capacity)));
     let audio_buffer_stream = Arc::clone(&audio_buffer);
-    
-    // Count of samples in the buffer
     let samples_in_buffer = Arc::new(AtomicUsize::new(0));
     let samples_in_buffer_stream = Arc::clone(&samples_in_buffer);
 
-    // Build and start the audio output stream
     let stream = device.build_output_stream(
         &config,
         move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
@@ -112,7 +103,6 @@ pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<A
             let samples_available = samples_in_buffer_stream.load(Ordering::Acquire);
             
             if samples_available == 0 {
-                // No samples available, output silence
                 for sample in data.iter_mut() {
                     *sample = 0.0;
                 }
@@ -120,20 +110,15 @@ pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<A
             }
             
             let samples_to_copy = std::cmp::min(samples_needed, samples_available);
-            
-            // Copy samples and update buffer
             data[..samples_to_copy].copy_from_slice(&buffer[..samples_to_copy]);
             
-            // Shift remaining samples to the beginning of the buffer
             if samples_to_copy < buffer.len() {
                 buffer.copy_within(samples_to_copy.., 0);
             }
             
-            // Update the sample count and truncate the buffer
             buffer.truncate(samples_available - samples_to_copy);
             samples_in_buffer_stream.store(buffer.len(), Ordering::Release);
             
-            // Fill any remaining output with silence
             if samples_to_copy < samples_needed {
                 for sample in &mut data[samples_to_copy..] {
                     *sample = 0.0;
@@ -149,11 +134,9 @@ pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<A
     stream.play()?;
     log::info!("Audio stream started");
 
-    // Create a sample buffer for decoded audio
     let spec = SignalSpec::new(file_sample_rate, channels);
     let mut sample_buf = SampleBuffer::<f32>::new(4096, spec);
-
-    // Main decoding loop
+    
     log::info!("Starting decode loop");
     loop {
         if stop_flag.load(Ordering::SeqCst) {
@@ -166,15 +149,12 @@ pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<A
             continue;
         }
 
-        // Check if we have enough buffer space
         let current_samples = samples_in_buffer.load(Ordering::Acquire);
         if current_samples >= buffer_capacity - 4096 {
-            // Buffer is nearly full, wait a bit
             std::thread::sleep(Duration::from_millis(10));
             continue;
         }
 
-        // Get the next packet
         let packet = match format.next_packet() {
             Ok(packet) => {
                 if packet.track_id() != track_id {
@@ -192,19 +172,14 @@ pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<A
             }
         };
 
-        // Decode the packet
         match decoder.decode(&packet) {
             Ok(decoded) => {
-                // Convert to interleaved samples
                 sample_buf.copy_interleaved_ref(decoded);
                 let samples = sample_buf.samples();
-                
-                // Add samples to the buffer
                 let mut buffer = audio_buffer.lock().unwrap();
                 let current_len = buffer.len();
                 let samples_to_add = samples.len();
                 
-                // Ensure we don't exceed capacity
                 if current_len + samples_to_add <= buffer_capacity {
                     buffer.extend_from_slice(samples);
                     samples_in_buffer.store(current_len + samples_to_add, Ordering::Release);

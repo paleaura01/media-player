@@ -1,26 +1,14 @@
-// src/gui.rs
-use iced::widget::{
-    Column, Container, Row, Text, TextInput, Button, progress_bar, Scrollable
-};
-use iced::{
-    Alignment, Element, Length, Application, Command, Theme, 
-    Subscription
-};
-use crate::player::Player;
+use iced::widget::{Column, Container, Row, Text, TextInput, Button, progress_bar, Scrollable};
+use iced::{Alignment, Element, Length, Application, Command, Theme, Subscription};
+use media_audio::player::Player;
 use log::info;
 
 pub struct MediaPlayer {
-    // The file path for the audio file to play
     file_path: String,
-    // A status message to display current playback state
     status: String,
-    // The active media player instance, if any
     player: Option<Player>,
-    // Progress value (0.0 to 1.0) for the current track
     progress: f32,
-    // A simple playlist as a vector of file paths
     playlist: Vec<String>,
-    // Index of the current track playing
     current_track: Option<usize>,
 }
 
@@ -64,23 +52,18 @@ impl Application for MediaPlayer {
             }
             Message::PlayPressed => {
                 info!("Play pressed with file: {}", self.file_path);
-                // Stop any existing player instance
                 if let Some(ref mut p) = self.player {
                     p.stop();
                 }
-                // Create a new player instance and start playback
                 let mut new_player = Player::new();
                 match new_player.play(&self.file_path) {
                     Ok(_) => {
                         self.status = format!("Playing: {}", self.file_path);
                         self.player = Some(new_player);
-                        // Reset progress
                         self.progress = 0.0;
-                        // Add the current file to the playlist if it's not already there
                         if !self.playlist.contains(&self.file_path) {
                             self.playlist.push(self.file_path.clone());
                         }
-                        // Set current track to the one being played
                         self.current_track = self.playlist.iter().position(|p| p == &self.file_path);
                     }
                     Err(e) => {
@@ -113,7 +96,6 @@ impl Application for MediaPlayer {
     }
 
     fn view(&self) -> Element<Message> {
-        // File input field
         let file_input = TextInput::new(
             "Enter audio file path...",
             &self.file_path,
@@ -121,7 +103,6 @@ impl Application for MediaPlayer {
         .on_input(Message::FilePathChanged)
         .padding(10);
 
-        // Control buttons
         let play_button = Button::new(Text::new("Play"))
             .on_press(Message::PlayPressed)
             .padding(10);
@@ -146,12 +127,10 @@ impl Application for MediaPlayer {
         ])
         .spacing(10);
 
-        // Progress bar
         let progress_bar = progress_bar(0.0..=1.0, self.progress)
             .width(Length::Fill)
             .height(Length::Fixed(20.0));
 
-        // Drag & drop area
         let drag_and_drop_area = Container::new(Text::new("Drag and Drop Files Here"))
             .width(Length::Fill)
             .height(Length::Fixed(50.0))
@@ -159,7 +138,6 @@ impl Application for MediaPlayer {
             .center_y()
             .padding(10);
 
-        // Build the playlist as scrollable content
         let mut playlist_items = Vec::new();
         for (index, track) in self.playlist.iter().enumerate() {
             let track_name = track.split('/').last().unwrap_or(track);
@@ -181,7 +159,6 @@ impl Application for MediaPlayer {
             .height(Length::Fixed(150.0))
             .width(Length::Fill);
 
-        // Main content column
         let content = Column::with_children(vec![
             Text::new("Rust Media Player").size(30).into(),
             file_input.into(),
@@ -204,12 +181,10 @@ impl Application for MediaPlayer {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        // For now, we're not using a subscription
         Subscription::none()
     }
 }
 
-// Custom style for highlighting the current track
 struct HighlightedTrack;
 
 impl iced::widget::container::StyleSheet for HighlightedTrack {
