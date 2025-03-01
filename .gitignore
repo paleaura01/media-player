@@ -1,4 +1,7 @@
-Cargo.lock
 tests
 target
+sample.mp3
+Cargo.lock
+Cargo.toml
+README.md
 sample.mp3

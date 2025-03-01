@@ -10,6 +10,7 @@ cpal = "0.15.2"
 log = "0.4"
 env_logger = "0.10"
 anyhow = "1.0"
+iced = "0.9"
 
 [build-dependencies]
 pkg-config = "0.3"
