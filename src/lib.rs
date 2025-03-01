@@ -1,7 +1,7 @@
 // src/lib.rs
 pub mod audio;
 pub mod player;
-pub mod gui;
+pub mod gui;  // Add this line to expose the GUI module
 
-// Ensure Player and PlayerState are publicly accessible
-pub use crate::player::{Player, PlayerState};
+// Re-export key types
+pub use player::{Player, PlayerState};

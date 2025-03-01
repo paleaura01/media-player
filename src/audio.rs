@@ -1,7 +1,7 @@
 // src/audio.rs
 use std::fs::File;
 use std::path::Path;
-use std::sync::{Arc, atomic::{AtomicBool, Ordering}, Mutex};
+use std::sync::{Arc, atomic::{AtomicBool, AtomicUsize, Ordering}, Mutex};
 use std::time::Duration;
 
 use anyhow::{Result, anyhow};
@@ -18,7 +18,7 @@ pub fn init() -> Result<()> {
     Ok(())
 }
 
-/// Decode the given MP3 file and play it through the default audio output without resampling.
+/// Decode the given audio file and play it through the default audio output.
 pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<AtomicBool>) -> Result<()> {
     log::info!("Opening file: {}", path);
     let file = Box::new(File::open(path)?);
@@ -68,100 +68,118 @@ pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<A
     let file_sample_rate = track.codec_params.sample_rate.unwrap_or(44100);
     log::info!("Audio track parameters: {} Hz, {} channels", file_sample_rate, channel_count);
 
-    // Setup CPAL audio output. We try to match the file's sample rate.
+    // Setup CPAL audio output
     let host = cpal::default_host();
     let device = host.default_output_device().ok_or_else(|| anyhow!("No output audio device available"))?;
+    
+    // Find a suitable audio config
     let supported_configs = device.supported_output_configs()?;
-    // Try to find a config matching the file sample rate
-    let matching_config = supported_configs
+    let device_config = supported_configs
         .filter(|cfg| cfg.channels() >= channel_count as u16)
         .find(|cfg| {
             let min = cfg.min_sample_rate().0;
             let max = cfg.max_sample_rate().0;
             file_sample_rate >= min && file_sample_rate <= max
-        });
-    let stream_config = if let Some(cfg) = matching_config {
-        cfg.with_sample_rate(cpal::SampleRate(file_sample_rate)).config()
-    } else {
-        // Fallback to the default config
-        device.default_output_config()?.config()
-    };
+        })
+        .map(|cfg| cfg.with_sample_rate(cpal::SampleRate(file_sample_rate)))
+        .ok_or_else(|| anyhow!("No suitable audio output config found"))?;
+        
+    let config = device_config.config();
     log::info!("Output device: {} with config: {:?}", 
-        device.name().unwrap_or_else(|_| "Unknown".to_string()), stream_config);
+        device.name().unwrap_or_else(|_| "Unknown".to_string()), config);
 
-    // We expect the file sample rate to match the output.
-    if file_sample_rate != stream_config.sample_rate.0 {
-        log::warn!("File sample rate {} Hz does not match output device rate {} Hz. Playback speed may be incorrect.",
-            file_sample_rate, stream_config.sample_rate.0);
-    } else {
-        log::info!("No resampling needed; sample rates match.");
+    // Check if sample rates match
+    if file_sample_rate != config.sample_rate.0 {
+        log::warn!("File sample rate {} Hz does not match output device rate {} Hz.",
+            file_sample_rate, config.sample_rate.0);
     }
 
-    // Create a channel to pass decoded PCM data from the decoding thread to the audio callback.
-    let (sample_tx, sample_rx) = std::sync::mpsc::sync_channel::<Vec<f32>>(10);
+    // Create a fixed-size ring buffer and counter for used space
+    let buffer_capacity = file_sample_rate as usize * channel_count as usize; // 1 second of audio
+    let audio_buffer = Arc::new(Mutex::new(Vec::<f32>::with_capacity(buffer_capacity)));
+    let audio_buffer_stream = Arc::clone(&audio_buffer);
+    
+    // Count of samples in the buffer
+    let samples_in_buffer = Arc::new(AtomicUsize::new(0));
+    let samples_in_buffer_stream = Arc::clone(&samples_in_buffer);
 
-    // Create an Arc<Mutex> to store pending samples in the callback.
-    let pending_samples = Arc::new(Mutex::new(Vec::<f32>::new()));
-
-    // Build and start the CPAL output stream with a callback that manages leftover samples.
-    let err_flag = Arc::new(AtomicBool::new(false));
-    let err_flag_clone = Arc::clone(&err_flag);
-    let pending_samples_cb = Arc::clone(&pending_samples);
+    // Build and start the audio output stream
     let stream = device.build_output_stream(
-        &stream_config,
+        &config,
         move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
-            // Accumulate any new samples from the channel.
-            {
-                let mut pending = pending_samples_cb.lock().unwrap();
-                while let Ok(buffer) = sample_rx.try_recv() {
-                    pending.extend(buffer);
+            let mut buffer = audio_buffer_stream.lock().unwrap();
+            let samples_needed = data.len();
+            let samples_available = samples_in_buffer_stream.load(Ordering::Acquire);
+            
+            if samples_available == 0 {
+                // No samples available, output silence
+                for sample in data.iter_mut() {
+                    *sample = 0.0;
                 }
+                return;
             }
-            // Fill the output buffer from the pending samples.
-            let mut pending = pending_samples_cb.lock().unwrap();
-            let available = pending.len();
-            if available >= data.len() {
-                data.copy_from_slice(&pending[..data.len()]);
-                pending.drain(..data.len());
-            } else {
-                if available > 0 {
-                    data[..available].copy_from_slice(&pending);
-                    pending.clear();
-                }
-                for sample in &mut data[available..] {
+            
+            let samples_to_copy = std::cmp::min(samples_needed, samples_available);
+            
+            // Copy samples and update buffer
+            data[..samples_to_copy].copy_from_slice(&buffer[..samples_to_copy]);
+            
+            // Shift remaining samples to the beginning of the buffer
+            if samples_to_copy < buffer.len() {
+                buffer.copy_within(samples_to_copy.., 0);
+            }
+            
+            // Update the sample count and truncate the buffer
+            buffer.truncate(samples_available - samples_to_copy);
+            samples_in_buffer_stream.store(buffer.len(), Ordering::Release);
+            
+            // Fill any remaining output with silence
+            if samples_to_copy < samples_needed {
+                for sample in &mut data[samples_to_copy..] {
                     *sample = 0.0;
                 }
             }
         },
-        move |err| {
+        |err| {
             log::error!("Audio output error: {}", err);
-            err_flag_clone.store(true, Ordering::SeqCst);
         },
         None,
     )?;
+    
     stream.play()?;
     log::info!("Audio stream started");
 
-    // Create a sample buffer for decoded audio.
+    // Create a sample buffer for decoded audio
     let spec = SignalSpec::new(file_sample_rate, channels);
-    let mut sample_buf = SampleBuffer::<f32>::new(8192, spec);
+    let mut sample_buf = SampleBuffer::<f32>::new(4096, spec);
 
-    log::info!("Entering decode loop");
-    // Decoding loop: decode packets and send PCM data to the audio callback.
+    // Main decoding loop
+    log::info!("Starting decode loop");
     loop {
         if stop_flag.load(Ordering::SeqCst) {
             log::info!("Stop signal received; exiting decode loop");
             break;
         }
+        
         if pause_flag.load(Ordering::SeqCst) {
-            log::debug!("Playback paused; sleeping for 50 ms");
-            std::thread::sleep(Duration::from_millis(50));
+            std::thread::sleep(Duration::from_millis(20));
             continue;
         }
 
+        // Check if we have enough buffer space
+        let current_samples = samples_in_buffer.load(Ordering::Acquire);
+        if current_samples >= buffer_capacity - 4096 {
+            // Buffer is nearly full, wait a bit
+            std::thread::sleep(Duration::from_millis(10));
+            continue;
+        }
+
+        // Get the next packet
         let packet = match format.next_packet() {
             Ok(packet) => {
-                log::debug!("Packet received (track_id = {})", packet.track_id());
+                if packet.track_id() != track_id {
+                    continue;
+                }
                 packet
             },
             Err(symphonia::core::errors::Error::IoError(ref err)) if err.kind() == std::io::ErrorKind::UnexpectedEof => {
@@ -174,29 +192,32 @@ pub fn play_audio_file(path: &str, pause_flag: Arc<AtomicBool>, stop_flag: Arc<A
             }
         };
 
-        if packet.track_id() != track_id {
-            continue;
-        }
-
+        // Decode the packet
         match decoder.decode(&packet) {
             Ok(decoded) => {
-                // Use copy_interleaved_ref from the Signal trait.
+                // Convert to interleaved samples
                 sample_buf.copy_interleaved_ref(decoded);
                 let samples = sample_buf.samples();
-                log::debug!("Decoded {} samples", samples.len());
-                // Send the raw PCM samples directly. (This call will block if the channel is full.)
-                if sample_tx.send(samples.to_vec()).is_err() {
-                    log::warn!("Audio output channel closed");
-                    break;
+                
+                // Add samples to the buffer
+                let mut buffer = audio_buffer.lock().unwrap();
+                let current_len = buffer.len();
+                let samples_to_add = samples.len();
+                
+                // Ensure we don't exceed capacity
+                if current_len + samples_to_add <= buffer_capacity {
+                    buffer.extend_from_slice(samples);
+                    samples_in_buffer.store(current_len + samples_to_add, Ordering::Release);
+                } else {
+                    log::warn!("Buffer overflow prevented - dropping samples");
                 }
             },
             Err(e) => {
                 log::warn!("Error decoding packet: {}", e);
             }
         }
-        // Small sleep to yield CPU time.
-        std::thread::sleep(Duration::from_millis(1));
     }
-    log::info!("Exiting decode loop, playback complete");
+    
+    log::info!("Decoding complete");
     Ok(())
 }
