@@ -6,7 +6,7 @@ use std::time::Duration;
 
 use anyhow::{Result, anyhow};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use symphonia::core::audio::{SampleBuffer, SignalSpec, Signal};
+use symphonia::core::audio::{SampleBuffer, SignalSpec};
 use symphonia::core::codecs::{DecoderOptions, CODEC_TYPE_NULL};
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
