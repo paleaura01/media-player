@@ -10,7 +10,7 @@
         "icon": "terminal-cmd"
       }
     },
-    "rust-analyzer.checkOnSave.command": "check",
+    "rust-analyzer.checkOnSave.enable": false,
   "rust-analyzer.cargo.buildScripts.enable": false,
   "rust-analyzer.procMacro.enable": false,
   "files.watcherExclude": {

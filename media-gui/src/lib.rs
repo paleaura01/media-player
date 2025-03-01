@@ -1,4 +1,4 @@
-use iced::widget::{Column, Container, Row, Text, TextInput, Button, progress_bar, Scrollable};
+use iced::widget::{Column, Container, Row, Text, Button, progress_bar, Scrollable};
 use iced::{Alignment, Element, Length, Application, Command, Theme, Subscription};
 use media_audio::player::Player;
 use log::info;
@@ -96,13 +96,12 @@ impl Application for MediaPlayer {
     }
 
     fn view(&self) -> Element<Message> {
-        let file_input = TextInput::new(
-            "Enter audio file path...",
-            &self.file_path,
-        )
-        .on_input(Message::FilePathChanged)
-        .padding(10);
+        // Build progress bar
+        let progress_bar = progress_bar(0.0..=1.0, self.progress)
+            .width(Length::Fill)
+            .height(Length::Fixed(20.0));
 
+        // Control buttons
         let play_button = Button::new(Text::new("Play"))
             .on_press(Message::PlayPressed)
             .padding(10);
@@ -126,10 +125,6 @@ impl Application for MediaPlayer {
             stop_button.into(),
         ])
         .spacing(10);
-
-        let progress_bar = progress_bar(0.0..=1.0, self.progress)
-            .width(Length::Fill)
-            .height(Length::Fixed(20.0));
 
         let drag_and_drop_area = Container::new(Text::new("Drag and Drop Files Here"))
             .width(Length::Fill)
@@ -159,11 +154,15 @@ impl Application for MediaPlayer {
             .height(Length::Fixed(150.0))
             .width(Length::Fill);
 
+        // Build content with reordered widgets:
+        // 1. Progress bar at the top.
+        // 2. Control buttons beneath the progress bar.
+        // 3. Drag & drop area.
+        // 4. Status text.
+        // 5. Playlist view.
         let content = Column::with_children(vec![
-            Text::new("Rust Media Player").size(30).into(),
-            file_input.into(),
-            controls.into(),
             progress_bar.into(),
+            controls.into(),
             drag_and_drop_area.into(),
             Text::new(&self.status).into(),
             playlist_view.into(),
