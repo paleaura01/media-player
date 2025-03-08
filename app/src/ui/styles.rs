@@ -3,10 +3,10 @@ use iced::{Theme, theme};
 
 // Increment this version number whenever you update UI to trigger hot-reloading
 #[no_mangle]
-pub static UI_VERSION_INT: u64 = 3;
+pub static UI_VERSION_INT: u64 = 4;
 
 // Updated version to test hot reloading
-pub const UI_VERSION: &str = "3.0.0";
+pub const UI_VERSION: &str = "4.0.0";
 
 #[derive(Debug, Clone)]
 pub struct AppStyle {
@@ -68,7 +68,7 @@ pub fn container_style(color: Color) -> theme::Container {
 pub fn small_text(content: &str) -> text::Text<'static> {
     text::Text::new(content.to_owned())
         .size(12)
-        .style(theme::Text::Color(Color::from_rgb(0.7, 0.7, 0.7))) // Medium gray
+        .style(theme::Text::Color(Color::from_rgb(0.7, 0.7, 0.7))) // Fixed: use style instead of color
 }
 
 pub fn button_style(style: &AppStyle) -> theme::Button {
@@ -107,5 +107,39 @@ pub fn button_style(style: &AppStyle) -> theme::Button {
         text: style.colors.button_text, 
         border: style.colors.border,
         hover: style.colors.button_hover,
+    }))
+}
+
+// New style for selected playlists
+pub fn selected_button_style(style: &AppStyle) -> theme::Button {
+    struct SelectedButtonStyle {
+        background: Color,
+        text: Color,
+        border: Color,
+    }
+    
+    impl button::StyleSheet for SelectedButtonStyle {
+        type Style = Theme;
+        
+        fn active(&self, _style: &Self::Style) -> button::Appearance {
+            button::Appearance {
+                background: Some(Background::Color(self.background)),
+                text_color: self.text,
+                border_radius: 2.0,
+                border_width: 1.0,
+                border_color: self.border,
+                shadow_offset: iced::Vector::new(0.0, 0.0),
+            }
+        }
+        
+        fn hovered(&self, style: &Self::Style) -> button::Appearance {
+            self.active(style)
+        }
+    }
+    
+    theme::Button::Custom(Box::new(SelectedButtonStyle {
+        background: style.colors.highlight,
+        text: style.colors.text_primary, 
+        border: style.colors.border,
     }))
 }

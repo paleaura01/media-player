@@ -101,7 +101,7 @@ pub fn view<'a>(
     // Add import button directly
     content = content.push(
         button::Button::new(
-            text::Text::new("Import Files").style(theme::Text::Color(style.colors.button_text))
+            text::Text::new("Import").style(theme::Text::Color(style.colors.button_text))
         )
         .on_press(Action::Library(LibraryAction::StartScan))
         .style(crate::ui::styles::button_style(style))

@@ -2,6 +2,7 @@ use std::path::Path;
 use anyhow::Result;
 use serde::{Serialize, Deserialize};
 use std::fs;
+use std::time::Instant;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Track {
@@ -32,12 +33,37 @@ pub struct Playlist {
 pub struct PlaylistState {
     pub playlists: Vec<Playlist>,
     pub selected: Option<usize>,
+    #[serde(skip)]
+    pub editing_id: Option<u32>,  // Track which playlist is being edited
+    #[serde(skip)]
+    pub editing_text: String,     // Track the current editing text
+    #[serde(skip)]
+    pub last_clicked_id: Option<u32>, // Track last clicked playlist for double-click detection
+    #[serde(skip)]
+    pub last_clicked_time: Option<Instant>, // Track timestamp of last click
+    #[serde(skip)]
+    pub showing_create_popup: bool, // Flag to show the create playlist popup
+    #[serde(skip)]
+    pub new_playlist_name: String, // Text field for new playlist name
+    #[serde(skip)]
+    pub deleting_playlist_id: Option<u32>, // Track which playlist is pending deletion
     next_id: u32,
 }
 
 impl PlaylistState {
     pub fn new() -> Self {
-        Self { playlists: Vec::new(), selected: None, next_id: 1 }
+        Self { 
+            playlists: Vec::new(), 
+            selected: None, 
+            editing_id: None,
+            editing_text: String::new(),
+            last_clicked_id: None,
+            last_clicked_time: None,
+            showing_create_popup: false,
+            new_playlist_name: "New Playlist".to_string(),
+            deleting_playlist_id: None,
+            next_id: 1 
+        }
     }
     
     pub fn load_from_file(path: &Path) -> Result<Self> {
@@ -127,4 +153,16 @@ pub enum PlaylistAction {
     Rename(u32, String),
     AddTrack(u32, Track),
     RemoveTrack(u32, usize),
+    Click(u32),                // For playlist click (to implement double-click)
+    StartEditing(u32),         // Start editing a playlist name
+    UpdateEditingText(String), // Update the editing text as the user types
+    SaveEdit,                  // Save the current edit
+    CancelEdit,                // Cancel editing
+    ClickOutside,              // Handle clicking outside the editing area
+    ShowCreatePopup,           // Show the create playlist popup
+    HideCreatePopup,           // Hide the create playlist popup
+    UpdateNewPlaylistName(String), // Update the new playlist name text field
+    ShowDeleteConfirmation(u32), // Show the delete confirmation popup
+    CancelDelete,              // Cancel the delete operation
+    ConfirmDelete,             // Confirm the delete operation
 }

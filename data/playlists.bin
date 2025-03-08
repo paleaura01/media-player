@@ -2,7 +2,7 @@
   "playlists": [
     {
       "id": 1,
-      "name": "New Playlist",
+      "name": "Fag",
       "tracks": []
     },
     {
@@ -11,6 +11,6 @@
       "tracks": []
     }
   ],
-  "selected": 1,
+  "selected": 0,
   "next_id": 3
 }

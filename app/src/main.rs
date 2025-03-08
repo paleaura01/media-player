@@ -1,6 +1,4 @@
 use iced::{Application, Settings, Subscription, Command, Element, Theme};
-use iced::event::Event;
-use iced::window::Event as WindowEvent;
 use core::{PlayerState, LibraryState, PlaylistState, Action};
 use core::{Player, PlayerAction, PlaylistAction, LibraryAction};
 use std::time::Duration;
@@ -187,7 +185,6 @@ struct MediaPlayer {
 enum Message {
     Action(Action),
     Tick,
-    Ignore,
 }
 
 impl Application for MediaPlayer {
@@ -308,6 +305,76 @@ impl Application for MediaPlayer {
                                     }
                                 }
                             },
+                            PlaylistAction::Click(id) => {
+                                // Get the current time
+                                let now = std::time::Instant::now();
+                                
+                                // Check if this is a double-click (same playlist clicked twice within 500ms)
+                                let is_double_click = match (self.playlists.last_clicked_id, self.playlists.last_clicked_time) {
+                                    (Some(last_id), Some(last_time)) => {
+                                        last_id == id && now.duration_since(last_time).as_millis() < 500
+                                    },
+                                    _ => false,
+                                };
+                                
+                                if is_double_click {
+                                    // Double-click detected, start editing
+                                    let name = match self.playlists.playlists.iter()
+                                        .find(|p| p.id == id)
+                                        .map(|p| p.name.clone()) {
+                                            Some(name) => name,
+                                            None => return Command::none(),
+                                        };
+                                        
+                                    // Set up editing mode
+                                    self.playlists.editing_id = Some(id);
+                                    self.playlists.editing_text = name;
+                                } else {
+                                    // Single click - just select the playlist
+                                    let index = self.playlists.playlists
+                                        .iter()
+                                        .position(|p| p.id == id);
+                                    self.playlists.selected = index;
+                                }
+                                
+                                // Update the last clicked info
+                                self.playlists.last_clicked_id = Some(id);
+                                self.playlists.last_clicked_time = Some(now);
+                            },
+                            PlaylistAction::StartEditing(id) => {
+                                // Get the playlist name directly from the playlists vector
+                                let name = match self.playlists.playlists.iter()
+                                    .find(|p| p.id == id)
+                                    .map(|p| p.name.clone()) {
+                                        Some(name) => name,
+                                        None => return Command::none(),
+                                    };
+                                    
+                                // Now set the editing state with the retrieved name
+                                self.playlists.editing_id = Some(id);
+                                self.playlists.editing_text = name;
+                            },
+                            PlaylistAction::UpdateEditingText(text) => {
+                                self.playlists.editing_text = text;
+                            },
+                            PlaylistAction::SaveEdit => {
+                                if let Some(id) = self.playlists.editing_id.take() {
+                                    let new_name = self.playlists.editing_text.clone();
+                                    
+                                    // Find and update playlist directly
+                                    if let Some(pos) = self.playlists.playlists.iter().position(|p| p.id == id) {
+                                        self.playlists.playlists[pos].name = new_name;
+                                        
+                                        let path = self.data_dir.join("playlists.bin");
+                                        if let Err(e) = self.playlists.save_to_file(&path) {
+                                            error!("Failed to save playlists: {}", e);
+                                        }
+                                    }
+                                }
+                            },
+                            PlaylistAction::CancelEdit => {
+                                self.playlists.editing_id = None;
+                            },
                         }
                     },
                     Action::Library(action) => {
@@ -363,8 +430,7 @@ impl Application for MediaPlayer {
                 // Update player_state after tick
                 self.player_state = self.player.get_state();
                 Command::none()
-            },
-            Message::Ignore => Command::none(),
+            }
         }
     }
 
@@ -374,27 +440,7 @@ impl Application for MediaPlayer {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        Subscription::batch([
-            iced::time::every(Duration::from_millis(100))
-                .map(|_| Message::Tick),
-            iced::subscription::events()
-                .map(|event| {
-                    if let Event::Window(WindowEvent::FileDropped(path)) = event {
-                        // Handle single dropped file
-                        if let Some(path_str) = path.to_str() {
-                            if path_str.ends_with(".mp3") || 
-                               path_str.ends_with(".wav") || 
-                               path_str.ends_with(".flac") {
-                                return Message::Action(Action::Library(
-                                    LibraryAction::ImportFile(path_str.to_string())
-                                ));
-                            }
-                        }
-                    } 
-                    // Note: In iced 0.9.0, there is no FilesDropped event, only FileDropped (singular)
-                    // Multiple files will trigger multiple FileDropped events one after another
-                    Message::Ignore
-                })
-        ])
+        iced::time::every(Duration::from_millis(100))
+            .map(|_| Message::Tick)
     }
 }
