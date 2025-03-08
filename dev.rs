@@ -79,6 +79,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .args(["run", "--bin", "media-player-app", "--package", "app"])
         .spawn()?;
     
+    // Store the process ID for the Ctrl+C handler
+    let app_process_id = app_process.id();
+    
     // Give the app time to initialize before watching for changes
     std::thread::sleep(Duration::from_millis(2000));
     
@@ -91,9 +94,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Watching for changes in app/src...");
     println!("Press Ctrl+C to stop");
     
-    // Main loop
+    // Main loop with improved Ctrl+C handler
     ctrlc::set_handler(move || {
         println!("\nShutting down development environment...");
+        
+        // Properly terminate the app process first
+        if let Err(e) = Command::new("taskkill")
+            .args(["/F", "/T", "/PID", &app_process_id.to_string()])
+            .status() {
+            eprintln!("Failed to kill app process: {}", e);
+        }
+        
+        // Give processes time to clean up
+        std::thread::sleep(Duration::from_millis(500));
+        
+        // Exit cleanly
         std::process::exit(0);
     })?;
     
