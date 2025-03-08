@@ -1,4 +1,6 @@
 use iced::{Application, Settings, Subscription, Command, Element, Theme};
+use iced::event::Event;
+use iced::window::Event as WindowEvent;
 use core::{PlayerState, LibraryState, PlaylistState, Action};
 use core::{Player, PlayerAction, PlaylistAction, LibraryAction};
 use std::time::Duration;
@@ -8,7 +10,6 @@ use log::{info, error, debug};
 // Import UI module directly
 mod ui;
 
-// Handle hot reloading in development
 // Handle hot reloading in development
 #[cfg(debug_assertions)]
 mod hot {
@@ -186,6 +187,7 @@ struct MediaPlayer {
 enum Message {
     Action(Action),
     Tick,
+    Ignore,
 }
 
 impl Application for MediaPlayer {
@@ -361,7 +363,8 @@ impl Application for MediaPlayer {
                 // Update player_state after tick
                 self.player_state = self.player.get_state();
                 Command::none()
-            }
+            },
+            Message::Ignore => Command::none(),
         }
     }
 
@@ -371,7 +374,27 @@ impl Application for MediaPlayer {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        iced::time::every(Duration::from_millis(100))
-            .map(|_| Message::Tick)
+        Subscription::batch([
+            iced::time::every(Duration::from_millis(100))
+                .map(|_| Message::Tick),
+            iced::subscription::events()
+                .map(|event| {
+                    if let Event::Window(WindowEvent::FileDropped(path)) = event {
+                        // Handle single dropped file
+                        if let Some(path_str) = path.to_str() {
+                            if path_str.ends_with(".mp3") || 
+                               path_str.ends_with(".wav") || 
+                               path_str.ends_with(".flac") {
+                                return Message::Action(Action::Library(
+                                    LibraryAction::ImportFile(path_str.to_string())
+                                ));
+                            }
+                        }
+                    } 
+                    // Note: In iced 0.9.0, there is no FilesDropped event, only FileDropped (singular)
+                    // Multiple files will trigger multiple FileDropped events one after another
+                    Message::Ignore
+                })
+        ])
     }
-} // End of Application implementation
+}

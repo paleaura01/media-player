@@ -28,16 +28,19 @@ pub fn render<'a>(
     
     let main_content = Row::new()
         .push(Container::new(playlist_view)
-            .width(Length::FillPortion(25))
+            .width(Length::FillPortion(20))
+            .height(Length::Fill)
             .style(styles::container_style(style.colors.playlist_background)))
         .push(Container::new(library_view)
-            .width(Length::FillPortion(75))
+            .width(Length::FillPortion(80))
+            .height(Length::Fill)
             .style(styles::container_style(style.colors.library_background)))
         .height(Length::Fill);
     
     Column::new()
         .push(version_text)
         .push(Container::new(player_view)
+            .width(Length::Fill)
             .style(styles::container_style(style.colors.player_background)))
         .push(main_content)
         .into()

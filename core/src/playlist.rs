@@ -1,6 +1,7 @@
 use std::path::Path;
 use anyhow::Result;
 use serde::{Serialize, Deserialize};
+use std::fs;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Track {
@@ -40,17 +41,25 @@ impl PlaylistState {
     }
     
     pub fn load_from_file(path: &Path) -> Result<Self> {
-        if path.metadata()?.len() == 0 {
+        // Check if file exists and has content
+        if !path.exists() || path.metadata()?.len() == 0 {
             return Ok(Self::new());
         }
-        let data = std::fs::read(path)?;
-        let state = bincode::deserialize(&data)?;
+        
+        // Read file as string
+        let content = fs::read_to_string(path)?;
+        
+        // Parse JSON
+        let state: Self = serde_json::from_str(&content)?;
         Ok(state)
     }
     
     pub fn save_to_file(&self, path: &Path) -> Result<()> {
-        let data = bincode::serialize(self)?;
-        std::fs::write(path, data)?;
+        // Serialize to JSON
+        let json = serde_json::to_string_pretty(self)?;
+        
+        // Write to file
+        fs::write(path, json)?;
         Ok(())
     }
     
@@ -59,6 +68,10 @@ impl PlaylistState {
         self.next_id += 1;
         let playlist = Playlist { id, name, tracks: Vec::new() };
         self.playlists.push(playlist.clone());
+        
+        // Select the newly created playlist
+        self.selected = Some(self.playlists.len() - 1);
+        
         playlist
     }
     
@@ -81,6 +94,28 @@ impl PlaylistState {
     
     pub fn get_playlist(&self, id: u32) -> Option<&Playlist> {
         self.playlists.iter().find(|p| p.id == id)
+    }
+    
+    pub fn rename_playlist(&mut self, id: u32, new_name: String) -> bool {
+        if let Some(playlist) = self.get_playlist_mut(id) {
+            playlist.name = new_name;
+            true
+        } else {
+            false
+        }
+    }
+    
+    pub fn add_track_to_selected(&mut self, track: Track) -> bool {
+        if let Some(idx) = self.selected {
+            if idx < self.playlists.len() {
+                let playlist_id = self.playlists[idx].id;
+                if let Some(playlist) = self.get_playlist_mut(playlist_id) {
+                    playlist.tracks.push(track);
+                    return true;
+                }
+            }
+        }
+        false
     }
 }
 

@@ -19,10 +19,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     
     // Create an empty playlists.bin if it doesn't exist
-    let playlists_path = Path::new("./data/playlists.bin");
+    let playlists_path = Path::new("./data/playlists.json");
     if !playlists_path.exists() {
         std::fs::write(playlists_path, &[])?;
-        println!("Created empty playlists.bin");
+        println!("Created empty playlists.json");
     }
     
     // Determine library paths
