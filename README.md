@@ -1,22 +1,26 @@
 # Rust Media Player
 
-A simple audio player using Rust with Symphonia and cpal.
+A media player built in Rust using Symphonia for audio decoding and hot-lib-reloader for hot-reloadable UI.
 
 ## Setup Instructions for Windows
 
 1. **Install Rust**
-   - If not already installed, download and install from [rustup.rs](https://rustup.rs/)
+   - Download and install from [rustup.rs](https://rustup.rs/)
 
 2. **Install Visual Studio Build Tools**
    - Download from [Visual Studio Downloads](https://visualstudio.microsoft.com/downloads/)
-   - Under "Tools for Visual Studio", download "Build Tools for Visual Studio 2022"
-   - Run the installer and select the "Desktop development with C++" workload
+   - Under "Tools for Visual Studio", select "Build Tools for Visual Studio 2022" and choose "Desktop development with C++"
 
 3. **Build and Run the Media Player**
-   - Navigate to the project directory
-   - If developing Run `cargo watch -x run`
-   - Run `cargo build`
-   - To play an audio file: `cargo run -- path/to/audio/file.mp3`
+   - Navigate to the project directory.
+   - For development with hot reloading, run:
+     ```
+     cargo run --bin dev
+     ```
+   - For production build:
+     ```
+     cargo build --release --workspace
+     ```
 
 ## Supported Formats
 
@@ -32,3 +36,4 @@ A simple audio player using Rust with Symphonia and cpal.
 - Play, pause, and stop functionality
 - Automatic sample rate conversion
 - Multi-channel audio support
+- Hot-reloadable UI components

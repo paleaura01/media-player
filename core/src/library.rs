@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
 use super::playlist::Track;
 
@@ -20,15 +19,11 @@ impl LibraryState {
     
     pub fn scan_directory(&mut self, dir: &str) -> anyhow::Result<()> {
         self.scanning = true;
-        
-        // This would be much more sophisticated in a real implementation
-        // For now, we'll just simulate finding some tracks
         let path = std::path::Path::new(dir);
         if path.exists() && path.is_dir() {
             for entry in std::fs::read_dir(path)? {
                 let entry = entry?;
                 let path = entry.path();
-                
                 if path.is_file() {
                     if let Some(ext) = path.extension() {
                         if let Some(ext_str) = ext.to_str() {
@@ -37,7 +32,6 @@ impl LibraryState {
                                 let title = path.file_name()
                                     .and_then(|n| n.to_str())
                                     .map(|s| s.to_string());
-                                
                                 self.tracks.push(Track {
                                     path: path_str,
                                     title,
@@ -50,7 +44,6 @@ impl LibraryState {
                 }
             }
         }
-        
         self.scanning = false;
         Ok(())
     }

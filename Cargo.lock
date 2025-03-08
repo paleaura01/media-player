@@ -106,6 +106,7 @@ dependencies = [
  "env_logger",
  "hot-lib-reloader",
  "iced",
+ "lazy_static",
  "log",
  "tokio",
 ]
@@ -3296,14 +3297,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7b17f197b3050ba473acf9181f7b1d3b66d1cf7356c6cc57886662276e65908"
 dependencies = [
  "rand",
-]
-
-[[package]]
-name = "ui"
-version = "0.1.0"
-dependencies = [
- "core",
- "iced",
 ]
 
 [[package]]

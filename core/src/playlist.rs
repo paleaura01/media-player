@@ -1,7 +1,6 @@
-use serde::{Serialize, Deserialize};
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use anyhow::Result;
+use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Track {
@@ -17,13 +16,7 @@ impl Track {
             .file_name()
             .and_then(|name| name.to_str())
             .map(|s| s.to_string());
-            
-        Self {
-            path,
-            title,
-            artist: None,
-            album: None,
-        }
+        Self { path, title, artist: None, album: None }
     }
 }
 
@@ -43,40 +36,28 @@ pub struct PlaylistState {
 
 impl PlaylistState {
     pub fn new() -> Self {
-        Self {
-            playlists: Vec::new(),
-            selected: None,
-            next_id: 1,
-        }
+        Self { playlists: Vec::new(), selected: None, next_id: 1 }
     }
     
     pub fn load_from_file(path: &Path) -> Result<Self> {
         if path.metadata()?.len() == 0 {
-            // Empty file, return default state
             return Ok(Self::new());
         }
-        
-        let data = fs::read(path)?;
+        let data = std::fs::read(path)?;
         let state = bincode::deserialize(&data)?;
         Ok(state)
     }
     
     pub fn save_to_file(&self, path: &Path) -> Result<()> {
         let data = bincode::serialize(self)?;
-        fs::write(path, data)?;
+        std::fs::write(path, data)?;
         Ok(())
     }
     
     pub fn create_playlist(&mut self, name: String) -> Playlist {
         let id = self.next_id;
         self.next_id += 1;
-        
-        let playlist = Playlist {
-            id,
-            name,
-            tracks: Vec::new(),
-        };
-        
+        let playlist = Playlist { id, name, tracks: Vec::new() };
         self.playlists.push(playlist.clone());
         playlist
     }
@@ -84,8 +65,6 @@ impl PlaylistState {
     pub fn delete_playlist(&mut self, id: u32) {
         if let Some(pos) = self.playlists.iter().position(|p| p.id == id) {
             self.playlists.remove(pos);
-            
-            // Update selected if needed
             if let Some(selected) = self.selected {
                 if selected == pos {
                     self.selected = None;

@@ -2,8 +2,7 @@
 resolver = "2"
 members = [
     "app",
-    "core",
-    "ui"
+    "core"
 ]
 
 [package]
