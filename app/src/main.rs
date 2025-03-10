@@ -1,5 +1,5 @@
 // app/src/main.rs
-use iced::{Element};
+use iced::Element;
 use core::{
     Action, LibraryAction, LibraryState, Player, PlayerAction, PlayerState,
     PlaylistAction, PlaylistState, Track,
@@ -7,8 +7,8 @@ use core::{
 use log::{debug, error, info};
 use std::path::PathBuf;
 
-// Import your UI rendering module as normal
-mod ui;
+// Import from the library crate using its name.
+use player_ui::ui;
 
 // -------------------- Main App State --------------------
 pub struct MediaPlayer {
@@ -18,7 +18,6 @@ pub struct MediaPlayer {
     library: LibraryState,
     data_dir: PathBuf,
 }
-
 impl std::fmt::Debug for MediaPlayer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("MediaPlayer")
@@ -71,7 +70,7 @@ enum Message {
     Action(Action),
 }
 
-// Update function that will be passed to iced::run
+// Update function that will be passed to iced::run.
 fn update(state: &mut MediaPlayer, message: Message) -> iced::Task<Message> {
     match message {
         Message::Action(action) => {
@@ -173,24 +172,34 @@ fn update(state: &mut MediaPlayer, message: Message) -> iced::Task<Message> {
         }
     }
     
-    // Return an empty task since we're not doing any async work
+    // Return an empty task since we're not doing any async work.
     iced::Task::none()
 }
 
-// View function that will be passed to iced::run - Use the standard UI rendering
+// View function that will be passed to iced::run – uses the standard UI rendering.
 fn view(state: &MediaPlayer) -> Element<Message> {
-    // Call the UI render function directly, no hot reloading for now
+    // Call the UI render function directly (no hot reloading for now).
     let ui_element = ui::render(&state.player_state, &state.playlists, &state.library);
     
-    // Map the UI element to our Message type
-    ui_element.0.map(Message::Action)
+    // Map the UI element to our Message type.
+    iced::Element::map(ui_element.0, Message::Action)
 }
 
 fn main() -> iced::Result {
     std::env::set_var("RUST_LOG", "app=debug");
     env_logger::init();
     info!("Starting media player application.");
-    
-    // Use the correct pattern with 3 arguments as per documentation
+
+   // === Hot Reloading Setup ===
+info!("Setting up hot reloading...");
+
+// Disable hot reloading for now and just use the static library
+info!("Using statically linked UI library");
+
+// Our hot reloading is still happening via the file watcher in dev.rs,
+// but we're not using hot-lib-reloader's functionality to watch files
+
+info!("Initialization complete");
+
     iced::run("Media Player", update, view)
 }

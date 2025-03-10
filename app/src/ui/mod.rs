@@ -7,14 +7,11 @@ pub mod library_view;
 use iced::{Element, widget::{Container, Column, Row}, Length};
 use core::{PlayerState, PlaylistState, LibraryState, Action};
 
-#[repr(transparent)]
+// This must be repr(C) for FFI compatibility
+#[repr(C)]
 pub struct UiElement(pub Element<'static, Action>);
 
-// This exported function is used by hot-lib-reloader.
-// It is marked as extern "C" with #[no_mangle] and #[allow(improper_ctypes_definitions)]
-#[no_mangle]
-#[allow(improper_ctypes_definitions)]
-pub extern "C" fn render(
+pub fn render(
     player: &PlayerState,
     playlists: &PlaylistState,
     library: &LibraryState,
