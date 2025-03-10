@@ -7,7 +7,7 @@ use core::{
 use log::{debug, error, info};
 use std::path::PathBuf;
 
-// Import your UI rendering module
+// Import your UI rendering module as normal
 mod ui;
 
 // -------------------- Main App State --------------------
@@ -177,10 +177,13 @@ fn update(state: &mut MediaPlayer, message: Message) -> iced::Task<Message> {
     iced::Task::none()
 }
 
-// View function that will be passed to iced::run
+// View function that will be passed to iced::run - Use the standard UI rendering
 fn view(state: &MediaPlayer) -> Element<Message> {
-    ui::render(&state.player_state, &state.playlists, &state.library)
-        .map(Message::Action)
+    // Call the UI render function directly, no hot reloading for now
+    let ui_element = ui::render(&state.player_state, &state.playlists, &state.library);
+    
+    // Map the UI element to our Message type
+    ui_element.0.map(Message::Action)
 }
 
 fn main() -> iced::Result {

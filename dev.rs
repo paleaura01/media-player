@@ -5,7 +5,6 @@ use std::sync::mpsc::{channel, RecvTimeoutError};
 use std::time::Duration;
 use std::env;
 use ctrlc;
-use std::fs;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Starting development environment...");
@@ -25,18 +24,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Created empty playlists.json");
     }
     
-    // Build the project initially
-    println!("Building project...");
+    // Build the library initially
+    println!("Building UI library...");
     let status = Command::new("cargo")
-        .args(["build", "--bin", "media-player-app", "--package", "app"])
+        .args(["build", "--lib", "--package", "app"])
         .status()?;
     
     if !status.success() {
-        eprintln!("Failed to build application!");
+        eprintln!("Failed to build UI library!");
         return Err("Build failed".into());
     }
     
-    // Start the application
+    // Start the main application
+    start_app_and_watch()?;
+    
+    Ok(())
+}
+
+fn start_app_and_watch() -> Result<(), Box<dyn std::error::Error>> {
     println!("Starting main application...");
     let mut app_process = Command::new("cargo")
         .args(["run", "--bin", "media-player-app", "--package", "app"])
@@ -49,9 +54,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (tx, rx) = channel();
     let mut watcher = recommended_watcher(tx)?;
     
-    // Watch the app/src directory
-    watcher.watch(Path::new("./app/src"), RecursiveMode::Recursive)?;
-    println!("Watching for changes in app/src...");
+    // Watch the app/src/ui directory specifically
+    watcher.watch(Path::new("./app/src/ui"), RecursiveMode::Recursive)?;
+    println!("Watching for changes in app/src/ui...");
     println!("Press Ctrl+C to stop");
     
     // Main loop with improved Ctrl+C handler
@@ -82,7 +87,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 if is_file_change(&event) && last_rebuild_time.elapsed() > debounce_duration {
                     last_rebuild_time = std::time::Instant::now();
                     
-                    println!("\n\n===== CHANGE DETECTED =====");
+                    println!("\n\n===== UI CHANGE DETECTED =====");
                     
                     // Show which file was changed
                     for path in &event.paths {
@@ -92,46 +97,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     
                     // Wait for file system to stabilize
-                    std::thread::sleep(Duration::from_millis(1000));
+                    std::thread::sleep(Duration::from_millis(500));
                     
-                    // Stop the current application
-                    println!("Stopping application for rebuild...");
+                    // Terminate the app
+                    println!("Terminating app to reload changes...");
                     if let Err(e) = Command::new("taskkill")
-                        .args(["/F", "/T", "/PID", &app_process.id().to_string()])
+                        .args(["/F", "/T", "/PID", &app_process_id.to_string()])
                         .status() {
                         eprintln!("Failed to kill app process: {}", e);
                     }
                     
-                    // Wait for process to terminate
-                    std::thread::sleep(Duration::from_millis(1000));
+                    // Wait for the process to terminate
+                    std::thread::sleep(Duration::from_millis(500));
                     
-                    // Rebuild the application
-                    println!("Rebuilding application...");
-                    let rebuild_success = {
-                        let status = Command::new("cargo")
-                            .args(["build", "--bin", "media-player-app", "--package", "app"])
-                            .status()?;
-                        status.success()
-                    };
-                    
-                    if rebuild_success {
-                        println!("Build successful, restarting application...");
+                    // Rebuild the library
+                    println!("Rebuilding UI library...");
+                    let rebuild_status = Command::new("cargo")
+                        .args(["build", "--package", "app"])
+                        .status()?;
                         
-                        // Start the application again
-                        match Command::new("cargo")
-                            .args(["run", "--bin", "media-player-app", "--package", "app"])
-                            .spawn() {
-                                Ok(process) => {
-                                    app_process = process;
-                                    println!("Application restarted successfully.");
-                                },
-                                Err(e) => {
-                                    eprintln!("Failed to restart application: {}", e);
-                                }
-                            }
-                    } else {
-                        eprintln!("Build failed, will not restart application.");
+                    if !rebuild_status.success() {
+                        eprintln!("Rebuild failed, waiting for the next change...");
+                        continue;
                     }
+                    
+                    // Start a new instance of the app
+                    println!("Restarting application...");
+                    return start_app_and_watch();
                 }
             },
             Ok(Err(e)) => {

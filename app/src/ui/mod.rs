@@ -1,3 +1,4 @@
+// app/src/ui/mod.rs
 pub mod styles;
 pub mod player_view;
 pub mod playlist_view;
@@ -6,15 +7,20 @@ pub mod library_view;
 use iced::{Element, widget::{Container, Column, Row}, Length};
 use core::{PlayerState, PlaylistState, LibraryState, Action};
 
-pub fn render<'a>(
-    player: &'a PlayerState,
-    playlists: &'a PlaylistState,
-    library: &'a LibraryState
-) -> Element<'a, Action> {
-    // Get our style definitions - this is what makes hot reloading work
+#[repr(transparent)]
+pub struct UiElement(pub Element<'static, Action>);
+
+// This exported function is used by hot-lib-reloader.
+// It is marked as extern "C" with #[no_mangle] and #[allow(improper_ctypes_definitions)]
+#[no_mangle]
+#[allow(improper_ctypes_definitions)]
+pub extern "C" fn render(
+    player: &PlayerState,
+    playlists: &PlaylistState,
+    library: &LibraryState,
+) -> UiElement {
     let style = styles::default_style();
     
-    // Add a version indicator to test hot-reloading
     let version_text = styles::small_text(&format!("UI Version: {}", styles::UI_VERSION));
     
     let selected_playlist_id = playlists.selected
@@ -22,8 +28,8 @@ pub fn render<'a>(
         .map(|p| p.id);
     
     let player_view = player_view::view(player, &style);
-    let playlist_view = crate::ui::playlist_view::view(playlists, &style);
-    let library_view = crate::ui::library_view::view(library, selected_playlist_id, &style);
+    let playlist_view = playlist_view::view(playlists, &style);
+    let library_view = library_view::view(library, selected_playlist_id, &style);
     
     let main_content = Row::new()
         .push(
@@ -38,12 +44,14 @@ pub fn render<'a>(
         )
         .height(Length::Fill);
     
-    Column::new()
+    let element = Column::new()
         .push(version_text)
         .push(
             Container::new(player_view)
                 .style(move |_| styles::container_style(style.colors.player_background))
         )
         .push(main_content)
-        .into()
+        .into();
+    
+    UiElement(element)
 }

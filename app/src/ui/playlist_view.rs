@@ -1,9 +1,10 @@
+// app/src/ui/playlist_view.rs
 use iced::{Element, Length, Alignment};
 use iced::widget::{Text, Button, Container, Column, Row};
 use core::{PlaylistState, Action, PlaylistAction};
 use crate::ui::styles::AppStyle;
 
-pub fn view<'a>(playlists: &'a PlaylistState, _style: &AppStyle) -> Element<'a, Action> {
+pub fn view(playlists: &PlaylistState, _style: &AppStyle) -> Element<'static, Action> {
     // Create a header with version info for testing hot reloading
     let header = Text::new("Playlist View - HOT RELOADED!")
         .size(20)
@@ -33,7 +34,7 @@ pub fn view<'a>(playlists: &'a PlaylistState, _style: &AppStyle) -> Element<'a, 
                 .spacing(10)
                 .align_y(Alignment::Center)
                 .push(
-                    Text::new(&playlist.name)
+                    Text::new(playlist.name.clone())
                         .width(Length::Fill)
                 )
                 .push(
