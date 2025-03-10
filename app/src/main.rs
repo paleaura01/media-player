@@ -1,5 +1,5 @@
 // app/src/main.rs
-use iced::{Element, Settings};
+use iced::{Element};
 use core::{
     Action, LibraryAction, LibraryState, Player, PlayerAction, PlayerState,
     PlaylistAction, PlaylistState, Track,
