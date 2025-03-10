@@ -1,5 +1,5 @@
 // app/src/main.rs
-use iced::{Element};
+use iced::{Element, Settings};
 use core::{
     Action, LibraryAction, LibraryState, Player, PlayerAction, PlayerState,
     PlaylistAction, PlaylistState, Track,
@@ -10,148 +10,8 @@ use std::path::PathBuf;
 // Import your UI rendering module
 mod ui;
 
-// --- Hot Reloading for debug builds ---
-#[cfg(debug_assertions)]
-mod hot {
-    use super::*;
-    use hot_lib_reloader::LibReloader;
-    use std::cell::RefCell;
-    use std::path::Path;
-    use std::sync::atomic::{AtomicBool, Ordering};
-    use std::time::Duration;
-    use lazy_static::lazy_static;
-
-    lazy_static! {
-        static ref NEEDS_REFRESH: AtomicBool = AtomicBool::new(false);
-    }
-
-    pub struct HotUI {
-        reloader: RefCell<LibReloader>,
-        last_render_time: RefCell<std::time::Instant>,
-    }
-
-    // Manually implement Clone since LibReloader is not Clone.
-    impl Clone for HotUI {
-        fn clone(&self) -> Self {
-            Self::new()
-        }
-    }
-
-    // Manually implement Debug since LibReloader doesn't implement Debug
-    impl std::fmt::Debug for HotUI {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            f.debug_struct("HotUI")
-                .field("last_update", &"<reloader>")
-                .finish()
-        }
-    }
-
-    impl HotUI {
-        pub fn new() -> Self {
-            let reloader = match LibReloader::new(
-                Path::new("./target/debug"),
-                "player_ui-latest",
-                Some(Duration::from_millis(500)),
-            ) {
-                Ok(r) => r,
-                Err(e) => {
-                    eprintln!("Failed to initialize hot reloader: {}", e);
-                    panic!("Hot reloading initialization failed: {}", e);
-                }
-            };
-
-            info!("Hot reloader initialized successfully");
-            Self {
-                reloader: RefCell::new(reloader),
-                last_render_time: RefCell::new(std::time::Instant::now()),
-            }
-        }
-
-        pub fn render<'a>(
-            &self,
-            player: &'a PlayerState,
-            playlists: &'a PlaylistState,
-            library: &'a LibraryState,
-        ) -> Element<'a, Action> {
-            // Check for updates every 2 seconds.
-            let now = std::time::Instant::now();
-            let mut last = self.last_render_time.borrow_mut();
-            if now.duration_since(*last) > Duration::from_millis(2000) {
-                *last = now;
-                if let Ok(mut reloader) = self.reloader.try_borrow_mut() {
-                    match reloader.update() {
-                        Ok(true) => {
-                            info!("Detected changes in UI library");
-                            NEEDS_REFRESH.store(true, Ordering::SeqCst);
-                        }
-                        Ok(false) => {}
-                        Err(e) => {
-                            error!("Hot reloader update error: {}", e);
-                            drop(reloader);
-                            if let Ok(new_r) = LibReloader::new(
-                                Path::new("./target/debug"),
-                                "player_ui-latest",
-                                Some(Duration::from_millis(500)),
-                            ) {
-                                *self.reloader.borrow_mut() = new_r;
-                                info!("Reinitialized reloader after error");
-                            } else {
-                                error!("Reinit reloader failed");
-                            }
-                        }
-                    }
-                }
-            }
-
-            if let Ok(reloader) = self.reloader.try_borrow() {
-                match unsafe {
-                    reloader.get_symbol::<fn(
-                        &'a PlayerState,
-                        &'a PlaylistState,
-                        &'a LibraryState
-                    ) -> Element<'a, Action>>(b"render")
-                } {
-                    Ok(render_fn) => render_fn(player, playlists, library),
-                    Err(e) => {
-                        error!("Failed to load hot render fn: {}", e);
-                        ui::render(player, playlists, library)
-                    }
-                }
-            } else {
-                ui::render(player, playlists, library)
-            }
-        }
-    }
-}
-
-#[cfg(not(debug_assertions))]
-mod hot {
-    use super::*;
-    
-    #[derive(Clone, Debug)]
-    pub struct HotUI;
-
-    impl HotUI {
-        pub fn new() -> Self {
-            Self
-        }
-
-        pub fn render<'a>(
-            &self,
-            player: &'a PlayerState,
-            playlists: &'a PlaylistState,
-            library: &'a LibraryState,
-        ) -> Element<'a, Action> {
-            ui::render(player, playlists, library)
-        }
-    }
-}
-
-use hot::HotUI;
-
 // -------------------- Main App State --------------------
 pub struct MediaPlayer {
-    hot_ui: HotUI,
     player: Player,
     player_state: PlayerState,
     playlists: PlaylistState,
@@ -159,11 +19,9 @@ pub struct MediaPlayer {
     data_dir: PathBuf,
 }
 
-// Manually implement Debug since Player doesn't implement Debug
 impl std::fmt::Debug for MediaPlayer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("MediaPlayer")
-            .field("hot_ui", &self.hot_ui)
             .field("player", &"<player>")
             .field("player_state", &self.player_state)
             .field("playlists", &self.playlists)
@@ -199,7 +57,6 @@ impl Default for MediaPlayer {
         info!("MediaPlayer default state created");
 
         Self {
-            hot_ui: HotUI::new(),
             player,
             player_state,
             playlists,
@@ -322,13 +179,12 @@ fn update(state: &mut MediaPlayer, message: Message) -> iced::Task<Message> {
 
 // View function that will be passed to iced::run
 fn view(state: &MediaPlayer) -> Element<Message> {
-    state.hot_ui
-        .render(&state.player_state, &state.playlists, &state.library)
+    ui::render(&state.player_state, &state.playlists, &state.library)
         .map(Message::Action)
 }
 
 fn main() -> iced::Result {
-    std::env::set_var("RUST_LOG", "app=debug,hot_lib_reloader=debug");
+    std::env::set_var("RUST_LOG", "app=debug");
     env_logger::init();
     info!("Starting media player application.");
     

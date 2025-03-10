@@ -2,9 +2,10 @@ use iced::{Color, Background, Vector, Border, Shadow, Theme};
 use iced::widget::container::Style as ContainerStyle;
 use iced::widget::button::Style as ButtonStyle;
 
-pub const UI_VERSION: &str = "3.0.0";
+pub const UI_VERSION: &str = "3.1.0";  // Increased version number
 #[no_mangle]
-pub static UI_VERSION_INT: u64 = 3;
+pub static UI_VERSION_INT: u64 = 5;    // Increased version number
+
 
 #[derive(Debug, Clone)]
 pub struct AppStyle {
@@ -12,6 +13,7 @@ pub struct AppStyle {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]  
 pub struct ColorTheme {
     pub player_background: Color,
     pub playlist_background: Color,
@@ -68,6 +70,7 @@ pub fn small_text(content: &str) -> iced::widget::Text<'static, Theme> {
 }
 
 /// Constructs a button style using colors from your AppStyle.
+#[allow(dead_code)]  
 pub fn button_style(style: &AppStyle) -> ButtonStyle {
     ButtonStyle {
         background: Some(Background::Color(style.colors.button_background)),

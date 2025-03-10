@@ -18,62 +18,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     
-    // Create an empty playlists.bin if it doesn't exist
+    // Create an empty playlists.json if it doesn't exist
     let playlists_path = Path::new("./data/playlists.json");
     if !playlists_path.exists() {
         std::fs::write(playlists_path, &[])?;
         println!("Created empty playlists.json");
     }
     
-    // Determine library paths
-    let lib_path = if cfg!(target_os = "windows") {
-        "./target/debug/player_ui.dll"
-    } else if cfg!(target_os = "macos") {
-        "./target/debug/libplayer_ui.dylib"
-    } else {
-        "./target/debug/libplayer_ui.so"
-    };
-    
-    // Create a hot reload copy path
-    let hot_copy_path = if cfg!(target_os = "windows") {
-        "./target/debug/player_ui-latest.dll"
-    } else if cfg!(target_os = "macos") {
-        "./target/debug/libplayer_ui-latest.dylib"
-    } else {
-        "./target/debug/libplayer_ui-latest.so"
-    };
-    
-    // Set environment variable for hot-reloading to use the copy path
-    env::set_var("HOT_LIB_RELOADER_LIBRARY_PATH", hot_copy_path);
-    println!("Hot-reload path set to: {}", hot_copy_path);
-    
-    // Build library initially
-    println!("Building UI library...");
+    // Build the project initially
+    println!("Building project...");
     let status = Command::new("cargo")
-        .args(["build", "--lib", "--package", "app"])
+        .args(["build", "--bin", "media-player-app", "--package", "app"])
         .status()?;
     
     if !status.success() {
-        eprintln!("Failed to build UI library!");
+        eprintln!("Failed to build application!");
         return Err("Build failed".into());
     }
     
-    // Create initial hot reload copy
-    if Path::new(lib_path).exists() {
-        // First try to remove existing copy if present
-        if Path::new(hot_copy_path).exists() {
-            let _ = fs::remove_file(hot_copy_path);
-            std::thread::sleep(Duration::from_millis(100));
-        }
-        
-        // Copy the library file
-        match fs::copy(lib_path, hot_copy_path) {
-            Ok(_) => println!("Created initial hot reload copy of library"),
-            Err(e) => eprintln!("Failed to create hot reload copy: {}", e),
-        }
-    }
-    
-    // Start the main application
+    // Start the application
     println!("Starting main application...");
     let mut app_process = Command::new("cargo")
         .args(["run", "--bin", "media-player-app", "--package", "app"])
@@ -81,9 +44,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     // Store the process ID for the Ctrl+C handler
     let app_process_id = app_process.id();
-    
-    // Give the app time to initialize before watching for changes
-    std::thread::sleep(Duration::from_millis(2000));
     
     // Set up file watcher
     let (tx, rx) = channel();
@@ -106,7 +66,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         
         // Give processes time to clean up
-        std::thread::sleep(Duration::from_millis(500));
+        std::thread::sleep(Duration::from_millis(1000));
         
         // Exit cleanly
         std::process::exit(0);
@@ -114,7 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     // Debounce mechanism to prevent multiple rebuilds for a single change
     let mut last_rebuild_time = std::time::Instant::now();
-    let debounce_duration = Duration::from_millis(1000);
+    let debounce_duration = Duration::from_millis(1500);
     
     loop {
         match rx.recv_timeout(Duration::from_millis(100)) {
@@ -132,61 +92,45 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     
                     // Wait for file system to stabilize
-                    std::thread::sleep(Duration::from_millis(500));
+                    std::thread::sleep(Duration::from_millis(1000));
                     
-                    // Perform a clean build
-                    println!("Building UI library...");
+                    // Stop the current application
+                    println!("Stopping application for rebuild...");
+                    if let Err(e) = Command::new("taskkill")
+                        .args(["/F", "/T", "/PID", &app_process.id().to_string()])
+                        .status() {
+                        eprintln!("Failed to kill app process: {}", e);
+                    }
                     
-                    // Use a temporary file path to avoid conflicts
-                    let temp_copy_path = if cfg!(target_os = "windows") {
-                        "./target/debug/player_ui-temp.dll"
-                    } else if cfg!(target_os = "macos") {
-                        "./target/debug/libplayer_ui-temp.dylib"
-                    } else {
-                        "./target/debug/libplayer_ui-temp.so"
-                    };
+                    // Wait for process to terminate
+                    std::thread::sleep(Duration::from_millis(1000));
                     
+                    // Rebuild the application
+                    println!("Rebuilding application...");
                     let rebuild_success = {
                         let status = Command::new("cargo")
-                            .args(["build", "--lib", "--package", "app"])
+                            .args(["build", "--bin", "media-player-app", "--package", "app"])
                             .status()?;
                         status.success()
                     };
                     
-                    if rebuild_success && Path::new(lib_path).exists() {
-                        println!("Build successful, updating hot reload copy...");
+                    if rebuild_success {
+                        println!("Build successful, restarting application...");
                         
-                        // First create a temp copy
-                        match fs::copy(lib_path, temp_copy_path) {
-                            Ok(_) => {
-                                // Then wait to make sure the app isn't actively using the file
-                                std::thread::sleep(Duration::from_millis(500));
-                                
-                                // Swap the files
-                                if Path::new(hot_copy_path).exists() {
-                                    let _ = fs::remove_file(hot_copy_path);
+                        // Start the application again
+                        match Command::new("cargo")
+                            .args(["run", "--bin", "media-player-app", "--package", "app"])
+                            .spawn() {
+                                Ok(process) => {
+                                    app_process = process;
+                                    println!("Application restarted successfully.");
+                                },
+                                Err(e) => {
+                                    eprintln!("Failed to restart application: {}", e);
                                 }
-                                
-                                // Wait again for the file system
-                                std::thread::sleep(Duration::from_millis(500));
-                                
-                                // Move the temp file to the hot reload path
-                                match fs::rename(temp_copy_path, hot_copy_path) {
-                                    Ok(_) => println!("UI UPDATED! Hot reload will pick up changes."),
-                                    Err(e) => {
-                                        eprintln!("Failed to rename library: {}", e);
-                                        // Try copy instead if rename fails
-                                        if let Ok(_) = fs::copy(temp_copy_path, hot_copy_path) {
-                                            println!("UI UPDATED via copy instead of rename.");
-                                            let _ = fs::remove_file(temp_copy_path);
-                                        }
-                                    }
-                                }
-                            },
-                            Err(e) => eprintln!("Failed to create temp copy: {}", e),
-                        }
+                            }
                     } else {
-                        eprintln!("Build failed or library file not found.");
+                        eprintln!("Build failed, will not restart application.");
                     }
                 }
             },

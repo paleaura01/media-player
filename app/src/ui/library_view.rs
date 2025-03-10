@@ -8,7 +8,7 @@ pub fn view<'a>(
     _style: &AppStyle
 ) -> Element<'a, Action, Theme, Renderer> {
     // This text will change when hot reloading works
-    let display_text = "LIBRARY VIEW - HOT 2 2RELOADING IS WORKING!!!!!";
+    let display_text = "LIBRARY VIEW - HOT 2 2RELOADING IS NOT!! WORKING!!!!!";
     
     // Simple styling that will work with iced 0.13.1
     text::Text::new(display_text)
