@@ -3,7 +3,6 @@ name = "app"
 version = "0.1.0"
 edition = "2021"
 
-# Fix the collision by giving different output names for binary and library
 [[bin]]
 name = "media-player-app"
 path = "src/main.rs"
@@ -13,10 +12,9 @@ name = "player_ui"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-iced = { version = "0.9", features = ["tokio"] }
+iced = "0.13.1"
 hot-lib-reloader = "0.6.5"
 core = { path = "../core" }
-tokio = { version = "1", features = ["time", "rt", "macros"] }
 log = "0.4"
 env_logger = "0.10"
 ctrlc = "3.2"

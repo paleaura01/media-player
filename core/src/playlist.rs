@@ -47,6 +47,8 @@ pub struct PlaylistState {
     pub new_playlist_name: String, // Text field for new playlist name
     #[serde(skip)]
     pub deleting_playlist_id: Option<u32>, // Track which playlist is pending deletion
+    #[serde(skip)]
+    pub hovered_playlist_id: Option<u32>, // Track which playlist is being hovered
     next_id: u32,
 }
 
@@ -62,10 +64,12 @@ impl PlaylistState {
             showing_create_popup: false,
             new_playlist_name: "New Playlist".to_string(),
             deleting_playlist_id: None,
+            hovered_playlist_id: None,
             next_id: 1 
         }
     }
     
+    // Rest of the code remains the same
     pub fn load_from_file(path: &Path) -> Result<Self> {
         // Check if file exists and has content
         if !path.exists() || path.metadata()?.len() == 0 {
@@ -165,4 +169,5 @@ pub enum PlaylistAction {
     ShowDeleteConfirmation(u32), // Show the delete confirmation popup
     CancelDelete,              // Cancel the delete operation
     ConfirmDelete,             // Confirm the delete operation
+    HoverPlaylist(Option<u32>),// Track mouse hover over playlist
 }

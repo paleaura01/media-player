@@ -17,3 +17,4 @@ path = "dev.rs"
 [dependencies]
 notify = "5.0"
 ctrlc = "3.2"
+iced = "0.13.1"

@@ -1,0 +1,21 @@
+{
+  "playlists": [
+    {
+      "id": 1,
+      "name": "Test Playlist",
+      "tracks": []
+    },
+    {
+      "id": 2,
+      "name": "Test Playlist",
+      "tracks": []
+    },
+    {
+      "id": 3,
+      "name": "Test Playlist",
+      "tracks": []
+    }
+  ],
+  "selected": 2,
+  "next_id": 4
+}
