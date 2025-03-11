@@ -134,12 +134,10 @@ dependencies = [
  "core",
  "ctrlc",
  "env_logger",
- "hot-lib-reloader",
  "iced",
- "iced_futures",
  "lazy_static",
  "log",
- "once_cell",
+ "serde",
  "serde_json",
 ]
 
@@ -1179,15 +1177,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "file-id"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6bc904b9bbefcadbd8e3a9fb0d464a9b979de6324c03b3c663e8994f46a5be36"
-dependencies = [
- "windows-sys 0.52.0",
-]
-
-[[package]]
 name = "filetime"
 version = "0.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1608,32 +1597,6 @@ name = "hexf-parse"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfa686283ad6dd069f105e5ab091b04c62850d3e4cf5d67debad1933f55023df"
-
-[[package]]
-name = "hot-lib-reloader"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eda706fdb8bcf5279ce95754dd86a23eab0a81ad2823d5402c2e10a4dd3283c2"
-dependencies = [
- "crc32fast",
- "hot-lib-reloader-macro",
- "libloading 0.8.6",
- "log",
- "notify 6.1.1",
- "notify-debouncer-full",
- "thiserror",
-]
-
-[[package]]
-name = "hot-lib-reloader-macro"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f01c6c25eabdd8e2de50ccdb7e13186ba2ac0f69ebd8bd5f96ae235414180800"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
 
 [[package]]
 name = "humantime"
@@ -2085,7 +2048,9 @@ version = "0.1.0"
 dependencies = [
  "ctrlc",
  "iced",
- "notify 5.2.0",
+ "notify",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -2267,39 +2232,6 @@ dependencies = [
  "mio",
  "walkdir",
  "windows-sys 0.45.0",
-]
-
-[[package]]
-name = "notify"
-version = "6.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6205bd8bb1e454ad2e27422015fb5e4f2bcc7e08fa8f27058670d208324a4d2d"
-dependencies = [
- "bitflags 2.9.0",
- "crossbeam-channel",
- "filetime",
- "fsevent-sys",
- "inotify",
- "kqueue",
- "libc",
- "log",
- "mio",
- "walkdir",
- "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "notify-debouncer-full"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb7fd166739789c9ff169e654dc1501373db9d80a4c3f972817c8a4d7cf8f34e"
-dependencies = [
- "crossbeam-channel",
- "file-id",
- "log",
- "notify 6.1.1",
- "parking_lot 0.12.3",
- "walkdir",
 ]
 
 [[package]]

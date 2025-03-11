@@ -3,63 +3,30 @@ use std::path::Path;
 use std::process::Command;
 use std::sync::mpsc::{channel, RecvTimeoutError};
 use std::time::Duration;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
 use ctrlc;
-use std::error::Error;
-use std::fs;
+use std::fs::File;
+use std::io::Read;
+use serde::{Serialize, Deserialize};
 
-#[cfg(target_os = "windows")]
-const DYLIB_NAME: &str = "player_ui.dll";
-#[cfg(target_os = "linux")]
-const DYLIB_NAME: &str = "libplayer_ui.so";
-#[cfg(target_os = "macos")]
-const DYLIB_NAME: &str = "libplayer_ui.dylib";
+#[derive(Serialize, Deserialize, Default)]
+struct WindowPosition {
+    x: Option<i32>,
+    y: Option<i32>,
+}
 
-fn copy_ui_library() -> Result<(), Box<dyn Error>> {
-    use std::path::Path;
-    let source_path = Path::new("target").join("debug").join(DYLIB_NAME);
-    let destination_path = Path::new("player_ui");
-    
-    if !source_path.exists() {
-        eprintln!("UI library not found at {:?}", source_path);
-        return Err("Source library not found".into());
-    }
-    
-    // On Windows, handle file locking issues
-    #[cfg(target_os = "windows")]
-    {
-        // Try several times with delays
-        let max_attempts = 5;
-        for attempt in 1..=max_attempts {
-            match fs::copy(&source_path, destination_path) {
-                Ok(_) => {
-                    println!("Copied UI library from {:?} to {:?}", source_path, destination_path);
-                    return Ok(());
-                },
-                Err(e) => {
-                    if attempt < max_attempts {
-                        println!("Copy attempt {} failed: {}. Retrying...", attempt, e);
-                        std::thread::sleep(Duration::from_millis(300));
-                    } else {
-                        eprintln!("All copy attempts failed: {}", e);
-                        return Err(e.into());
-                    }
+fn load_window_position() -> WindowPosition {
+    let path = Path::new("data/window_position.json");
+    if path.exists() {
+        if let Ok(mut file) = File::open(path) {
+            let mut contents = String::new();
+            if file.read_to_string(&mut contents).is_ok() {
+                if let Ok(pos) = serde_json::from_str::<WindowPosition>(&contents) {
+                    return pos;
                 }
             }
         }
-        // If we got here, all attempts failed
-        return Err("Failed to copy library after multiple attempts".into());
     }
-    
-    // Non-Windows platforms
-    #[cfg(not(target_os = "windows"))]
-    {
-        fs::copy(&source_path, destination_path)?;
-        println!("Copied UI library from {:?} to {:?}", source_path, destination_path);
-    }
-    
-    Ok(())
+    WindowPosition::default()
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -80,99 +47,121 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Created empty playlists.json");
     }
     
-    // Build the library initially
-    println!("Building UI library...");
+    // Build the project initially
+    println!("Building project...");
     let status = Command::new("cargo")
-        .args(["build", "--package", "app"])
+        .args(["build", "--bin", "media-player-app", "--package", "app"])
         .status()?;
     
     if !status.success() {
-        eprintln!("Failed to build UI library!");
+        eprintln!("Failed to build application!");
         return Err("Build failed".into());
     }
     
-    // Copy the built dynamic library to the project root
-    copy_ui_library()?;
-    
-    // For breaking out of nested loops
-    let running = Arc::new(AtomicBool::new(true));
-    let r = Arc::clone(&running);
-    
-    // Set up the Ctrl+C handler
-    ctrlc::set_handler(move || {
-        println!("\nShutting down development environment...");
-        r.store(false, Ordering::SeqCst);
-    })?;
-    
-    let result = start_app_and_watch(running);
-    
-    println!("Development environment shutdown complete.");
-    result
-}
-
-fn start_app_and_watch(running: Arc<AtomicBool>) -> Result<(), Box<dyn std::error::Error>> {
+    // Start the application (no need to pass the window position via --title)
     println!("Starting main application...");
+    
+    let mut args = Vec::<String>::new();
+    args.push("run".to_string());
+    args.push("--bin".to_string());
+    args.push("media-player-app".to_string());
+    args.push("--package".to_string());
+    args.push("app".to_string());
+    
+    // Create and start the application
     let mut app_process = Command::new("cargo")
-        .args(["run", "--bin", "media-player-app", "--package", "app"])
+        .args(&args)
         .spawn()?;
+    
+    // Store the process ID for the Ctrl+C handler
+    let app_process_id = app_process.id();
     
     // Set up file watcher
     let (tx, rx) = channel();
     let mut watcher = recommended_watcher(tx)?;
     
-    // Watch the app/src/ui directory
-    watcher.watch(Path::new("./app/src/ui"), RecursiveMode::Recursive)?;
-    println!("Watching for changes in app/src/ui...");
+    // Watch the app/src directory
+    watcher.watch(Path::new("./app/src"), RecursiveMode::Recursive)?;
+    println!("Watching for changes in app/src...");
     println!("Press Ctrl+C to stop");
     
-    // Debounce mechanism
+    // Main loop with improved Ctrl+C handler
+    ctrlc::set_handler(move || {
+        println!("\nShutting down development environment...");
+        
+        // Properly terminate the app process first
+        if let Err(e) = Command::new("taskkill")
+            .args(["/F", "/T", "/PID", &app_process_id.to_string()])
+            .status() {
+            eprintln!("Failed to kill app process: {}", e);
+        }
+        
+        // Give processes time to clean up
+        std::thread::sleep(Duration::from_millis(1000));
+        
+        // Exit cleanly
+        std::process::exit(0);
+    })?;
+    
+    // Debounce mechanism to prevent multiple rebuilds for a single change
     let mut last_rebuild_time = std::time::Instant::now();
     let debounce_duration = Duration::from_millis(1500);
     
-    while running.load(Ordering::SeqCst) {
+    loop {
         match rx.recv_timeout(Duration::from_millis(100)) {
             Ok(Ok(event)) => {
                 if is_file_change(&event) && last_rebuild_time.elapsed() > debounce_duration {
                     last_rebuild_time = std::time::Instant::now();
                     
-                    println!("\n\n===== UI CHANGE DETECTED =====");
+                    println!("\n\n===== CHANGE DETECTED =====");
+                    
+                    // Show which file was changed
                     for path in &event.paths {
                         if let Some(path_str) = path.to_str() {
                             println!("Changed file: {}", path_str);
                         }
                     }
                     
-                    std::thread::sleep(Duration::from_millis(500));
+                    // Wait for file system to stabilize
+                    std::thread::sleep(Duration::from_millis(1000));
                     
-                    // Build ONLY the library component
-                    println!("Rebuilding UI library...");
-                    let rebuild_status = Command::new("cargo")
-                        .args(["build", "--lib", "--package", "app"])
-                        .status()?;
-                        
-                    if !rebuild_status.success() {
-                        eprintln!("Rebuild failed, waiting for the next change...");
-                        continue;
+                    // Stop the current application
+                    println!("Stopping application for rebuild...");
+                    if let Err(e) = Command::new("taskkill")
+                        .args(["/F", "/T", "/PID", &app_process.id().to_string()])
+                        .status() {
+                        eprintln!("Failed to kill app process: {}", e);
                     }
                     
-                    // Try copying the library and restart the app if we can't copy
-                    match copy_ui_library() {
-                        Ok(_) => {
-                            println!("Rebuilt UI library. The application needs to be restarted for changes to take effect.");
-                            // Kill and restart the app
-                            if let Some(child) = app_process.try_wait()? {
-                                println!("Application exited with status: {}", child);
-                            } else {
-                                let _ = app_process.kill();
-                                println!("Terminated application to apply changes");
+                    // Wait for process to terminate
+                    std::thread::sleep(Duration::from_millis(1000));
+                    
+                    // Rebuild the application
+                    println!("Rebuilding application...");
+                    let rebuild_success = {
+                        let status = Command::new("cargo")
+                            .args(["build", "--bin", "media-player-app", "--package", "app"])
+                            .status()?;
+                        status.success()
+                    };
+                    
+                    if rebuild_success {
+                        println!("Build successful, restarting application...");
+                        
+                        // Create and start the application again
+                        match Command::new("cargo")
+                            .args(&args)
+                            .spawn() {
+                            Ok(process) => {
+                                app_process = process;
+                                println!("Application restarted successfully.");
+                            },
+                            Err(e) => {
+                                eprintln!("Failed to restart application: {}", e);
                             }
-                            app_process = Command::new("cargo")
-                                .args(["run", "--bin", "media-player-app", "--package", "app"])
-                                .spawn()?;
-                        },
-                        Err(e) => {
-                            eprintln!("Failed to copy UI library: {}", e);
                         }
+                    } else {
+                        eprintln!("Build failed, will not restart application.");
                     }
                 }
             },
@@ -189,21 +178,23 @@ fn start_app_and_watch(running: Arc<AtomicBool>) -> Result<(), Box<dyn std::erro
         // Check if the app is still running
         match app_process.try_wait() {
             Ok(Some(status)) => {
-                if !running.load(Ordering::SeqCst) {
-                    break;
-                }
                 println!("Application exited with status: {}", status);
-                println!("Restarting application...");
-                app_process = Command::new("cargo")
-                    .args(["run", "--bin", "media-player-app", "--package", "app"])
-                    .spawn()?;
+                break;
             },
-            Ok(None) => {},
+            Ok(None) => { /* still running */ },
             Err(e) => {
                 eprintln!("Error checking app status: {}", e);
                 break;
             }
         }
+    }
+    
+    // Clean up
+    println!("Attempting to clean up application process.");
+    if let Err(e) = Command::new("taskkill")
+        .args(["/F", "/T", "/PID", &app_process.id().to_string()])
+        .status() {
+        eprintln!("Failed to kill app process: {}", e);
     }
     
     Ok(())
@@ -213,7 +204,9 @@ fn is_file_change(event: &Event) -> bool {
     match event.kind {
         EventKind::Modify(_) => {
             event.paths.iter().any(|p| {
-                p.extension().map_or(false, |ext| ext == "rs" || ext == "toml")
+                p.extension().map_or(false, |ext| {
+                    ext == "rs" || ext == "toml"
+                })
             })
         },
         _ => false,

@@ -1,9 +1,8 @@
-// app/src/ui/player_view.rs
 use iced::{Element, widget::{Button, Text, Row, Column, progress_bar}, Length, Alignment};
 use core::{PlayerState, PlayerAction, Action, PlaybackStatus};
 use crate::ui::styles::AppStyle;
 
-pub fn view(state: &PlayerState, _style: &AppStyle) -> Element<'static, Action> {
+pub fn view<'a>(state: &'a PlayerState, _style: &AppStyle) -> Element<'a, Action> {
     let track_info = if let Some(track) = &state.current_track {
         let filename = std::path::Path::new(track)
             .file_name()

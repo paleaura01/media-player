@@ -1,14 +1,48 @@
-// app/src/main.rs
-use iced::Element;
+use iced::{Element, window, Subscription, Point};
 use core::{
     Action, LibraryAction, LibraryState, Player, PlayerAction, PlayerState,
     PlaylistAction, PlaylistState, Track,
 };
 use log::{debug, error, info};
 use std::path::PathBuf;
+use std::fs;
+use serde::{Serialize, Deserialize};
 
-// Import from the library crate using its name.
-use player_ui::ui;
+mod ui;
+
+// -------------------- Window position storage --------------------
+#[derive(Debug, Serialize, Deserialize, Default)]
+struct WindowPosition {
+    x: Option<i32>,
+    y: Option<i32>,
+}
+
+fn save_window_position(x: i32, y: i32) -> std::io::Result<()> {
+    let pos = WindowPosition {
+        x: Some(x),
+        y: Some(y),
+    };
+    
+    let data_dir = PathBuf::from("data");
+    if !data_dir.exists() {
+        fs::create_dir_all(&data_dir)?;
+    }
+    
+    let json = serde_json::to_string_pretty(&pos)?;
+    fs::write("data/window_position.json", json)
+}
+
+fn load_window_position() -> WindowPosition {
+    let path = PathBuf::from("data/window_position.json");
+    if path.exists() {
+        if let Ok(data) = fs::read_to_string(path) {
+            if let Ok(pos) = serde_json::from_str::<WindowPosition>(&data) {
+                return pos;
+            }
+        }
+    }
+    WindowPosition::default()
+}
 
 // -------------------- Main App State --------------------
 pub struct MediaPlayer {
@@ -17,7 +51,9 @@ pub struct MediaPlayer {
     playlists: PlaylistState,
     library: LibraryState,
     data_dir: PathBuf,
+    window_position: WindowPosition,
 }
+
 impl std::fmt::Debug for MediaPlayer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("MediaPlayer")
@@ -52,6 +88,7 @@ impl Default for MediaPlayer {
 
         let player = Player::new();
         let player_state = player.get_state();
+        let window_position = load_window_position();
 
         info!("MediaPlayer default state created");
 
@@ -61,16 +98,20 @@ impl Default for MediaPlayer {
             playlists,
             library: LibraryState::new(),
             data_dir,
+            window_position,
         }
     }
 }
 
+// -------------------- Iced Messages --------------------
 #[derive(Debug, Clone)]
 enum Message {
     Action(Action),
+    WindowMoved(i32, i32),
+    Ignore,
 }
 
-// Update function that will be passed to iced::run.
+// -------------------- update --------------------
 fn update(state: &mut MediaPlayer, message: Message) -> iced::Task<Message> {
     match message {
         Message::Action(action) => {
@@ -170,36 +211,52 @@ fn update(state: &mut MediaPlayer, message: Message) -> iced::Task<Message> {
             }
             state.player_state = state.player.get_state();
         }
+        Message::WindowMoved(x, y) => {
+            // Save new window coords
+            let _ = save_window_position(x, y);
+            state.window_position.x = Some(x);
+            state.window_position.y = Some(y);
+        }
+        Message::Ignore => {}
     }
-    
-    // Return an empty task since we're not doing any async work.
     iced::Task::none()
 }
 
-// View function that will be passed to iced::run – uses the standard UI rendering.
+// -------------------- view --------------------
 fn view(state: &MediaPlayer) -> Element<Message> {
-    // Call the UI render function directly (no hot reloading for now).
-    let ui_element = ui::render(&state.player_state, &state.playlists, &state.library);
-    
-    // Map the UI element to our Message type.
-    iced::Element::map(ui_element.0, Message::Action)
+    ui::render(&state.player_state, &state.playlists, &state.library)
+        .map(Message::Action)
 }
 
+// -------------------- subscription --------------------
+fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
+    // in iced 0.13.x, `window::events()` emits (window::Id, window::Event)
+    window::events().map(|(_id, event)| match event {
+        // `Moved` is a single-field tuple variant: Moved(Point)
+        window::Event::Moved(point) => {
+            Message::WindowMoved(point.x as i32, point.y as i32)
+        }
+        _ => Message::Ignore,
+    })
+}
+
+// -------------------- main --------------------
 fn main() -> iced::Result {
     std::env::set_var("RUST_LOG", "app=debug");
     env_logger::init();
     info!("Starting media player application.");
 
-   // === Hot Reloading Setup ===
-info!("Setting up hot reloading...");
+    // Load last window position
+    let window_pos = load_window_position();
+    let x = window_pos.x.unwrap_or(100) as f32;
+    let y = window_pos.y.unwrap_or(100) as f32;
 
-// Disable hot reloading for now and just use the static library
-info!("Using statically linked UI library");
-
-// Our hot reloading is still happening via the file watcher in dev.rs,
-// but we're not using hot-lib-reloader's functionality to watch files
-
-info!("Initialization complete");
-
-    iced::run("Media Player", update, view)
+    // Build application with .window(...) (no title field in window::Settings)
+    iced::application("Media Player", update, view)
+        .window(window::Settings {
+            position: window::Position::Specific(Point::new(x, y)),
+            ..window::Settings::default()
+        })
+        .subscription(subscription)
+        .run()
 }
