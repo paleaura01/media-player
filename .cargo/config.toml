@@ -3,9 +3,8 @@ VCPKG_DEFAULT_TRIPLET = "x64-windows"
 VCPKG_TRIPLET = "x64-windows"
 
 [build]
-incremental = false
-# Comment out sccache until properly configured
-# rustc-wrapper = "sccache"
+incremental = true
+rustc-wrapper = "sccache"
 target-dir = "target"
 rustflags = ["-C", "target-cpu=native"]
 

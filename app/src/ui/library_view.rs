@@ -8,7 +8,7 @@ pub fn view<'a>(
     _style: &AppStyle
 ) -> Element<'a, Action, Theme, Renderer> {
     // Replace hot reloading reference with normal text
-    let display_text = "Library View FAG";
+    let display_text = "Library View FAGSSSSSSSSSSSSSSSSSSSsSSSS";
     
     // Simple styling that will work with iced 0.13.1
     text::Text::new(display_text)

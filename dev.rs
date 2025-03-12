@@ -105,7 +105,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     // Debounce mechanism to prevent multiple rebuilds for a single change
     let mut last_rebuild_time = std::time::Instant::now();
-    let debounce_duration = Duration::from_millis(1500);
+    let debounce_duration = Duration::from_millis(750);
     
     loop {
         match rx.recv_timeout(Duration::from_millis(100)) {
@@ -123,7 +123,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     
                     // Wait for file system to stabilize
-                    std::thread::sleep(Duration::from_millis(1000));
+                    std::thread::sleep(Duration::from_millis(500));
                     
                     // Stop the current application
                     println!("Stopping application for rebuild...");
@@ -134,7 +134,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     
                     // Wait for process to terminate
-                    std::thread::sleep(Duration::from_millis(1000));
+                    std::thread::sleep(Duration::from_millis(500));
                     
                     // Rebuild the application
                     println!("Rebuilding application...");
