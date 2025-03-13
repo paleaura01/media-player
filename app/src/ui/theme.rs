@@ -3,8 +3,8 @@ use iced::{Background, Color, Border, Shadow, Vector};
 
 // Define a better color palette for accents
 pub const BLACK_COLOR: Color = Color { r: 0.0, g: 0.0, b: 0.0, a: 1.0 };
-pub const DARK_BG_COLOR: Color = Color { r: 0.05, g: 0.05, b: 0.05, a: 1.0 }; // Darkest background - for player and playlist
-pub const MEDIUM_BG_COLOR: Color = Color { r: 0.1, g: 0.1, b: 0.1, a: 1.0 }; // For library background
+pub const DARK_BG_COLOR: Color = Color { r: 0.05, g: 0.05, b: 0.05, a: 1.0 };
+pub const MEDIUM_BG_COLOR: Color = Color { r: 0.1, g: 0.1, b: 0.1, a: 1.0 };
 pub const GREEN_COLOR: Color = Color { r: 0.0, g: 1.0, b: 0.0, a: 1.0 };
 pub const DARK_GREEN_COLOR: Color = Color { r: 0.0, g: 0.5, b: 0.0, a: 1.0 };
 pub const DARKER_GREEN_COLOR: Color = Color { r: 0.0, g: 0.3, b: 0.0, a: 1.0 };
@@ -31,12 +31,12 @@ where
 pub fn green_progress_bar<'a>(value: f32, max: f32) -> progress_bar::ProgressBar<'a> {
     progress_bar(value..=max, 200.0)
         .style(|_theme| progress_bar::Style {
-             background: Background::Color(DARK_BG_COLOR), // Using the darker background to match player
+             background: Background::Color(DARK_BG_COLOR),
              bar: Background::Color(GREEN_COLOR),
              border: Border {
                 color: DARK_GREEN_COLOR,
                 width: 1.0,
-                radius: 5.0.into(),
+                radius: 0.0.into(), // Changed to 0.0 to remove rounded corners
                 ..Default::default()
              },
         })
@@ -57,7 +57,7 @@ where
     .style(|_theme, status| {
         let (background, border_color) = match status {
             button::Status::Pressed => (
-                Background::Color(DARKER_GREEN_COLOR), // Even darker when pressed
+                Background::Color(DARKER_GREEN_COLOR),
                 DARK_GREEN_COLOR
             ),
             _ => (
@@ -71,7 +71,7 @@ where
             border: Border {
                 color: border_color,
                 width: 1.0,
-                radius: 5.0.into(),
+                radius: 0.0.into(), // Changed to 0.0 to remove rounded corners
                 ..Default::default()
             },
             text_color: BLACK_COLOR,
@@ -97,14 +97,14 @@ where
     })
 }
 
-// For playlist view - using the darker background
+// For playlist view - using the darker background with square corners
 pub fn playlist_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     |_| container::Style {
-        background: Some(Background::Color(DARK_BG_COLOR)), // Darker background
+        background: Some(Background::Color(DARK_BG_COLOR)),
         border: Border {
             color: DARK_GREEN_COLOR,
             width: 1.0,
-            radius: 5.0.into(),
+            radius: 0.0.into(), // Changed to 0.0 to remove rounded corners
             ..Default::default()
         },
         text_color: Some(GREEN_COLOR),
@@ -112,14 +112,14 @@ pub fn playlist_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     }
 }
 
-// For library view - using the medium background
+// For library view - using the medium background with square corners
 pub fn library_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     |_| container::Style {
-        background: Some(Background::Color(MEDIUM_BG_COLOR)), // Medium background
+        background: Some(Background::Color(MEDIUM_BG_COLOR)),
         border: Border {
             color: DARK_GREEN_COLOR,
             width: 1.0,
-            radius: 5.0.into(),
+            radius: 0.0.into(), // Changed to 0.0 to remove rounded corners
             ..Default::default()
         },
         text_color: Some(GREEN_COLOR),
@@ -130,11 +130,11 @@ pub fn library_container_style() -> impl Fn(&iced::Theme) -> container::Style {
 // For player container - same as playlist to create visual consistency
 pub fn player_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     |_| container::Style {
-        background: Some(Background::Color(DARK_BG_COLOR)), // Darker background to match playlist
+        background: Some(Background::Color(DARK_BG_COLOR)),
         border: Border {
             color: DARK_GREEN_COLOR,
             width: 1.0,
-            radius: 5.0.into(),
+            radius: 0.0.into(), // Changed to 0.0 to remove rounded corners
             ..Default::default()
         },
         text_color: Some(GREEN_COLOR),
