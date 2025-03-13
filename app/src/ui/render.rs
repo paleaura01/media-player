@@ -17,19 +17,19 @@ pub fn render<'a>(
 ) -> Element<'a, Action> {
     let player_section = player_view::view(player_state);
 
-    // Create the bottom row with playlist and library side by side
+    // Create the bottom row with playlist (25%) and library (75%) side by side
     let playlist_section = playlist_view::view(playlists);
     let library_section = library_view::view(library);
 
     let bottom_row = Row::new()
         .push(
             Container::new(playlist_section.map(|_| Action::Playlist(core::PlaylistAction::Select(0))))
-                .width(Length::FillPortion(1))
+                .width(Length::FillPortion(1)) // 1 part (25%)
                 .padding(15)
         )
         .push(
             Container::new(library_section.map(|_| Action::Library(core::LibraryAction::StartScan)))
-                .width(Length::FillPortion(1))
+                .width(Length::FillPortion(3)) // 3 parts (75%)
                 .padding(15)
         )
         .spacing(20)
@@ -47,7 +47,7 @@ pub fn render<'a>(
                 player_view::PlayerAction::None => Action::Player(core::PlayerAction::Stop),
             })
         )
-        .push(Space::with_height(20)) // Just pass the integer directly
+        .push(Space::with_height(20))
         .push(bottom_row)
         .spacing(10)
         .width(Length::Fill)

@@ -14,6 +14,8 @@ pub struct MediaPlayer {
     pub data_dir: PathBuf,
 }
 
+
+
 impl std::fmt::Debug for MediaPlayer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("MediaPlayer")
@@ -62,6 +64,7 @@ impl Default for MediaPlayer {
 }
 
 impl MediaPlayer {
+    #![allow(dead_code)]
     pub fn handle_action(&mut self, action: Action) {
         debug!("Handling Action: {:?}", action);
         match action {

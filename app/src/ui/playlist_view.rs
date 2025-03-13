@@ -1,7 +1,7 @@
 use iced::widget::{column, container, text};
 use iced::{Element, Length};
 use core::playlist::PlaylistState;
-// Removed unused import: green_text
+use crate::ui::theme::playlist_container_style;
 
 pub fn view(_playlist: &PlaylistState) -> Element<()> {
     let content = column![
@@ -17,14 +17,6 @@ pub fn view(_playlist: &PlaylistState) -> Element<()> {
     container(content)
         .width(Length::Fill)
         .height(Length::Fill)
-        .style(|_| iced::widget::container::Style {
-            border: iced::Border {
-                color: iced::Color::from_rgb(0.0, 0.5, 0.0),
-                width: 1.0,
-                radius: 5.0.into(),
-                ..Default::default()
-            },
-            ..Default::default()
-        })
+        .style(playlist_container_style())
         .into()
 }

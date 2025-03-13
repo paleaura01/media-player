@@ -1,13 +1,14 @@
 use iced::widget::{column, row, container, Space};
 use iced::{Element, Length, Alignment};
 use core::player::PlayerState;
-use crate::ui::theme::{green_text, green_button, green_progress_bar};
+use crate::ui::theme::{green_text, green_button, green_progress_bar, player_container_style};
 
 #[derive(Debug, Clone)]
 pub enum PlayerAction {
     Play,
     Pause,
     Stop,
+    #[allow(dead_code)]  // Add this attribute to suppress the warning
     None,
 }
 
@@ -27,16 +28,16 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     // Controls in a horizontal row with spacing
     let controls = row![
         green_button("Play", PlayerAction::Play),
-        Space::with_width(10), // Just pass the integer directly
+        Space::with_width(10),
         green_button("Pause", PlayerAction::Pause),
-        Space::with_width(10), // Just pass the integer directly
+        Space::with_width(10),
         green_button("Stop", PlayerAction::Stop),
     ]
     .spacing(5)
     .align_y(Alignment::Center);
 
     // Overall player layout
-    column![
+    let content = column![
         label,
         progress,
         controls,
@@ -44,6 +45,11 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     .spacing(15)
     .padding(20)
     .width(Length::Fill)
-    .align_x(Alignment::Center)
-    .into()
+    .align_x(Alignment::Center);
+    
+    // Wrap in container with the darker background style to match playlist
+    container(content)
+        .width(Length::Fill)
+        .style(player_container_style())
+        .into()
 }
