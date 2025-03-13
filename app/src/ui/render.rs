@@ -1,81 +1,145 @@
-// ----- C:\Users\Joshua\Documents\Github\media-player\app\src\ui\render.rs -----
-
 use iced::widget::{Column, Container, Row, container};
-use iced::{Element, Length, Background}; // Removed Border import
+use iced::{Element, Length, Background};
 
-use core::Action;
 use core::player::PlayerState;
 use core::playlist::PlaylistState;
 use core::library::LibraryState;
 
 use crate::ui::{player_view, playlist_view, library_view};
+use crate::states::playlist_state::PlaylistViewState; 
 use crate::ui::theme::{
     borderless_dark_container_style, 
     library_container_style,
-    DARK_GREEN_COLOR // Changed from GREEN_COLOR, removed BLACK_COLOR
+    DARK_GREEN_COLOR,
 };
 
+/// Standard render without playlist editing.
+/// Returns an Element with messages of type `playlist_view::PlaylistAction`.
 pub fn render<'a>(
     player_state: &'a PlayerState,
     playlists: &'a PlaylistState,
     library: &'a LibraryState,
-) -> Element<'a, Action> {
+) -> Element<'a, playlist_view::PlaylistAction> {
     let player_section = player_view::view(player_state);
     let playlist_section = playlist_view::view(playlists);
     let library_section = library_view::view(library);
 
-    // Create player section with no border
+    // Map player actions to a default PlaylistAction::None.
     let player_container = Container::new(
         player_section.map(|ui_action| match ui_action {
-            player_view::PlayerAction::Play => Action::Player(core::PlayerAction::Play("".to_string())),
-            player_view::PlayerAction::Pause => Action::Player(core::PlayerAction::Pause),
-            player_view::PlayerAction::Stop => Action::Player(core::PlayerAction::Stop),
-            player_view::PlayerAction::None => Action::Player(core::PlayerAction::Stop),
+            player_view::PlayerAction::Play => playlist_view::PlaylistAction::None,
+            player_view::PlayerAction::Pause => playlist_view::PlaylistAction::None,
+            player_view::PlayerAction::Stop => playlist_view::PlaylistAction::None,
+            player_view::PlayerAction::None => playlist_view::PlaylistAction::None,
         })
     )
     .width(Length::Fill)
     .style(borderless_dark_container_style());
 
-    // Playlist section with no border
+    // Forward playlist_section actions.
     let playlist_container = Container::new(
-        playlist_section.map(|_| Action::Playlist(core::PlaylistAction::Select(0)))
+        playlist_section.map(|action| action)
     )
     .width(Length::FillPortion(1))
     .style(borderless_dark_container_style());
 
-    // Library section with border to divide it from playlist
+    // Map library actions to PlaylistAction::None.
     let library_container = Container::new(
-        library_section.map(|_| Action::Library(core::LibraryAction::StartScan))
+        library_section.map(|_| playlist_view::PlaylistAction::None)
     )
     .width(Length::FillPortion(3))
     .style(library_container_style());
 
-    // The bottom row containing playlist and library
     let bottom_row = Row::new()
         .push(playlist_container)
         .push(library_container)
         .spacing(0)
         .width(Length::Fill);
 
-    // Main layout with player on top and bottom row below
     let content = Column::new()
         .push(player_container)
         .push(bottom_row)
         .spacing(0)
         .width(Length::Fill);
 
-    // First, create an inner container with the content
     let inner_container = Container::new(content)
         .width(Length::Fill)
         .height(Length::Fill)
         .padding(0);
 
-    // Then wrap it in an outer container with padding and a border
-    // Using DARK_GREEN_COLOR and 1px thickness to match library border
     Container::new(inner_container)
-        .padding(1) // Changed from 3 to 1 to match library border thickness
+        .padding(1)
         .style(|_| container::Style {
-            background: Some(Background::Color(DARK_GREEN_COLOR)), // Changed to match library border color
+            background: Some(Background::Color(DARK_GREEN_COLOR)),
+            text_color: Some(DARK_GREEN_COLOR),
+            ..Default::default()
+        })
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .center_x(Length::Fill)
+        .center_y(Length::Fill)
+        .into()
+}
+
+/// Enhanced render with playlist editing state.
+/// Returns an Element with messages of type `playlist_view::PlaylistAction`.
+pub fn render_with_state<'a>(
+    player_state: &'a PlayerState,
+    playlists: &'a PlaylistState,
+    library: &'a LibraryState,
+    playlist_view_state: &'a PlaylistViewState,
+) -> Element<'a, playlist_view::PlaylistAction> {
+    use crate::ui::playlist_view;
+
+    let player_section = player_view::view(player_state);
+    let playlist_section = playlist_view::view_with_state(playlists, playlist_view_state);
+    let library_section = library_view::view(library);
+
+    let player_container = Container::new(
+        player_section.map(|ui_action| match ui_action {
+            player_view::PlayerAction::Play => playlist_view::PlaylistAction::None,
+            player_view::PlayerAction::Pause => playlist_view::PlaylistAction::None,
+            player_view::PlayerAction::Stop => playlist_view::PlaylistAction::None,
+            player_view::PlayerAction::None => playlist_view::PlaylistAction::None,
+        })
+    )
+    .width(Length::Fill)
+    .style(borderless_dark_container_style());
+
+    // Forward the playlist view actions.
+    let playlist_container = Container::new(
+        playlist_section.map(|action| action)
+    )
+    .width(Length::FillPortion(1))
+    .style(borderless_dark_container_style());
+
+    let library_container = Container::new(
+        library_section.map(|_| playlist_view::PlaylistAction::None)
+    )
+    .width(Length::FillPortion(3))
+    .style(library_container_style());
+
+    let bottom_row = Row::new()
+        .push(playlist_container)
+        .push(library_container)
+        .spacing(0)
+        .width(Length::Fill);
+
+    let content = Column::new()
+        .push(player_container)
+        .push(bottom_row)
+        .spacing(0)
+        .width(Length::Fill);
+
+    let inner_container = Container::new(content)
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .padding(0);
+
+    Container::new(inner_container)
+        .padding(1)
+        .style(|_| container::Style {
+            background: Some(Background::Color(DARK_GREEN_COLOR)),
             text_color: Some(DARK_GREEN_COLOR),
             ..Default::default()
         })

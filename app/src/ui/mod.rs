@@ -4,4 +4,3 @@ pub mod render;
 pub mod player_view;
 pub mod playlist_view;
 pub mod library_view;
-

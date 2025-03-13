@@ -1,37 +1,60 @@
-// ----- C:\Users\Joshua\Documents\Github\media-player\app\src\application.rs -----
+use iced::{Element, Subscription}; // Removed the import of `run`
+use crate::ui;
+use crate::states::playlist_state::PlaylistViewState; 
+use crate::states::app_state::MediaPlayer; // Main application state
 
-use iced::{
-    application,
-    Element,
-    Subscription,
-};
-
-use core::Action;
-use crate::{ui, window_manager};
-
-// Import MediaPlayer from your player_ui module (adjust path if needed)
-use player_ui::app_state::MediaPlayer;
+// Import the PlaylistAction type from the UI module.
+use crate::ui::playlist_view::PlaylistAction;
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    Action(Action),
+    /// Core action messages.
+    Action(core::Action),
+    /// Playlist messages from the UI (of type PlaylistAction).
+    Playlist(PlaylistAction),
 }
 
+// Global static for the playlist UI state.
+static mut PLAYLIST_STATE: Option<PlaylistViewState> = None;
+
+fn get_playlist_state() -> &'static mut PlaylistViewState {
+    unsafe {
+        if PLAYLIST_STATE.is_none() {
+            PLAYLIST_STATE = Some(PlaylistViewState::new());
+        }
+        PLAYLIST_STATE.as_mut().unwrap()
+    }
+}
+
+// Updated update function: now returns nothing.
 fn update(state: &mut MediaPlayer, message: Message) {
     match message {
         Message::Action(action) => {
             state.handle_action(action);
         }
+        Message::Playlist(action) => {
+            // Use the playlist UI state to handle the raw PlaylistAction,
+            // converting it to a core Action.
+            let core_action = get_playlist_state().handle_action(action);
+            state.handle_action(core_action);
+        }
     }
 }
 
 fn view(state: &MediaPlayer) -> Element<Message> {
-    let rendered = ui::render::render(
+    let playlist_state = get_playlist_state();
+
+    // Render the UI with playlist editing support.
+    // render_with_state now returns an Element<PlaylistAction>.
+    let rendered = ui::render::render_with_state(
         &state.player_state,
         &state.playlists,
         &state.library,
+        playlist_state,
     );
-    rendered.map(Message::Action)
+
+    // Map the UI's PlaylistAction into our Message::Playlist variant.
+    rendered.map(Message::Playlist)
 }
 
 fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
@@ -39,9 +62,6 @@ fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
 }
 
 pub fn run() -> iced::Result {
-    application("Media Player", update, view)
-        .subscription(subscription)
-        .window(window_manager::window_settings())
-        .theme(|_state| ui::theme::dark_theme())
-        .run()
+    // Call iced::run (fully-qualified) to start the application.
+    iced::run("Media Player", update, view)
 }

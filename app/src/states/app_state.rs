@@ -1,9 +1,7 @@
-// app/src/app_state.rs
+// app/src/states/app_state.rs
 
 use std::path::PathBuf;
-// 1) Import your logging macros
 use log::{debug, error, info};
-// 2) Import missing types from `core`
 use core::{Action, PlayerAction, PlaylistAction, LibraryAction, Track, Player, PlayerState, PlaylistState, LibraryState};
 
 pub struct MediaPlayer {
@@ -13,8 +11,6 @@ pub struct MediaPlayer {
     pub library: LibraryState,
     pub data_dir: PathBuf,
 }
-
-
 
 impl std::fmt::Debug for MediaPlayer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -64,7 +60,7 @@ impl Default for MediaPlayer {
 }
 
 impl MediaPlayer {
-    #![allow(dead_code)]
+    #[allow(dead_code)]
     pub fn handle_action(&mut self, action: Action) {
         debug!("Handling Action: {:?}", action);
         match action {

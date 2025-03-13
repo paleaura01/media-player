@@ -1,5 +1,4 @@
-// ----- C:\Users\Joshua\Documents\Github\media-player\app\src\window_manager.rs -----
-
+// app/src/states/window_state.rs
 use std::fs;
 use std::path::PathBuf;
 use serde::{Serialize, Deserialize};

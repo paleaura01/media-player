@@ -12,7 +12,7 @@ name = "player_ui"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-iced = "0.13.1"
+iced = { version = "0.13.1", features = ["image"] }
 core = { path = "../core" }
 log = "0.4"
 env_logger = "0.10"

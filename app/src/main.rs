@@ -1,9 +1,8 @@
 #![windows_subsystem = "windows"] // Hides the console on Windows
 
 mod ui;
-mod app_state; 
+mod states; // Changed from mod app_state
 mod application;
-mod window_manager;
 
 // Initialize logging
 fn setup_logging() {

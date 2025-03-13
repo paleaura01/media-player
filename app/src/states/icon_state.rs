@@ -1,16 +1,8 @@
-// File: app/src/icon_config.rs
-
 use iced::{
-    window::{self, icon::Icon},
-    Point, Subscription, // ... or any other iced items you need
+    window::{self, icon},
+    Point, Subscription,
 };
 use log::info;
-
-// If you have an existing `update(...)`/`view(...)` defined elsewhere,
-// import them here. Example:
-// use crate::{update, view, subscription};
-
-// Or if you want to define them right here, you can:
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -42,7 +34,7 @@ pub fn subscription(_state: &Counter) -> Subscription<Message> {
     Subscription::none()
 }
 
-// Here’s our bright green button style (optional):
+// Bright green button style (optional)
 use iced::widget::button::Style as ButtonStyle;
 use iced::{Color, Background, Vector, Border, Shadow};
 pub fn bright_green_button_style() -> ButtonStyle {
@@ -65,24 +57,22 @@ pub fn bright_green_button_style() -> ButtonStyle {
 
 /// Run the entire iced application, including a custom icon.
 pub fn run_app() -> iced::Result {
-    // 1) Set up logging or anything else you want globally
+    // Set up logging
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
-    info!("Starting media player application (icon_config).");
+    info!("Starting media player application (icon_state).");
 
-    // 2) Load your icon data. For example, an .ico in assets folder:
-    // Adjust your path accordingly. The path is relative to THIS file.
-    let icon_bytes = include_bytes!("../assets/icon.ico");
-    let app_icon = Icon::from_file_data(icon_bytes, None)
+    // Load icon data from the file (relative path fixed)
+    let icon_bytes = include_bytes!("../../assets/icon.ico");
+
+    // Create the icon using from_file_data (available via the "image" feature)
+    let app_icon = icon::from_file_data(icon_bytes, None)
         .expect("Failed to load icon data from file bytes!");
 
-    // 3) Build an iced Application. We’ll use the built-in function `iced::application`.
-    //    We supply a "title", our update/view functions, etc.
-    //    Here, we’re passing `Counter` as the initial state (which must impl Default).
+    // Build the iced application and set the window icon.
     iced::application("Media Player (IconConfig)", update, view)
-        .initial_state(Counter::default())      // Provide your app state
         .window(window::Settings {
-            icon: Some(app_icon),              // Our custom icon
+            icon: Some(app_icon),
             position: window::Position::Specific(Point::new(300.0, 200.0)),
             ..window::Settings::default()
         })
