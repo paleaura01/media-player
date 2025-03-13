@@ -3,9 +3,9 @@ use iced::{Background, Color, Border, Shadow, Vector};
 
 // Define a better color palette with lighter shades
 pub const BLACK_COLOR: Color = Color { r: 0.0, g: 0.0, b: 0.0, a: 1.0 };
-// Make player/playlist background slightly lighter than pure black
-pub const DARK_BG_COLOR: Color = Color { r: 0.08, g: 0.08, b: 0.08, a: 1.0 }; 
-// Keep library view lighter than player/playlist
+// Make player/playlist background lighter, but still darker than library
+pub const DARK_BG_COLOR: Color = Color { r: 0.10, g: 0.10, b: 0.10, a: 1.0 }; 
+// Keep library view slightly lighter than player/playlist
 pub const MEDIUM_BG_COLOR: Color = Color { r: 0.12, g: 0.12, b: 0.12, a: 1.0 };
 pub const GREEN_COLOR: Color = Color { r: 0.0, g: 1.0, b: 0.0, a: 1.0 };
 pub const DARK_GREEN_COLOR: Color = Color { r: 0.0, g: 0.5, b: 0.0, a: 1.0 };
@@ -16,13 +16,14 @@ pub fn dark_theme() -> iced::Theme {
     iced::Theme::Dark
 }
 
-// Create a style for the main app container with border
+// Add allow attribute to suppress the warning for the unused function
+#[allow(dead_code)]
 pub fn app_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     |_| container::Style {
         background: Some(Background::Color(BLACK_COLOR)),
         border: Border {
-            color: GREEN_COLOR, // Using brighter GREEN_COLOR instead of DARK_GREEN_COLOR
-            width: 2.0,        // Make the border thicker for better visibility
+            color: DARK_GREEN_COLOR,
+            width: 1.0,
             radius: 0.0.into(),
             ..Default::default()
         },

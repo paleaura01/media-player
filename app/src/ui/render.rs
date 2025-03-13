@@ -1,7 +1,7 @@
 // ----- C:\Users\Joshua\Documents\Github\media-player\app\src\ui\render.rs -----
 
 use iced::widget::{Column, Container, Row, container};
-use iced::{Element, Length, Background, Border};
+use iced::{Element, Length, Background}; // Removed Border import
 
 use core::Action;
 use core::player::PlayerState;
@@ -12,8 +12,7 @@ use crate::ui::{player_view, playlist_view, library_view};
 use crate::ui::theme::{
     borderless_dark_container_style, 
     library_container_style,
-    GREEN_COLOR, 
-    BLACK_COLOR
+    DARK_GREEN_COLOR // Changed from GREEN_COLOR, removed BLACK_COLOR
 };
 
 pub fn render<'a>(
@@ -72,12 +71,12 @@ pub fn render<'a>(
         .padding(0);
 
     // Then wrap it in an outer container with padding and a border
-    // This creates a visual border effect that will be clearly visible
+    // Using DARK_GREEN_COLOR and 1px thickness to match library border
     Container::new(inner_container)
-        .padding(3) // This creates space for the border
+        .padding(1) // Changed from 3 to 1 to match library border thickness
         .style(|_| container::Style {
-            background: Some(Background::Color(GREEN_COLOR)), // The padding area becomes the border
-            text_color: Some(GREEN_COLOR),
+            background: Some(Background::Color(DARK_GREEN_COLOR)), // Changed to match library border color
+            text_color: Some(DARK_GREEN_COLOR),
             ..Default::default()
         })
         .width(Length::Fill)
