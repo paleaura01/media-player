@@ -34,7 +34,7 @@ pub fn subscription(_state: &Counter) -> Subscription<Message> {
     Subscription::none()
 }
 
-// Bright green button style (optional)
+// Here's our bright green button style (optional):
 use iced::widget::button::Style as ButtonStyle;
 use iced::{Color, Background, Vector, Border, Shadow};
 pub fn bright_green_button_style() -> ButtonStyle {
@@ -57,19 +57,19 @@ pub fn bright_green_button_style() -> ButtonStyle {
 
 /// Run the entire iced application, including a custom icon.
 pub fn run_app() -> iced::Result {
-    // Set up logging
+    // 1) Set up logging
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
     info!("Starting media player application (icon_state).");
 
-    // Load icon data from the file (relative path fixed)
+    // 2) Load your icon data
     let icon_bytes = include_bytes!("../../assets/icon.ico");
 
-    // Create the icon using from_file_data (available via the "image" feature)
+    // 3) Fixed: Use icon::from_file_data instead of Icon::from_file_data
     let app_icon = icon::from_file_data(icon_bytes, None)
         .expect("Failed to load icon data from file bytes!");
 
-    // Build the iced application and set the window icon.
+    // 4) Build an iced Application
     iced::application("Media Player (IconConfig)", update, view)
         .window(window::Settings {
             icon: Some(app_icon),

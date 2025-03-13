@@ -9,8 +9,7 @@ pub struct WindowPosition {
     pub y: Option<i32>,
 }
 
-// If you want to store window position on close, uncomment & integrate this
-/* 
+// Uncommented window position saving functionality
 pub fn save_window_position(x: i32, y: i32) -> std::io::Result<()> {
     let pos = WindowPosition { x: Some(x), y: Some(y) };
     let data_dir = PathBuf::from("data");
@@ -20,9 +19,7 @@ pub fn save_window_position(x: i32, y: i32) -> std::io::Result<()> {
     let json = serde_json::to_string_pretty(&pos)?;
     fs::write("data/window_position.json", json)
 }
-*/
 
-// We do use load_window_position in window_settings, so we keep it
 fn load_window_position() -> WindowPosition {
     let path = PathBuf::from("data/window_position.json");
     if path.exists() {
@@ -35,7 +32,6 @@ fn load_window_position() -> WindowPosition {
     WindowPosition::default()
 }
 
-// Provide a public function for the Iced window settings
 pub fn window_settings() -> iced::window::Settings {
     use iced::window::{Settings as WindowSettings, Position};
     use iced::{Size, Point};
