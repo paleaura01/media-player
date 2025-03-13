@@ -9,7 +9,6 @@ use crate::states::playlist_state::PlaylistViewState; // Updated import path
 pub enum PlaylistAction {
     Create(String),
     Delete(u32),
-    Rename(u32, String),
     Select(u32),
     StartEditing(u32, String),
     EditingName(String),
@@ -18,93 +17,93 @@ pub enum PlaylistAction {
 }
 
 // Simple view without editing state
-pub fn view<'a>(playlist_state: &'a PlaylistState) -> Element<'a, PlaylistAction> {
-    let header = text("Playlist View")
-        .size(24)
-        .style(|_| text::Style {
-            color: Some(GREEN_COLOR),
-            ..Default::default()
-        });
+// pub fn view<'a>(playlist_state: &'a PlaylistState) -> Element<'a, PlaylistAction> {
+//     let header = text("Playlist View")
+//         .size(24)
+//         .style(|_| text::Style {
+//             color: Some(GREEN_COLOR),
+//             ..Default::default()
+//         });
     
-    let add_button = button(
-        text("+ Add Playlist").style(|_| text::Style {
-            color: Some(GREEN_COLOR),
-            ..Default::default()
-        })
-    )
-    .padding(5)
-    .on_press(PlaylistAction::Create("New Playlist".to_string()))
-    .style(|_theme, _| button::Style {
-        background: None,
-        text_color: GREEN_COLOR,
-        ..Default::default()
-    });
+//     let add_button = button(
+//         text("+ Add Playlist").style(|_| text::Style {
+//             color: Some(GREEN_COLOR),
+//             ..Default::default()
+//         })
+//     )
+//     .padding(5)
+//     .on_press(PlaylistAction::Create("New Playlist".to_string()))
+//     .style(|_theme, _| button::Style {
+//         background: None,
+//         text_color: GREEN_COLOR,
+//         ..Default::default()
+//     });
 
-    // Fixed type annotation issue by using Vec<Element<'_, PlaylistAction>>
-    let playlist_rows = column(
-        playlist_state.playlists.iter().enumerate().map(|(idx, playlist)| {
-            let id = idx as u32;
+//     // Fixed type annotation issue by using Vec<Element<'_, PlaylistAction>>
+//     let playlist_rows = column(
+//         playlist_state.playlists.iter().enumerate().map(|(idx, playlist)| {
+//             let id = idx as u32;
             
-            let playlist_row = row![
-                // Playlist name button
-                button(
-                    text(&playlist.name).style(|_| text::Style {
-                        color: Some(GREEN_COLOR),
-                        ..Default::default()
-                    })
-                )
-                .padding(5)
-                .width(Length::Fill)
-                .on_press(PlaylistAction::Select(id))
-                .style(|_theme, _| button::Style {
-                    background: None,
-                    text_color: GREEN_COLOR,
-                    ..Default::default()
-                }),
+//             let playlist_row = row![
+//                 // Playlist name button
+//                 button(
+//                     text(&playlist.name).style(|_| text::Style {
+//                         color: Some(GREEN_COLOR),
+//                         ..Default::default()
+//                     })
+//                 )
+//                 .padding(5)
+//                 .width(Length::Fill)
+//                 .on_press(PlaylistAction::Select(id))
+//                 .style(|_theme, _| button::Style {
+//                     background: None,
+//                     text_color: GREEN_COLOR,
+//                     ..Default::default()
+//                 }),
                 
-                // Delete button (×)
-                button(
-                    text("×").style(|_| text::Style {
-                        color: Some(GREEN_COLOR),
-                        ..Default::default()
-                    })
-                )
-                .padding(5)
-                .on_press(PlaylistAction::Delete(id))
-                .style(|_theme, _| button::Style {
-                    background: None,
-                    text_color: GREEN_COLOR,
-                    ..Default::default()
-                })
-            ]
-            .spacing(5)
-            .align_y(Alignment::Center);
+//                 // Delete button (×)
+//                 button(
+//                     text("×").style(|_| text::Style {
+//                         color: Some(GREEN_COLOR),
+//                         ..Default::default()
+//                     })
+//                 )
+//                 .padding(5)
+//                 .on_press(PlaylistAction::Delete(id))
+//                 .style(|_theme, _| button::Style {
+//                     background: None,
+//                     text_color: GREEN_COLOR,
+//                     ..Default::default()
+//                 })
+//             ]
+//             .spacing(5)
+//             .align_y(Alignment::Center);
             
-            container(playlist_row)
-                .width(Length::Fill)
-                .style(|_| container::Style {
-                    text_color: Some(GREEN_COLOR),
-                    ..Default::default()
-                })
-                .into()
-        })
-        .collect::<Vec<Element<'_, PlaylistAction>>>() // Added type annotation
-    )
-    .spacing(2)
-    .width(Length::Fill);
+//             container(playlist_row)
+//                 .width(Length::Fill)
+//                 .style(|_| container::Style {
+//                     text_color: Some(GREEN_COLOR),
+//                     ..Default::default()
+//                 })
+//                 .into()
+//         })
+//         .collect::<Vec<Element<'_, PlaylistAction>>>() // Added type annotation
+//     )
+//     .spacing(2)
+//     .width(Length::Fill);
 
-    let content = column![
-        header,
-        add_button,
-        Space::with_height(10),
-        scrollable(playlist_rows).height(Length::Fill),
-    ]
-    .spacing(10)
-    .padding(10)
-    .width(Length::Fill);
+//     let content = column![
+//         header,
+//         add_button,
+//         Space::with_height(10),
+//         scrollable(playlist_rows).height(Length::Fill),
+//     ]
+//     .spacing(10)
+//     .padding(10)
+//     .width(Length::Fill);
     
-    content.into()
-}
+//     content.into()
+// }
 
 // Enhanced view with editing state
 pub fn view_with_state<'a>(playlist_state: &'a PlaylistState, view_state: &'a PlaylistViewState) -> Element<'a, PlaylistAction> {
