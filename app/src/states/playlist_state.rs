@@ -7,6 +7,7 @@ pub struct PlaylistViewState {
     pub editing_playlist: Option<u32>,
     pub edit_value: String,
     pub last_click: Option<(u32, Instant)>,
+    pub hovered_playlist_id: Option<u32>,
 }
 
 impl PlaylistViewState {
@@ -15,6 +16,7 @@ impl PlaylistViewState {
             editing_playlist: None,
             edit_value: String::new(),
             last_click: None,
+            hovered_playlist_id: None,
         }
     }
     
@@ -27,7 +29,7 @@ impl PlaylistViewState {
                 if let Some((last_id, last_time)) = self.last_click {
                     if last_id == id && now.duration_since(last_time) < Duration::from_millis(500) {
                         // Double click detected - get name from the playlist
-                        return self.handle_action(PlaylistAction::StartEditing(id, "".to_string())); // Fixed string type
+                        return self.handle_action(PlaylistAction::StartEditing(id, "".to_string()));
                     }
                 }
                 self.last_click = Some((id, now));
@@ -63,6 +65,12 @@ impl PlaylistViewState {
                     self.editing_playlist = None;
                 }
                 Action::Playlist(CorePlaylistAction::Delete(id))
+            },
+            PlaylistAction::HoverPlaylist(id) => {
+                // Update the hovered playlist ID
+                self.hovered_playlist_id = id;
+                // No action needed, just UI state update
+                Action::Playlist(CorePlaylistAction::Select(0))
             },
             PlaylistAction::None => {
                 Action::Playlist(CorePlaylistAction::Select(0))

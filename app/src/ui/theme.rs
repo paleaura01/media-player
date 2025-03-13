@@ -16,11 +16,26 @@ pub fn dark_theme() -> iced::Theme {
     iced::Theme::Dark
 }
 
-// Borderless container for player and playlist
+// Borderless container for player
 pub fn borderless_dark_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     |_| container::Style {
         background: Some(Background::Color(DARK_BG_COLOR)),
         border: Border::default(), // No border
+        text_color: Some(GREEN_COLOR),
+        ..Default::default()
+    }
+}
+
+// Playlist panel style with border
+pub fn playlist_container_style() -> impl Fn(&iced::Theme) -> container::Style {
+    |_| container::Style {
+        background: Some(Background::Color(DARK_BG_COLOR)),
+        border: Border {
+            color: DARK_GREEN_COLOR,
+            width: 1.0,
+            radius: 0.0.into(),  // Set this to 0.0 for square corners at edges
+            ..Default::default()
+        },
         text_color: Some(GREEN_COLOR),
         ..Default::default()
     }
@@ -41,16 +56,31 @@ pub fn library_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     }
 }
 
+// Now playing container style with border
+pub fn now_playing_container_style() -> impl Fn(&iced::Theme) -> container::Style {
+    |_| container::Style {
+        background: Some(Background::Color(DARK_BG_COLOR)),
+        border: Border {
+            color: DARK_GREEN_COLOR,
+            width: 1.0,
+            radius: 0.0.into(),
+            ..Default::default()
+        },
+        text_color: Some(GREEN_COLOR),
+        ..Default::default()
+    }
+}
+
 /// Returns a progress bar with dark fill on a dark background.
 pub fn green_progress_bar<'a>(value: f32, max: f32) -> progress_bar::ProgressBar<'a> {
     progress_bar(value..=max, 200.0)
         .style(|_theme| progress_bar::Style {
              background: Background::Color(DARK_BG_COLOR),
-             bar: Background::Color(DARK_BG_COLOR),
+             bar: Background::Color(GREEN_COLOR),
              border: Border {
                 color: DARK_GREEN_COLOR,
                 width: 1.0,
-                radius: 0.0.into(),
+                radius: 4.0.into(), // More pronounced rounded corners for the progress bar
                 ..Default::default()
              },
         })
@@ -85,7 +115,7 @@ where
             border: Border {
                 color: border_color,
                 width: 1.0,
-                radius: 0.0.into(),
+                radius: 4.0.into(),
                 ..Default::default()
             },
             text_color: BLACK_COLOR,
@@ -110,4 +140,3 @@ where
         ..Default::default()
     })
 }
-

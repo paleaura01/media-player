@@ -1,18 +1,25 @@
 use iced::{Element, Subscription, Task};
 use crate::ui;
 use crate::states::window_state;
+use crate::states::playlist_state::PlaylistViewState; 
 use crate::states::app_state::MediaPlayer;
 use iced::keyboard::key::Named;
+use std::path::PathBuf;
 
-// Import the PlaylistAction type from the UI module
+// Import message types from UI modules
 use crate::ui::playlist_view::PlaylistAction;
+use crate::ui::library_view::LibraryMessage;
 
 #[derive(Debug, Clone)]
 pub enum Message {
     /// Core action messages
     Action(core::Action),
-    /// Playlist messages from the UI (of type PlaylistAction)
+    /// Playlist messages from the UI
     Playlist(PlaylistAction),
+    /// Library messages
+    Library(LibraryMessage),
+    /// Folder selection result
+    FolderSelected(Option<PathBuf>),
     /// Window events
     WindowClosed { x: i32, y: i32 },
 }
@@ -27,6 +34,31 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
         Message::Playlist(action) => {
             let core_action = state.playlist_view_state.handle_action(action);
             state.handle_action(core_action);
+            Task::none()
+        }
+        Message::Library(LibraryMessage::AddMusicFolder) => {
+            // Ideally you'd use rfd here, but for now we'll manually implement
+            // by using a core library action
+            state.handle_action(core::Action::Library(
+                core::LibraryAction::StartScan
+            ));
+            Task::none()
+        }
+        Message::Library(LibraryMessage::None) => {
+            Task::none()
+        }
+        Message::FolderSelected(Some(path)) => {
+            if let Some(path_str) = path.to_str() {
+                state.handle_action(core::Action::Library(
+                    core::LibraryAction::AddScanDirectory(path_str.to_string())
+                ));
+                state.handle_action(core::Action::Library(
+                    core::LibraryAction::StartScan
+                ));
+            }
+            Task::none()
+        }
+        Message::FolderSelected(None) => {
             Task::none()
         }
         Message::WindowClosed { x, y } => {
