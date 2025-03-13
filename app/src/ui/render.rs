@@ -18,6 +18,7 @@ pub fn render<'a>(
     let player_section = player_view::view(player_state);
 
     // Create the bottom row with playlist (25%) and library (75%) side by side
+    // Remove internal padding from playlist and library containers
     let playlist_section = playlist_view::view(playlists);
     let library_section = library_view::view(library);
 
@@ -25,15 +26,15 @@ pub fn render<'a>(
         .push(
             Container::new(playlist_section.map(|_| Action::Playlist(core::PlaylistAction::Select(0))))
                 .width(Length::FillPortion(1)) // 1 part (25%)
-                .padding(15)
+                .padding(0) // Remove padding
         )
         .push(
             Container::new(library_section.map(|_| Action::Library(core::LibraryAction::StartScan)))
                 .width(Length::FillPortion(3)) // 3 parts (75%)
-                .padding(15)
+                .padding(0) // Remove padding
         )
-        .spacing(20)
-        .padding(10)
+        .spacing(0) // Remove spacing between playlist and library
+        .padding(0) // Remove padding from the row itself
         .width(Length::Fill);
 
     // Main layout with player on top and the side-by-side views below
@@ -47,9 +48,9 @@ pub fn render<'a>(
                 player_view::PlayerAction::None => Action::Player(core::PlayerAction::Stop),
             })
         )
-        .push(Space::with_height(20))
+        // Remove the Space element that was creating vertical gap
         .push(bottom_row)
-        .spacing(10)
+        .spacing(0) // Remove spacing between player and bottom row
         .width(Length::Fill)
         .align_x(Alignment::Center);
 
@@ -58,5 +59,6 @@ pub fn render<'a>(
         .height(Length::Fill)
         .center_x(Length::Fill)
         .center_y(Length::Fill)
+        .padding(0) // Ensure the container doesn't add padding
         .into()
 }

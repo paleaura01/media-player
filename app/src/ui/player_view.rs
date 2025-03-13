@@ -38,14 +38,14 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
 
     // Overall player layout
     let content = column![
-        label,
-        progress,
-        controls,
-    ]
-    .spacing(15)
-    .padding(20)
-    .width(Length::Fill)
-    .align_x(Alignment::Center);
+    label,
+    progress,
+    controls,
+]
+.spacing(15)
+.padding(10) // Reduced padding
+.width(Length::Fill)
+.align_x(Alignment::Center);
     
     // Wrap in container with the darker background style to match playlist
     container(content)
