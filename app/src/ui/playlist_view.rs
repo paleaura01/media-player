@@ -1,51 +1,12 @@
-use iced::{Element, Length, Alignment};
-use iced::widget::{Text, Button, Container, Column, Row};
-use core::{PlaylistState, Action, PlaylistAction};
-use crate::ui::styles::AppStyle;
+use iced::widget::column;
+use iced::Element;
+use core::playlist::PlaylistState;
+use crate::ui::theme::green_text;
 
-pub fn view<'a>(playlists: &'a PlaylistState, _style: &AppStyle) -> Element<'a, Action> {
-    // Replace hot reloading text with normal text
-    let header = Text::new("Playlist View")
-        .size(20)
-        .width(Length::Fill);
-    
-    // Build content for playlists
-    let mut content = Column::new()
-        .spacing(10)
-        .padding(20)
-        .push(header);
-    
-    // Add a test button
-    let test_button = Button::new(Text::new("Create Test Playlist"))
-        .on_press(Action::Playlist(PlaylistAction::Create("Test Playlist".to_string())));
-    
-    content = content.push(test_button);
-    
-    // Display existing playlists
-    if playlists.playlists.is_empty() {
-        content = content.push(
-            Text::new("No playlists yet. Create one!")
-                .width(Length::Fill)
-        );
-    } else {
-        for playlist in &playlists.playlists {
-            let playlist_row = Row::new()
-                .spacing(10)
-                .align_y(Alignment::Center)
-                .push(
-                    Text::new(&playlist.name)
-                        .width(Length::Fill)
-                )
-                .push(
-                    Text::new(format!("{} tracks", playlist.tracks.len()))
-                );
-            
-            content = content.push(playlist_row);
-        }
-    }
-    
-    Container::new(content)
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .into()
+pub fn view(_playlist: &PlaylistState) -> Element<()> {
+    column![
+        green_text("Playlist View"),
+    ]
+    .spacing(10)
+    .into()
 }

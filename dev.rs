@@ -4,29 +4,12 @@ use std::process::Command;
 use std::sync::mpsc::{channel, RecvTimeoutError};
 use std::time::Duration;
 use ctrlc;
-use std::fs::File;
-use std::io::Read;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Default)]
 struct WindowPosition {
     x: Option<i32>,
     y: Option<i32>,
-}
-
-fn load_window_position() -> WindowPosition {
-    let path = Path::new("data/window_position.json");
-    if path.exists() {
-        if let Ok(mut file) = File::open(path) {
-            let mut contents = String::new();
-            if file.read_to_string(&mut contents).is_ok() {
-                if let Ok(pos) = serde_json::from_str::<WindowPosition>(&contents) {
-                    return pos;
-                }
-            }
-        }
-    }
-    WindowPosition::default()
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -58,7 +41,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("Build failed".into());
     }
     
-    // Start the application (no need to pass the window position via --title)
+    // Start the application
     println!("Starting main application...");
     
     let mut args = Vec::<String>::new();
@@ -68,19 +51,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     args.push("--package".to_string());
     args.push("app".to_string());
     
-    // Create and start the application
     let mut app_process = Command::new("cargo")
         .args(&args)
         .spawn()?;
     
-    // Store the process ID for the Ctrl+C handler
     let app_process_id = app_process.id();
     
     // Set up file watcher
     let (tx, rx) = channel();
     let mut watcher = recommended_watcher(tx)?;
     
-    // Watch the app/src directory
     watcher.watch(Path::new("./app/src"), RecursiveMode::Recursive)?;
     println!("Watching for changes in app/src...");
     println!("Press Ctrl+C to stop");
@@ -96,14 +76,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             eprintln!("Failed to kill app process: {}", e);
         }
         
-        // Give processes time to clean up
         std::thread::sleep(Duration::from_millis(1000));
-        
-        // Exit cleanly
         std::process::exit(0);
     })?;
     
-    // Debounce mechanism to prevent multiple rebuilds for a single change
     let mut last_rebuild_time = std::time::Instant::now();
     let debounce_duration = Duration::from_millis(750);
     
@@ -114,29 +90,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     last_rebuild_time = std::time::Instant::now();
                     
                     println!("\n\n===== CHANGE DETECTED =====");
-                    
-                    // Show which file was changed
                     for path in &event.paths {
                         if let Some(path_str) = path.to_str() {
                             println!("Changed file: {}", path_str);
                         }
                     }
                     
-                    // Wait for file system to stabilize
+                    // Wait for FS to settle
                     std::thread::sleep(Duration::from_millis(500));
                     
-                    // Stop the current application
                     println!("Stopping application for rebuild...");
                     if let Err(e) = Command::new("taskkill")
                         .args(["/F", "/T", "/PID", &app_process.id().to_string()])
                         .status() {
                         eprintln!("Failed to kill app process: {}", e);
                     }
-                    
-                    // Wait for process to terminate
                     std::thread::sleep(Duration::from_millis(500));
                     
-                    // Rebuild the application
                     println!("Rebuilding application...");
                     let rebuild_success = {
                         let status = Command::new("cargo")
@@ -147,8 +117,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     
                     if rebuild_success {
                         println!("Build successful, restarting application...");
-                        
-                        // Create and start the application again
                         match Command::new("cargo")
                             .args(&args)
                             .spawn() {
@@ -168,20 +136,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(Err(e)) => {
                 eprintln!("Error receiving file event: {:?}", e);
             },
-            Err(RecvTimeoutError::Timeout) => { /* continue */ },
+            Err(RecvTimeoutError::Timeout) => { },
             Err(e) => {
                 eprintln!("Watch error: {:?}", e);
                 break;
             }
         }
         
-        // Check if the app is still running
         match app_process.try_wait() {
             Ok(Some(status)) => {
                 println!("Application exited with status: {}", status);
                 break;
             },
-            Ok(None) => { /* still running */ },
+            Ok(None) => { },
             Err(e) => {
                 eprintln!("Error checking app status: {}", e);
                 break;
@@ -189,7 +156,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     
-    // Clean up
     println!("Attempting to clean up application process.");
     if let Err(e) = Command::new("taskkill")
         .args(["/F", "/T", "/PID", &app_process.id().to_string()])

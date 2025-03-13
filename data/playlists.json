@@ -2,20 +2,30 @@
   "playlists": [
     {
       "id": 1,
-      "name": "Test Playlist",
+      "name": "Playlist",
       "tracks": []
     },
     {
       "id": 2,
-      "name": "Test Playlist",
+      "name": "Playlist",
       "tracks": []
     },
     {
       "id": 3,
-      "name": "Test Playlist",
+      "name": "Playlist",
+      "tracks": []
+    },
+    {
+      "id": 4,
+      "name": "Test",
+      "tracks": []
+    },
+    {
+      "id": 5,
+      "name": "Test",
       "tracks": []
     }
   ],
-  "selected": 2,
-  "next_id": 4
+  "selected": 4,
+  "next_id": 6
 }

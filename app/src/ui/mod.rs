@@ -1,48 +1,40 @@
-pub mod styles;
+// app/src/ui/mod.rs
+pub mod theme;
+pub mod render;
 pub mod player_view;
 pub mod playlist_view;
 pub mod library_view;
 
-use iced::{Element, widget::{Container, Column, Row}, Length};
-use core::{PlayerState, PlaylistState, LibraryState, Action};
+// Helper function: Combines your sub-views into a full UI layout.
+use core::player::PlayerState;
+use core::playlist::PlaylistState;
+use core::library::LibraryState;
+use core::Action;
+use iced::{Element, widget::{Column, Container}, Length};
 
-pub fn render<'a>(
+pub fn show_full_ui<'a>(
     player: &'a PlayerState,
     playlists: &'a PlaylistState,
-    library: &'a LibraryState
+    library: &'a LibraryState,
 ) -> Element<'a, Action> {
-    // Get our style definitions
-    let style = styles::default_style();
-    
-    // Remove version indicator text
-    
-    let selected_playlist_id = playlists.selected
-        .and_then(|idx| playlists.playlists.get(idx))
-        .map(|p| p.id);
-    
-    let player_view = player_view::view(player, &style);
-    let playlist_view = crate::ui::playlist_view::view(playlists, &style);
-    let library_view = crate::ui::library_view::view(library, selected_playlist_id, &style);
-    
-    let main_content = Row::new()
-        .push(
-            Container::new(playlist_view)
-                .width(Length::FillPortion(25))
-                .style(move |_| styles::container_style(style.colors.playlist_background))
-        )
-        .push(
-            Container::new(library_view)
-                .width(Length::FillPortion(75))
-                .style(move |_| styles::container_style(style.colors.library_background))
-        )
-        .height(Length::Fill);
-    
-    Column::new()
-        // Remove version_text from here
-        .push(
-            Container::new(player_view)
-                .style(move |_| styles::container_style(style.colors.player_background))
-        )
-        .push(main_content)
+    let player_element = player_view::view(player);
+    let playlist_element = playlist_view::view(playlists);
+    let library_element = library_view::view(library);
+
+    let content = Column::new()
+        // Use closure to convert between PlayerAction types
+        .push(player_element.map(|ui_action| match ui_action {
+            player_view::PlayerAction::Play => Action::Player(core::PlayerAction::Play("".to_string())),
+            player_view::PlayerAction::Pause => Action::Player(core::PlayerAction::Pause),
+            player_view::PlayerAction::Stop => Action::Player(core::PlayerAction::Stop),
+            player_view::PlayerAction::None => Action::Player(core::PlayerAction::Stop), // Default case
+        }))
+        .push(playlist_element.map(|_| Action::Playlist(core::PlaylistAction::Select(0))))
+        .push(library_element.map(|_| Action::Library(core::LibraryAction::StartScan)))
+        .spacing(20);
+
+    Container::new(content)
+        .width(Length::Fill)
+        .height(Length::Fill)
         .into()
 }

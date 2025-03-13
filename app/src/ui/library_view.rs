@@ -1,17 +1,12 @@
-use iced::{Element, widget::text, Theme, Renderer};
-use core::{LibraryState, Action};
-use crate::ui::styles::AppStyle;
+use iced::widget::column;
+use iced::Element;
+use core::library::LibraryState;
+use crate::ui::theme::green_text;
 
-pub fn view<'a>(
-    _library: &'a LibraryState, 
-    _selected_playlist_id: Option<u32>, 
-    _style: &AppStyle
-) -> Element<'a, Action, Theme, Renderer> {
-    // Replace hot reloading reference with normal text
-    let display_text = "Library View FAGSSSSSSSSSSSSSSSSSSSsSSSS";
-    
-    // Simple styling that will work with iced 0.13.1
-    text::Text::new(display_text)
-        .size(24)
-        .into()
+pub fn view(_library: &LibraryState) -> Element<()> {
+    column![
+        green_text("Library View"),
+    ]
+    .spacing(10)
+    .into()
 }

@@ -1,10 +1,10 @@
 // app/src/app_state.rs
+
 use std::path::PathBuf;
+// 1) Import your logging macros
 use log::{debug, error, info};
-use core::{
-    Action, LibraryAction, LibraryState, Player, PlayerAction, PlayerState,
-    PlaylistAction, PlaylistState, Track,
-};
+// 2) Import missing types from `core`
+use core::{Action, PlayerAction, PlaylistAction, LibraryAction, Track, Player, PlayerState, PlaylistState, LibraryState};
 
 pub struct MediaPlayer {
     pub player: Player,
