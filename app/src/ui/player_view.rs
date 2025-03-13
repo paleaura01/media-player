@@ -8,7 +8,6 @@ pub enum PlayerAction {
     Play,
     Pause,
     Stop,
-    None,
 }
 
 pub fn view(player: &PlayerState) -> Element<PlayerAction> {

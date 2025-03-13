@@ -22,10 +22,15 @@
     },
     {
       "id": 5,
-      "name": "Test",
+      "name": "fag",
+      "tracks": []
+    },
+    {
+      "id": 6,
+      "name": "New Playlist",
       "tracks": []
     }
   ],
-  "selected": 4,
-  "next_id": 6
+  "selected": null,
+  "next_id": 7
 }

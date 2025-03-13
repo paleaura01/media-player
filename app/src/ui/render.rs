@@ -13,74 +13,6 @@ use crate::ui::theme::{
     DARK_GREEN_COLOR,
 };
 
-/// Standard render without playlist editing.
-/// Returns an Element with messages of type `playlist_view::PlaylistAction`.
-pub fn render<'a>(
-    player_state: &'a PlayerState,
-    playlists: &'a PlaylistState,
-    library: &'a LibraryState,
-) -> Element<'a, playlist_view::PlaylistAction> {
-    let player_section = player_view::view(player_state);
-    let playlist_section = playlist_view::view(playlists);
-    let library_section = library_view::view(library);
-
-    // Map player actions to a default PlaylistAction::None.
-    let player_container = Container::new(
-        player_section.map(|ui_action| match ui_action {
-            player_view::PlayerAction::Play => playlist_view::PlaylistAction::None,
-            player_view::PlayerAction::Pause => playlist_view::PlaylistAction::None,
-            player_view::PlayerAction::Stop => playlist_view::PlaylistAction::None,
-            player_view::PlayerAction::None => playlist_view::PlaylistAction::None,
-        })
-    )
-    .width(Length::Fill)
-    .style(borderless_dark_container_style());
-
-    // Forward playlist_section actions.
-    let playlist_container = Container::new(
-        playlist_section.map(|action| action)
-    )
-    .width(Length::FillPortion(1))
-    .style(borderless_dark_container_style());
-
-    // Map library actions to PlaylistAction::None.
-    let library_container = Container::new(
-        library_section.map(|_| playlist_view::PlaylistAction::None)
-    )
-    .width(Length::FillPortion(3))
-    .style(library_container_style());
-
-    let bottom_row = Row::new()
-        .push(playlist_container)
-        .push(library_container)
-        .spacing(0)
-        .width(Length::Fill);
-
-    let content = Column::new()
-        .push(player_container)
-        .push(bottom_row)
-        .spacing(0)
-        .width(Length::Fill);
-
-    let inner_container = Container::new(content)
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .padding(0);
-
-    Container::new(inner_container)
-        .padding(1)
-        .style(|_| container::Style {
-            background: Some(Background::Color(DARK_GREEN_COLOR)),
-            text_color: Some(DARK_GREEN_COLOR),
-            ..Default::default()
-        })
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .center_x(Length::Fill)
-        .center_y(Length::Fill)
-        .into()
-}
-
 /// Enhanced render with playlist editing state.
 /// Returns an Element with messages of type `playlist_view::PlaylistAction`.
 pub fn render_with_state<'a>(
@@ -100,7 +32,6 @@ pub fn render_with_state<'a>(
             player_view::PlayerAction::Play => playlist_view::PlaylistAction::None,
             player_view::PlayerAction::Pause => playlist_view::PlaylistAction::None,
             player_view::PlayerAction::Stop => playlist_view::PlaylistAction::None,
-            player_view::PlayerAction::None => playlist_view::PlaylistAction::None,
         })
     )
     .width(Length::Fill)
