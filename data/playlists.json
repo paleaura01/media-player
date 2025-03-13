@@ -27,10 +27,20 @@
     },
     {
       "id": 6,
+      "name": "",
+      "tracks": []
+    },
+    {
+      "id": 7,
+      "name": "",
+      "tracks": []
+    },
+    {
+      "id": 8,
       "name": "New Playlist",
       "tracks": []
     }
   ],
   "selected": null,
-  "next_id": 7
+  "next_id": 9
 }

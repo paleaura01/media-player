@@ -1,5 +1,5 @@
 // app/src/ui/library_view.rs
-use iced::widget::{column, container, text, row, button, text_input, scrollable, Space, image};
+use iced::widget::{column, container, text, row, button, text_input, scrollable, Space};
 use iced::{Element, Length, Alignment, Theme};
 use core::library::LibraryState;
 use crate::ui::theme::{GREEN_COLOR, DARK_GREEN_COLOR};
@@ -12,24 +12,8 @@ pub enum LibraryMessage {
     ToggleView,
 }
 
-// Function to load an icon with proper logging
-fn load_icon(name: &str) -> image::Handle {
-    let base_path = std::env::current_dir().unwrap_or_default();
-    let icon_path = base_path.join("app").join("assets").join("icons").join(name);
-    
-    // Log the full path for debugging
-    println!("Loading icon from: {}", icon_path.display());
-    
-    image::Handle::from_path(icon_path)
-}
-
 // Create the library view with search functionality
 pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
-    // Load icons
-    let folder_plus_icon = load_icon("ph--folder-plus-thin.svg");
-    let grid_icon = load_icon("ph--grid-nine-thin.svg");
-    let list_icon = load_icon("ph--list-bullets-thin.svg");
-    
     // Search bar at top
     let search_bar = row![
         // Search input
@@ -37,11 +21,12 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
             .padding(8)
             .width(Length::Fill),
             
-        // View toggle buttons
+        // View toggle buttons with text icons
         button(
-            image(grid_icon)
-                .width(16)
-                .height(16)
+            text("▦").size(16).style(|_: &Theme| text::Style {
+                color: Some(GREEN_COLOR),
+                ..Default::default()
+            })
         )
         .padding(8)
         .on_press(LibraryMessage::ToggleView)
@@ -51,9 +36,10 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
         }),
             
         button(
-            image(list_icon)
-                .width(16)
-                .height(16)
+            text("≡").size(16).style(|_: &Theme| text::Style {
+                color: Some(GREEN_COLOR),
+                ..Default::default()
+            })
         )
         .padding(8)
         .on_press(LibraryMessage::ToggleView)
@@ -76,9 +62,10 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
             Space::with_height(20),
             button(
                 row![
-                    image(folder_plus_icon)
-                        .width(16)
-                        .height(16),
+                    text("+").size(16).style(|_: &Theme| text::Style {
+                        color: Some(GREEN_COLOR),
+                        ..Default::default()
+                    }),
                     Space::with_width(5),
                     text("Add Music Folder").style(|_: &Theme| text::Style {
                         color: Some(GREEN_COLOR),
@@ -90,7 +77,7 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
             .on_press(LibraryMessage::AddMusicFolder)
             .style(|_theme, _| button::Style {
                 text_color: GREEN_COLOR,
-                border: iced::Border {
+               border: iced::Border {
                     color: DARK_GREEN_COLOR,
                     width: 1.0,
                     radius: 4.0.into(),
@@ -101,7 +88,6 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
         .spacing(10)
         .align_x(Alignment::Center);
         
-        // Fix: Using container without chaining into() at this level
         container(empty_content)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -139,7 +125,6 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
             .padding(20)
         );
         
-        // Fix: Using container without chaining into() at this level
         container(grid)
             .width(Length::Fill)
             .height(Length::Fill)

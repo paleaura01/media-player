@@ -1,5 +1,5 @@
-// app/src/ui/playlist_view.rs
-use iced::widget::{button, column, container, row, text, scrollable, Space, text_input, image};
+use iced::widget::{button, column, container, row, text, scrollable, Space, text_input};
+use iced::widget::svg; // For SVG
 use iced::{Alignment, Element, Length, Theme};
 use core::playlist::PlaylistState;
 use crate::ui::theme::GREEN_COLOR;
@@ -18,19 +18,21 @@ pub enum PlaylistAction {
     HoverPlaylist(Option<u32>),
 }
 
-// Function to load an icon with proper logging
-fn load_icon(name: &str) -> image::Handle {
+// 1) Return Svg<iced::Theme> instead of Svg<PlaylistAction>.
+fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
     let base_path = std::env::current_dir().unwrap_or_default();
     let icon_path = base_path.join("app").join("assets").join("icons").join(name);
-    
-    // Log the full path for debugging
     println!("Loading icon from: {}", icon_path.display());
-    
-    image::Handle::from_path(icon_path)
+
+    // 2) Create the Svg using iced::Theme as the theme type param.
+    svg::Svg::new(svg::Handle::from_path(icon_path))
 }
 
 // Enhanced view with editing state and hover delete functionality
-pub fn view_with_state<'a>(playlist_state: &'a PlaylistState, view_state: &'a PlaylistViewState) -> Element<'a, PlaylistAction> {
+pub fn view_with_state<'a>(
+    playlist_state: &'a PlaylistState,
+    view_state: &'a PlaylistViewState
+) -> Element<'a, PlaylistAction> {
     let header = text("Playlists")
         .size(20)
         .style(|_: &Theme| text::Style {
@@ -38,13 +40,11 @@ pub fn view_with_state<'a>(playlist_state: &'a PlaylistState, view_state: &'a Pl
             ..Default::default()
         });
     
-    // Load icons with better handling
-    let plus_icon = load_icon("ph--file-plus-thin.svg");
-    let x_icon = load_icon("ph--x-square-thin.svg");
-    
+    // Add button with an SVG icon
     let add_button = button(
         row![
-            image(plus_icon)
+            // 3) Now we can do .width(16).height(16) on the Svg<iced::Theme>
+            load_icon("ph--file-plus-thin.svg")
                 .width(16)
                 .height(16),
             Space::with_width(5),
@@ -99,7 +99,7 @@ pub fn view_with_state<'a>(playlist_state: &'a PlaylistState, view_state: &'a Pl
             } else {
                 // Normal mode
                 row![
-                    // Playlist name button (without track count)
+                    // Playlist name button
                     button(
                         text(&playlist.name).style(|_: &Theme| text::Style {
                             color: Some(GREEN_COLOR),
@@ -115,10 +115,10 @@ pub fn view_with_state<'a>(playlist_state: &'a PlaylistState, view_state: &'a Pl
                         ..Default::default()
                     }),
                     
-                    // Delete button (×) - only visible on hover or selected
+                    // Delete button (✖) - only visible on hover
                     if is_hovered {
                         button(
-                            image(x_icon.clone())
+                            load_icon("ph--x-square-thin.svg")
                                 .width(16)
                                 .height(16)
                         )
@@ -141,24 +141,22 @@ pub fn view_with_state<'a>(playlist_state: &'a PlaylistState, view_state: &'a Pl
                 .align_y(Alignment::Center)
             };
             
-            // Fix the closure lifetime issue with a direct style object
+            // Use a container for selection highlight
             let bg_color = if is_selected {
                 Some(iced::Background::Color(iced::Color::from_rgb(0.15, 0.15, 0.15)))
             } else {
                 None
             };
             
-            // Use mouse over detection for hover
             let hover_container = container(row_content)
                 .width(Length::Fill)
                 .padding(2)
-                .style(move |_: &Theme| container::Style {
+                .style(move |_: &Theme| iced::widget::container::Style {
                     background: bg_color,
                     text_color: Some(GREEN_COLOR),
                     ..Default::default()
                 });
             
-            // Wrap in row for hover detection
             row![
                 hover_container,
             ]

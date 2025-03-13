@@ -10,6 +10,9 @@
       "icon": "terminal-cmd"
     }
   },
+  "workbench.editorAssociations": {
+    "*.svg": "default"
+},
   "rust-analyzer.checkOnSave.enable": false,
   "rust-analyzer.cargo.buildScripts.enable": false,
   "rust-analyzer.procMacro.enable": false,

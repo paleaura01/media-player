@@ -2,7 +2,7 @@
 use iced::widget::{column, row, container, Space, text, slider, button, image};
 use iced::{Element, Length, Alignment, Theme};
 use core::player::PlayerState;
-use crate::ui::theme::green_text;
+use crate::ui::theme::{green_text, GREEN_COLOR};
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -18,12 +18,12 @@ pub enum PlayerAction {
     Seek(f32),
 }
 
-// Function to load an icon with proper logging
+// Helper function to load SVG icons with absolute path
 fn load_icon(name: &str) -> image::Handle {
     let base_path = std::env::current_dir().unwrap_or_default();
     let icon_path = base_path.join("app").join("assets").join("icons").join(name);
     
-    // Log the full path for debugging
+    // This will print the full path for debugging
     println!("Loading icon from: {}", icon_path.display());
     
     image::Handle::from_path(icon_path)
@@ -102,22 +102,14 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Load icon images with better error handling
-    let prev_icon = load_icon("ph--skip-back-thin.svg");
-    let rewind_icon = load_icon("ph--rewind-thin.svg");
-    let play_icon = load_icon("ph--play-circle-thin.svg");
-    let pause_icon = load_icon("ph--pause-circle-thin.svg");
-    let forward_icon = load_icon("ph--fast-forward-thin.svg");
-    let next_icon = load_icon("ph--skip-forward-thin.svg");
-    let volume_icon = load_icon("ph--speaker-simple-high-thin.svg");
-    
-    // Right: Playback controls and volume
+    // Right: Playback controls and volume with text-based icons
     let controls = row![
         // Previous track - smaller button
         button(
-            image(prev_icon)
-                .width(24)
-                .height(24)
+            text("⏮").size(20).style(|_: &Theme| text::Style {
+                color: Some(GREEN_COLOR),
+                ..Default::default()
+            })
         )
         .padding(5)
         .on_press(PlayerAction::Previous)
@@ -128,9 +120,10 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         
         // Rewind - smaller button
         button(
-            image(rewind_icon)
-                .width(24)
-                .height(24)
+            text("⏪").size(20).style(|_: &Theme| text::Style {
+                color: Some(GREEN_COLOR),
+                ..Default::default()
+            })
         )
         .padding(5)
         .on_press(PlayerAction::SkipBackward)
@@ -142,9 +135,10 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         // Play/Pause - larger button
         if player.status == core::player::PlaybackStatus::Playing {
             button(
-                image(pause_icon)
-                    .width(36)
-                    .height(36)
+                text("⏸").size(30).style(|_: &Theme| text::Style {
+                    color: Some(GREEN_COLOR),
+                    ..Default::default()
+                })
             )
             .padding(5)
             .on_press(PlayerAction::Pause)
@@ -154,9 +148,10 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             })
         } else {
             button(
-                image(play_icon)
-                    .width(36)
-                    .height(36)
+                text("▶").size(30).style(|_: &Theme| text::Style {
+                    color: Some(GREEN_COLOR),
+                    ..Default::default()
+                })
             )
             .padding(5)
             .on_press(PlayerAction::Play)
@@ -168,9 +163,10 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         
         // Fast-forward - smaller button
         button(
-            image(forward_icon)
-                .width(24)
-                .height(24)
+            text("⏩").size(20).style(|_: &Theme| text::Style {
+                color: Some(GREEN_COLOR),
+                ..Default::default()
+            })
         )
         .padding(5)
         .on_press(PlayerAction::SkipForward)
@@ -181,9 +177,10 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         
         // Next track - smaller button
         button(
-            image(next_icon)
-                .width(24)
-                .height(24)
+            text("⏭").size(20).style(|_: &Theme| text::Style {
+                color: Some(GREEN_COLOR),
+                ..Default::default()
+            })
         )
         .padding(5)
         .on_press(PlayerAction::Next)
@@ -194,9 +191,10 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         
         // Volume slider with icon
         row![
-            image(volume_icon)
-                .width(20)
-                .height(20),
+            text("🔊").size(16).style(|_: &Theme| text::Style {
+                color: Some(GREEN_COLOR),
+                ..Default::default()
+            }),
             
             slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
                 .width(Length::Fixed(100.0))
