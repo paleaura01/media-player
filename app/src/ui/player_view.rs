@@ -1,7 +1,7 @@
 use iced::widget::{column, row, container, Space};
 use iced::{Element, Length, Alignment};
 use core::player::PlayerState;
-use crate::ui::theme::{green_text, green_button, green_progress_bar, player_container_style};
+use crate::ui::theme::{green_text, green_button, green_progress_bar};
 
 #[derive(Debug, Clone)]
 pub enum PlayerAction {
@@ -43,13 +43,9 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     controls,
 ]
 .spacing(15)
-.padding(10) // Reduced padding
+.padding(10)
 .width(Length::Fill)
 .align_x(Alignment::Center);
-    
-    // Wrap in container with the darker background style to match playlist
-    container(content)
-        .width(Length::Fill)
-        .style(player_container_style())
-        .into()
+content.into()
+
 }
