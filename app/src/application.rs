@@ -1,8 +1,8 @@
 use iced::{Element, Subscription, Task};
 use crate::ui;
-use crate::states::window_state;  // Removed playlist_state from imports
-use crate::states::playlist_state::PlaylistViewState; 
+use crate::states::window_state;
 use crate::states::app_state::MediaPlayer;
+use iced::keyboard::key::Named;
 
 // Import the PlaylistAction type from the UI module
 use crate::ui::playlist_view::PlaylistAction;
@@ -17,18 +17,6 @@ pub enum Message {
     WindowClosed { x: i32, y: i32 },
 }
 
-// Global static for the playlist UI state
-static mut PLAYLIST_STATE: Option<PlaylistViewState> = None;
-
-fn get_playlist_state() -> &'static mut PlaylistViewState {
-    unsafe {
-        if PLAYLIST_STATE.is_none() {
-            PLAYLIST_STATE = Some(PlaylistViewState::new());
-        }
-        PLAYLIST_STATE.as_mut().unwrap()
-    }
-}
-
 // Updated to return Task<Message> instead of void
 fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
     match message {
@@ -37,7 +25,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             Task::none()
         }
         Message::Playlist(action) => {
-            let core_action = get_playlist_state().handle_action(action);
+            let core_action = state.playlist_view_state.handle_action(action);
             state.handle_action(core_action);
             Task::none()
         }
@@ -51,35 +39,40 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
 }
 
 fn view(state: &MediaPlayer) -> Element<Message> {
-    let playlist_state = get_playlist_state();
-
     let rendered = ui::render::render_with_state(
         &state.player_state,
         &state.playlists,
         &state.library,
-        playlist_state,
+        &state.playlist_view_state,
     );
 
     rendered.map(Message::Playlist)
 }
 
-// Added subscription to window events with corrected pattern matching
+// Updated subscription to handle keyboard events along with window events
 fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
     iced::event::listen().map(|event| {
         match event {
+            iced::Event::Keyboard(iced::keyboard::Event::KeyPressed { key, .. }) => {
+                match key {
+                    iced::keyboard::Key::Named(Named::Space) => {
+                        Message::Action(core::Action::Player(core::PlayerAction::Pause))
+                    },
+                    iced::keyboard::Key::Named(Named::Escape) => {
+                        Message::Action(core::Action::Player(core::PlayerAction::Stop))
+                    },
+                    _ => Message::Playlist(PlaylistAction::None)
+                }
+            },
             iced::Event::Window(iced::window::Event::CloseRequested) => {
-                // Get current window position before closing
-                // Note: This is a simplified approach - in production you'd get actual position
                 Message::WindowClosed { x: 100, y: 100 }
-            }
+            },
             iced::Event::Window(iced::window::Event::Moved(position)) => {
-                // Corrected: Extract x and y from the Point struct
                 let x = position.x as i32;
                 let y = position.y as i32;
                 Message::WindowClosed { x, y }
-            }
+            },
             _ => {
-                // Default message for other events
                 Message::Playlist(PlaylistAction::None)
             }
         }

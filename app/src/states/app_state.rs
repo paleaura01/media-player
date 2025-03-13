@@ -3,6 +3,7 @@
 use std::path::PathBuf;
 use log::{debug, error, info};
 use core::{Action, PlayerAction, PlaylistAction, LibraryAction, Track, Player, PlayerState, PlaylistState, LibraryState};
+use crate::states::playlist_state::PlaylistViewState;
 
 pub struct MediaPlayer {
     pub player: Player,
@@ -10,6 +11,7 @@ pub struct MediaPlayer {
     pub playlists: PlaylistState,
     pub library: LibraryState,
     pub data_dir: PathBuf,
+    pub playlist_view_state: PlaylistViewState,
 }
 
 impl std::fmt::Debug for MediaPlayer {
@@ -55,6 +57,7 @@ impl Default for MediaPlayer {
             playlists,
             library: LibraryState::new(),
             data_dir,
+            playlist_view_state: PlaylistViewState::new(),
         }
     }
 }

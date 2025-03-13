@@ -32,6 +32,39 @@ fn load_window_position() -> WindowPosition {
     WindowPosition::default()
 }
 
+pub fn load_application_icon() -> Option<iced::window::Icon> {
+    // Check if the icon file exists
+    let asset_paths = [
+        "app/assets/icon.ico",
+        "assets/icon.ico",
+        "icon.ico"
+    ];
+    
+    let icon_path = asset_paths.iter()
+        .find(|&path| std::path::Path::new(path).exists());
+    
+    if let Some(path) = icon_path {
+        match std::fs::read(path) {
+            Ok(icon_bytes) => {
+                match iced::window::icon::from_file_data(&icon_bytes, None) {
+                    Ok(icon) => Some(icon),
+                    Err(err) => {
+                        log::error!("Failed to create icon from data: {}", err);
+                        None
+                    }
+                }
+            },
+            Err(err) => {
+                log::error!("Failed to read icon file {}: {}", path, err);
+                None
+            }
+        }
+    } else {
+        log::warn!("Application icon not found in any of the expected locations");
+        None
+    }
+}
+
 pub fn window_settings() -> iced::window::Settings {
     use iced::window::{Settings as WindowSettings, Position};
     use iced::{Size, Point};
@@ -49,6 +82,7 @@ pub fn window_settings() -> iced::window::Settings {
             height: 700.0,
         },
         position,
+        icon: load_application_icon(),
         ..WindowSettings::default()
     }
 }

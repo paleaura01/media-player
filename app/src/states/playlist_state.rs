@@ -64,7 +64,6 @@ impl PlaylistViewState {
                 }
                 Action::Playlist(CorePlaylistAction::Delete(id))
             },
-
             PlaylistAction::None => {
                 Action::Playlist(CorePlaylistAction::Select(0))
             },
