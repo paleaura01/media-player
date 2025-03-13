@@ -60,7 +60,7 @@ impl Default for MediaPlayer {
 }
 
 impl MediaPlayer {
-    #[allow(dead_code)]
+   
     pub fn handle_action(&mut self, action: Action) {
         debug!("Handling Action: {:?}", action);
         match action {

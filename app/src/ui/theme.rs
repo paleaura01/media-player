@@ -16,22 +16,6 @@ pub fn dark_theme() -> iced::Theme {
     iced::Theme::Dark
 }
 
-// Add allow attribute to suppress the warning for the unused function
-#[allow(dead_code)]
-pub fn app_container_style() -> impl Fn(&iced::Theme) -> container::Style {
-    |_| container::Style {
-        background: Some(Background::Color(BLACK_COLOR)),
-        border: Border {
-            color: DARK_GREEN_COLOR,
-            width: 1.0,
-            radius: 0.0.into(),
-            ..Default::default()
-        },
-        text_color: Some(GREEN_COLOR),
-        ..Default::default()
-    }
-}
-
 // Borderless container for player and playlist
 pub fn borderless_dark_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     |_| container::Style {
@@ -57,12 +41,12 @@ pub fn library_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     }
 }
 
-/// Returns a progress bar with green fill on a dark background.
+/// Returns a progress bar with dark fill on a dark background.
 pub fn green_progress_bar<'a>(value: f32, max: f32) -> progress_bar::ProgressBar<'a> {
     progress_bar(value..=max, 200.0)
         .style(|_theme| progress_bar::Style {
              background: Background::Color(DARK_BG_COLOR),
-             bar: Background::Color(GREEN_COLOR),
+             bar: Background::Color(DARK_BG_COLOR),
              border: Border {
                 color: DARK_GREEN_COLOR,
                 width: 1.0,
@@ -127,27 +111,3 @@ where
     })
 }
 
-// For backward compatibility - keeping these for now
-#[allow(dead_code)]
-pub fn black_green_container<'a, M, T>(content: T) -> container::Container<'a, M>
-where
-    T: Into<iced::Element<'a, M>>,
-{
-    container(content).style(|_theme| container::Style {
-        background: Some(Background::Color(BLACK_COLOR)),
-        text_color: Some(GREEN_COLOR),
-        ..Default::default()
-    })
-}
-
-// For backward compatibility
-#[allow(dead_code)]
-pub fn player_container_style() -> impl Fn(&iced::Theme) -> container::Style {
-    borderless_dark_container_style()
-}
-
-// For backward compatibility
-#[allow(dead_code)]
-pub fn playlist_container_style() -> impl Fn(&iced::Theme) -> container::Style {
-    borderless_dark_container_style()
-}

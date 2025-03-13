@@ -8,7 +8,6 @@ pub enum PlayerAction {
     Play,
     Pause,
     Stop,
-    #[allow(dead_code)]  // Add this attribute to suppress the warning
     None,
 }
 
