@@ -1,7 +1,6 @@
 use iced::{Element, Subscription, Task};
 use crate::ui;
 use crate::states::window_state;
-use crate::states::playlist_state::PlaylistViewState; 
 use crate::states::app_state::MediaPlayer;
 use iced::keyboard::key::Named;
 use std::path::PathBuf;
@@ -11,6 +10,7 @@ use crate::ui::playlist_view::PlaylistAction;
 use crate::ui::library_view::LibraryMessage;
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub enum Message {
     /// Core action messages
     Action(core::Action),
@@ -23,6 +23,7 @@ pub enum Message {
     /// Window events
     WindowClosed { x: i32, y: i32 },
 }
+
 
 // Updated to return Task<Message> instead of void
 fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
@@ -45,6 +46,12 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             Task::none()
         }
         Message::Library(LibraryMessage::None) => {
+            Task::none()
+        }
+        Message::Library(LibraryMessage::ToggleView) => {
+            // Handle the toggle view action here
+            // For now, we'll just do nothing as the view toggle functionality
+            // isn't fully implemented
             Task::none()
         }
         Message::FolderSelected(Some(path)) => {

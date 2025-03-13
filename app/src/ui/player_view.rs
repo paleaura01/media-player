@@ -2,10 +2,10 @@
 use iced::widget::{column, row, container, Space, text, slider, button, image};
 use iced::{Element, Length, Alignment, Theme};
 use core::player::PlayerState;
-use crate::ui::theme::{green_text, GREEN_COLOR};
-use std::path::PathBuf;
+use crate::ui::theme::green_text;
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub enum PlayerAction {
     Play,
     Pause,
@@ -15,7 +15,18 @@ pub enum PlayerAction {
     Next,
     Previous,
     VolumeChange(f32),
-    Seek(f32),  // Add this for seeking
+    Seek(f32),
+}
+
+// Function to load an icon with proper logging
+fn load_icon(name: &str) -> image::Handle {
+    let base_path = std::env::current_dir().unwrap_or_default();
+    let icon_path = base_path.join("app").join("assets").join("icons").join(name);
+    
+    // Log the full path for debugging
+    println!("Loading icon from: {}", icon_path.display());
+    
+    image::Handle::from_path(icon_path)
 }
 
 pub fn view(player: &PlayerState) -> Element<PlayerAction> {
@@ -71,15 +82,17 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         format!("{}:{:02}", secs / 60, secs % 60)
     });
     
+    // Create a progress bar
+    let progress_bar = slider(0.0..=1.0, player.progress, PlayerAction::Seek)
+        .width(Length::Fill);
+    
     let progress = row![
         text(current_time).size(12).style(|_: &Theme| text::Style {
             color: Some(iced::Color::from_rgb(0.7, 0.7, 0.7)),
             ..Default::default()
         }),
         
-        // Simple slider with minimal styling
-        slider(0.0..=1.0, player.progress, PlayerAction::Seek)
-            .width(Length::Fill),
+        progress_bar,
             
         text(total_time).size(12).style(|_: &Theme| text::Style {
             color: Some(iced::Color::from_rgb(0.7, 0.7, 0.7)),
@@ -89,15 +102,14 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Load icon images
-    let icon_dir = PathBuf::from("app/assets/icons");
-    
-    let prev_icon = image::Handle::from_path(icon_dir.join("ph--skip-forward-thin.svg"));
-    let rewind_icon = image::Handle::from_path(icon_dir.join("ph--fast-forward-thin.svg"));
-    let play_icon = image::Handle::from_path(icon_dir.join("ph--play-circle-thin.svg"));
-    let pause_icon = image::Handle::from_path(icon_dir.join("ph--pause-circle-thin.svg"));
-    let forward_icon = image::Handle::from_path(icon_dir.join("ph--fast-forward-thin.svg"));
-    let next_icon = image::Handle::from_path(icon_dir.join("ph--skip-forward-thin.svg"));
+    // Load icon images with better error handling
+    let prev_icon = load_icon("ph--skip-back-thin.svg");
+    let rewind_icon = load_icon("ph--rewind-thin.svg");
+    let play_icon = load_icon("ph--play-circle-thin.svg");
+    let pause_icon = load_icon("ph--pause-circle-thin.svg");
+    let forward_icon = load_icon("ph--fast-forward-thin.svg");
+    let next_icon = load_icon("ph--skip-forward-thin.svg");
+    let volume_icon = load_icon("ph--speaker-simple-high-thin.svg");
     
     // Right: Playback controls and volume
     let controls = row![
@@ -180,9 +192,12 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Volume slider - simple without custom styling
+        // Volume slider with icon
         row![
-            text("🔊").size(16),
+            image(volume_icon)
+                .width(20)
+                .height(20),
+            
             slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
                 .width(Length::Fixed(100.0))
         ]

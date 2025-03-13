@@ -1,5 +1,13 @@
 use iced::widget::{Column, Container, Row, container, text, scrollable, Space, horizontal_rule};
-use iced::{Element, Length, Background};
+use iced::{Element, Length, Background, Border};
+use crate::ui::theme::{
+    library_container_style,
+    playlist_container_style,
+    now_playing_container_style,
+    DARK_BG_COLOR,
+    DARK_GREEN_COLOR,
+    GREEN_COLOR,
+};
 
 use core::player::PlayerState;
 use core::playlist::PlaylistState;
@@ -7,14 +15,6 @@ use core::library::LibraryState;
 
 use crate::ui::{player_view, playlist_view, library_view};
 use crate::states::playlist_state::PlaylistViewState; 
-use crate::ui::theme::{
-    borderless_dark_container_style, 
-    library_container_style,
-    playlist_container_style,
-    now_playing_container_style,
-    DARK_GREEN_COLOR,
-    DARK_BG_COLOR,
-};
 
 /// Enhanced render with updated layout to match reference design
 pub fn render_with_state<'a>(
@@ -48,33 +48,42 @@ pub fn render_with_state<'a>(
         })
     )
     .width(Length::Fill)
-    .style(borderless_dark_container_style());
+    .style(|_| container::Style {
+        background: Some(Background::Color(DARK_BG_COLOR)),
+        border: Border {
+            color: DARK_GREEN_COLOR,
+            width: 1.0,
+            radius: 0.0.into(),
+        },
+        text_color: Some(GREEN_COLOR),
+        ..Default::default()
+    });
 
-    // Left panel - Playlists
+    // Left panel - Playlists (15%)
     let playlist_container = Container::new(
         playlist_section.map(|action| action)
     )
-    .width(Length::FillPortion(2))
+    .width(Length::FillPortion(15))
     .height(Length::Fill)
     .style(playlist_container_style());
 
-    // Middle panel - Now Playing (moved from right to middle)
+    // Middle panel - Now Playing (25%)
     let now_playing_container = Container::new(
         now_playing_section.map(|_| PlaylistAction::None)
     )
-    .width(Length::FillPortion(2))
+    .width(Length::FillPortion(25))
     .height(Length::Fill)
     .style(now_playing_container_style());
 
-    // Right panel - Library (moved from middle to right)
+    // Right panel - Library (60%)
     let library_container = Container::new(
         library_section.map(|_| PlaylistAction::None)
     )
-    .width(Length::FillPortion(6))
+    .width(Length::FillPortion(60))
     .height(Length::Fill)
     .style(library_container_style());
 
-    // Main content area with three panels - REORDERED
+    // Main content area with three panels
     let content_row = Row::new()
         .push(playlist_container)
         .push(now_playing_container)
