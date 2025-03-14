@@ -1,51 +1,46 @@
 {
   "playlists": [
     {
-      "id": 1,
-      "name": "Playlist",
-      "tracks": []
-    },
-    {
-      "id": 2,
-      "name": "Playlist",
-      "tracks": []
-    },
-    {
-      "id": 3,
-      "name": "Playlist",
-      "tracks": []
-    },
-    {
-      "id": 4,
-      "name": "faggs",
-      "tracks": []
-    },
-    {
-      "id": 5,
-      "name": "",
-      "tracks": []
-    },
-    {
-      "id": 6,
-      "name": "",
-      "tracks": []
-    },
-    {
-      "id": 7,
-      "name": "",
-      "tracks": []
-    },
-    {
-      "id": 8,
+      "id": 10,
       "name": "New Playlist",
       "tracks": []
     },
     {
-      "id": 9,
+      "id": 11,
+      "name": "New Playlist",
+      "tracks": []
+    },
+    {
+      "id": 12,
+      "name": "New Playlist",
+      "tracks": []
+    },
+    {
+      "id": 13,
+      "name": "New Playlist",
+      "tracks": []
+    },
+    {
+      "id": 14,
+      "name": "New Playlist",
+      "tracks": []
+    },
+    {
+      "id": 15,
+      "name": "New Playlist",
+      "tracks": []
+    },
+    {
+      "id": 16,
+      "name": "New Playlist",
+      "tracks": []
+    },
+    {
+      "id": 17,
       "name": "New Playlist",
       "tracks": []
     }
   ],
   "selected": null,
-  "next_id": 10
+  "next_id": 18
 }

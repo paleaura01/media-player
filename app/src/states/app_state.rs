@@ -103,9 +103,14 @@ impl MediaPlayer {
                 self.playlists.selected = idx;
             }
             PlaylistAction::Delete(id) => {
+                info!("Deleting playlist with ID: {}", id);
                 self.playlists.delete_playlist(id);
                 let path = self.data_dir.join("playlists.json");
-                let _ = self.playlists.save_to_file(&path);
+                if let Err(e) = self.playlists.save_to_file(&path) {
+                    error!("Failed to save playlists after deletion: {}", e);
+                } else {
+                    info!("Successfully deleted playlist and saved changes");
+                }
             }
             PlaylistAction::Rename(id, nm) => {
                 if let Some(p) = self.playlists.get_playlist_mut(id) {

@@ -28,7 +28,7 @@ fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
     svg::Svg::new(svg::Handle::from_path(icon_path))
 }
 
-// Enhanced view with editing state and hover delete functionality
+// Enhanced view with selection-based delete buttons
 pub fn view_with_state<'a>(
     playlist_state: &'a PlaylistState,
     view_state: &'a PlaylistViewState
@@ -65,7 +65,6 @@ pub fn view_with_state<'a>(
     let playlist_rows = column(
         playlist_state.playlists.iter().enumerate().map(|(idx, playlist)| {
             let id = idx as u32;
-            let is_hovered = view_state.hovered_playlist_id == Some(id);
             let is_selected = Some(idx) == playlist_state.selected;
             
             // Check if this playlist is being edited
@@ -96,7 +95,7 @@ pub fn view_with_state<'a>(
                 .spacing(5)
                 .align_y(Alignment::Center)
             } else {
-                // Normal mode
+                // Normal mode - create the row with the playlist name and delete button
                 row![
                     // Playlist name button
                     button(
@@ -114,27 +113,25 @@ pub fn view_with_state<'a>(
                         ..Default::default()
                     }),
                     
-                    // Delete button - using bold version
-                    if is_hovered {
-                        button(
-                            load_icon("ph--x-square-bold.svg")
-                                .width(16)
-                                .height(16)
-                        )
-                        .padding(5)
-                        .on_press(PlaylistAction::Delete(id))
-                        .style(|_theme, _| button::Style {
-                            background: None,
-                            ..Default::default()
-                        })
-                    } else {
-                        button(Space::new(Length::Fixed(16.0), Length::Fixed(16.0)))
-                            .padding(5)
-                            .style(|_theme, _| button::Style {
-                                background: None,
-                                ..Default::default()
-                            })
-                    }
+                    // Delete button with conditional visibility styling
+                    button(
+                        load_icon("ph--x-square-bold.svg")
+                            .width(16)
+                            .height(16)
+                    )
+                    .padding(5)
+                    .on_press(PlaylistAction::Delete(id))
+                    .style(move |_theme, _| button::Style {
+                        background: None,
+                        text_color: if is_selected {
+                            // Fully visible when selected
+                            iced::Color { r: 1.0, g: 0.0, b: 0.0, a: 1.0 }
+                        } else {
+                            // Almost invisible when not selected
+                            iced::Color { r: 1.0, g: 0.0, b: 0.0, a: 0.0 }
+                        },
+                        ..Default::default()
+                    })
                 ]
                 .spacing(5)
                 .align_y(Alignment::Center)
@@ -147,7 +144,8 @@ pub fn view_with_state<'a>(
                 None
             };
             
-            let hover_container = container(row_content)
+            // Create the container with background highlight
+            let playlist_container = container(row_content)
                 .width(Length::Fill)
                 .padding(2)
                 .style(move |_: &Theme| iced::widget::container::Style {
@@ -156,11 +154,7 @@ pub fn view_with_state<'a>(
                     ..Default::default()
                 });
             
-            row![
-                hover_container,
-            ]
-            .width(Length::Fill)
-            .into()
+            playlist_container.into()
         })
         .collect::<Vec<Element<'_, PlaylistAction>>>()
     )

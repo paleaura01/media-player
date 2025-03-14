@@ -1,4 +1,5 @@
-use iced::{Element, Subscription, Task};
+// app/src/application.rs
+use iced::{Element, Subscription, Task, Point};
 use crate::ui;
 use crate::states::window_state;
 use crate::states::app_state::MediaPlayer;
@@ -22,6 +23,8 @@ pub enum Message {
     FolderSelected(Option<PathBuf>),
     /// Window events
     WindowClosed { x: i32, y: i32 },
+    /// Mouse position for hover detection
+    MousePosition(Point),
 }
 
 
@@ -74,6 +77,11 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             }
             Task::none()
         }
+        Message::MousePosition(_position) => {
+            // We don't need to track individual mouse positions anymore
+            // as we're using selection state instead of hover
+            Task::none()
+        }
     }
 }
 
@@ -102,6 +110,9 @@ fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
                     },
                     _ => Message::Playlist(PlaylistAction::None)
                 }
+            },
+            iced::Event::Mouse(iced::mouse::Event::CursorMoved { position }) => {
+                Message::MousePosition(position)
             },
             iced::Event::Window(iced::window::Event::CloseRequested) => {
                 Message::WindowClosed { x: 100, y: 100 }

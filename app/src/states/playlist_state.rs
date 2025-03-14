@@ -64,6 +64,8 @@ impl PlaylistViewState {
                 if Some(id) == self.editing_playlist {
                     self.editing_playlist = None;
                 }
+                println!("Sending delete action for playlist ID: {}", id);
+                // Return the core action for deletion
                 Action::Playlist(CorePlaylistAction::Delete(id))
             },
             PlaylistAction::HoverPlaylist(id) => {
