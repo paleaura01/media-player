@@ -111,7 +111,7 @@ pub fn render_with_state<'a>(
         .into()
 }
 
-// Helper function to create the now playing section
+// Helper function to create the now playing section with improved debugging
 fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, ()> {
     let title = text("Now Playing")
         .size(20)
@@ -121,8 +121,14 @@ fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, (
         });
 
     let content = if let Some(idx) = playlists.selected {
+        // Log the selection state for debugging
+        println!("Selected playlist index: {} (total playlists: {})", idx, playlists.playlists.len());
+        
         if idx < playlists.playlists.len() {
             let playlist = &playlists.playlists[idx];
+            
+            // Debug logging to help troubleshoot
+            println!("Showing playlist: {} with {} tracks", playlist.name, playlist.tracks.len());
             
             let tracks = scrollable(
                 Column::new()
@@ -155,6 +161,9 @@ fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, (
                 .padding(10)
                 .into()
         } else {
+            println!("Selected index {} is out of bounds (playlist count: {})", 
+                     idx, playlists.playlists.len());
+            
             Column::new()
                 .push(title)
                 .push(text("No playlist selected").size(16))
@@ -163,6 +172,8 @@ fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, (
                 .into()
         }
     } else {
+        println!("No playlist selected (selected is None)");
+        
         Column::new()
             .push(title)
             .push(text("No playlist selected").size(16))

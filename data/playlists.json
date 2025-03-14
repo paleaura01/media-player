@@ -1,46 +1,11 @@
 {
   "playlists": [
     {
-      "id": 10,
-      "name": "New Playlist",
-      "tracks": []
-    },
-    {
-      "id": 11,
-      "name": "New Playlist",
-      "tracks": []
-    },
-    {
-      "id": 12,
-      "name": "New Playlist",
-      "tracks": []
-    },
-    {
-      "id": 13,
-      "name": "New Playlist",
-      "tracks": []
-    },
-    {
-      "id": 14,
-      "name": "New Playlist",
-      "tracks": []
-    },
-    {
-      "id": 15,
-      "name": "New Playlist",
-      "tracks": []
-    },
-    {
-      "id": 16,
-      "name": "New Playlist",
-      "tracks": []
-    },
-    {
-      "id": 17,
+      "id": 20,
       "name": "New Playlist",
       "tracks": []
     }
   ],
   "selected": null,
-  "next_id": 18
+  "next_id": 21
 }

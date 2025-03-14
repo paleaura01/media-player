@@ -99,8 +99,15 @@ impl MediaPlayer {
                 let _ = self.playlists.save_to_file(&path);
             }
             PlaylistAction::Select(id) => {
+                info!("Selecting playlist with ID: {}", id);
                 let idx = self.playlists.playlists.iter().position(|p| p.id == id);
-                self.playlists.selected = idx;
+                if let Some(idx) = idx {
+                    info!("Found playlist at index: {}", idx);
+                    self.playlists.selected = Some(idx);
+                } else {
+                    error!("Could not find playlist with ID: {}", id);
+                    self.playlists.selected = None;
+                }
             }
             PlaylistAction::Delete(id) => {
                 info!("Deleting playlist with ID: {}", id);

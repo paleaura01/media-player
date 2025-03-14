@@ -64,7 +64,7 @@ pub fn view_with_state<'a>(
     // Create playlist rows
     let playlist_rows = column(
         playlist_state.playlists.iter().enumerate().map(|(idx, playlist)| {
-            let id = idx as u32;
+            let id = playlist.id; // Use actual playlist ID instead of index
             let is_selected = Some(idx) == playlist_state.selected;
             
             // Check if this playlist is being edited
@@ -96,7 +96,7 @@ pub fn view_with_state<'a>(
                 .align_y(Alignment::Center)
             } else {
                 // Normal mode - create the row with the playlist name and delete button
-                row![
+                let mut row_elements = row![
                     // Playlist name button
                     button(
                         text(&playlist.name).style(|_: &Theme| text::Style {
@@ -111,30 +111,32 @@ pub fn view_with_state<'a>(
                         background: None,
                         text_color: GREEN_COLOR,
                         ..Default::default()
-                    }),
-                    
-                    // Delete button with conditional visibility styling
-                    button(
-                        load_icon("ph--x-square-bold.svg")
-                            .width(16)
-                            .height(16)
-                    )
-                    .padding(5)
-                    .on_press(PlaylistAction::Delete(id))
-                    .style(move |_theme, _| button::Style {
-                        background: None,
-                        text_color: if is_selected {
-                            // Fully visible when selected
-                            iced::Color { r: 1.0, g: 0.0, b: 0.0, a: 1.0 }
-                        } else {
-                            // Almost invisible when not selected
-                            iced::Color { r: 1.0, g: 0.0, b: 0.0, a: 0.0 }
-                        },
-                        ..Default::default()
                     })
-                ]
-                .spacing(5)
-                .align_y(Alignment::Center)
+                ];
+                
+                // Only add the delete button if this playlist is selected
+                if is_selected {
+                    row_elements = row_elements.push(
+                        button(
+                            load_icon("ph--x-square-bold.svg")
+                                .width(16)
+                                .height(16)
+                        )
+                        .padding(5)
+                        .on_press(PlaylistAction::Delete(id))
+                        .style(|_theme, _| button::Style {
+                            background: None,
+                            ..Default::default()
+                        })
+                    );
+                } else {
+                    // Add an empty space of the same width when not selected
+                    row_elements = row_elements.push(Space::with_width(26));
+                }
+                
+                row_elements
+                    .spacing(5)
+                    .align_y(Alignment::Center)
             };
             
             // Use a container for selection highlight
@@ -144,7 +146,6 @@ pub fn view_with_state<'a>(
                 None
             };
             
-            // Create the container with background highlight
             let playlist_container = container(row_content)
                 .width(Length::Fill)
                 .padding(2)

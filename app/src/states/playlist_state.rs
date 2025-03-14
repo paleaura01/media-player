@@ -24,6 +24,9 @@ impl PlaylistViewState {
     pub fn handle_action(&mut self, action: PlaylistAction) -> Action {
         match action {
             PlaylistAction::Select(id) => {
+                // Log selection action for debugging
+                println!("UI selecting playlist ID: {}", id);
+                
                 // Check for double click
                 let now = Instant::now();
                 if let Some((last_id, last_time)) = self.last_click {
@@ -33,6 +36,8 @@ impl PlaylistViewState {
                     }
                 }
                 self.last_click = Some((id, now));
+                
+                // Return the core action for selection
                 Action::Playlist(CorePlaylistAction::Select(id))
             },
             PlaylistAction::StartEditing(id, name) => {
@@ -57,6 +62,7 @@ impl PlaylistViewState {
                 }
             },
             PlaylistAction::Create(name) => {
+                println!("Creating new playlist: {}", name);
                 Action::Playlist(CorePlaylistAction::Create(name))
             },
             PlaylistAction::Delete(id) => {
@@ -64,6 +70,7 @@ impl PlaylistViewState {
                 if Some(id) == self.editing_playlist {
                     self.editing_playlist = None;
                 }
+                
                 println!("Sending delete action for playlist ID: {}", id);
                 // Return the core action for deletion
                 Action::Playlist(CorePlaylistAction::Delete(id))
