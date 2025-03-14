@@ -1,4 +1,6 @@
 // app/src/application.rs
+// This is the main application file that handles events and coordinates the UI
+
 use iced::{Element, Subscription, Task, Point};
 use crate::ui;
 use crate::states::window_state;
@@ -25,6 +27,13 @@ pub enum Message {
     WindowClosed { x: i32, y: i32 },
     /// Mouse position for hover detection
     MousePosition(Point),
+    /// Window focus events - important for keeping selection when window isn't active
+    WindowFocusLost,
+    WindowFocusGained,
+    /// File drag and drop events - these enable adding tracks via drag-and-drop
+    FileHovered,             // Fired when a file is being dragged over the window
+    FileDropped(PathBuf),    // Fired when a file is dropped onto the window
+    FilesHoveredLeft,        // Fired when dragged files exit the window without being dropped
 }
 
 
@@ -78,8 +87,78 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             Task::none()
         }
         Message::MousePosition(_position) => {
-            // We don't need to track individual mouse positions anymore
-            // as we're using selection state instead of hover
+            // We don't change selection state based on mouse position
+            Task::none()
+        }
+        Message::WindowFocusLost => {
+            // Intentionally do nothing - keep selection state
+            println!("Window focus lost - maintaining selection state");
+            Task::none()
+        }
+        Message::WindowFocusGained => {
+            // Intentionally do nothing - keep selection state
+            println!("Window focus gained - maintaining selection state");
+            Task::none()
+        }
+        Message::FileHovered => {
+            // Visual feedback could be added here (like highlighting the drop zone)
+            println!("File is being hovered over the window");
+            Task::none()
+        }
+        Message::FileDropped(path) => {
+            println!("File dropped: {:?}", path);
+            
+            // Check if there's a selected playlist to add the track to
+            if let Some(selected_idx) = state.playlists.selected {
+                if selected_idx < state.playlists.playlists.len() {
+                    let playlist_id = state.playlists.playlists[selected_idx].id;
+                    
+                    // Convert the path to a string
+                    if let Some(path_str) = path.to_str() {
+                        // Extract the filename to use as the track title
+                        let filename = path.file_name()
+                            .and_then(|n| n.to_str())
+                            .unwrap_or("Unknown")
+                            .to_string();
+                        
+                        // Check if this is an audio file by examining the extension
+                        let extension = path.extension()
+                            .and_then(|ext| ext.to_str())
+                            .unwrap_or("")
+                            .to_lowercase();
+                        
+                        // List of supported audio formats
+                        if ["mp3", "wav", "flac", "ogg", "m4a", "aac"].contains(&extension.as_str()) {
+                            // Create a track with the file information
+                            // The path needs to be stored as a string for later playback
+                            let track = core::Track {
+                                path: path_str.to_string(),  // Store the full path for playback
+                                title: Some(filename.clone()),  // Clone filename so we can use it again below
+                                artist: None,                // These could be populated by metadata later
+                                album: None,
+                            };
+                            
+                            // Add the track to the selected playlist
+                            state.handle_action(core::Action::Playlist(
+                                core::PlaylistAction::AddTrack(playlist_id, track)
+                            ));
+                            
+                            // Log success
+                            println!("Added track to playlist {}: {}", playlist_id, filename);
+                        } else {
+                            println!("Dropped file is not a supported audio format: {}", extension);
+                        }
+                    }
+                }
+            } else {
+                println!("No playlist selected to add the track to");
+            }
+            
+            Task::none()
+        }
+        Message::FilesHoveredLeft => {
+            // Clean up any visual feedback 
+            println!("Files no longer being hovered over the window");
             Task::none()
         }
     }
@@ -96,7 +175,7 @@ fn view(state: &MediaPlayer) -> Element<Message> {
     rendered.map(Message::Playlist)
 }
 
-// Updated subscription to handle keyboard events along with window events
+// Updated subscription to handle file drop events
 fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
     iced::event::listen().map(|event| {
         match event {
@@ -122,7 +201,28 @@ fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
                 let y = position.y as i32;
                 Message::WindowClosed { x, y }
             },
+            iced::Event::Window(iced::window::Event::Unfocused) => {
+                Message::WindowFocusLost
+            },
+            iced::Event::Window(iced::window::Event::Focused) => {
+                Message::WindowFocusGained
+            },
+            // Handle file drag and drop events - these are crucial for the drag-and-drop functionality
+            iced::Event::Window(iced::window::Event::FileHovered(_)) => {
+                // This event is triggered when files are dragged over the window
+                Message::FileHovered
+            },
+            iced::Event::Window(iced::window::Event::FileDropped(path)) => {
+                // This event is triggered when a file is dropped onto the window
+                // The path contains the full file path, which we'll use to create a track
+                Message::FileDropped(path)
+            },
+            iced::Event::Window(iced::window::Event::FilesHoveredLeft) => {
+                // This event is triggered when files are dragged away from the window
+                Message::FilesHoveredLeft
+            },
             _ => {
+                // For any other events, send a None action that doesn't change application state
                 Message::Playlist(PlaylistAction::None)
             }
         }

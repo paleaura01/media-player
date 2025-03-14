@@ -149,6 +149,7 @@ impl PlaylistState {
     }
 }
 
+// Add the None variant to the PlaylistAction enum in core/src/playlist.rs
 #[derive(Clone, Debug)]
 pub enum PlaylistAction {
     Create(String),
@@ -170,4 +171,5 @@ pub enum PlaylistAction {
     CancelDelete,              // Cancel the delete operation
     ConfirmDelete,             // Confirm the delete operation
     HoverPlaylist(Option<u32>),// Track mouse hover over playlist
+    None,                      // Added None variant for no-op actions
 }

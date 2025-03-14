@@ -9,7 +9,7 @@ pub struct WindowPosition {
     pub y: Option<i32>,
 }
 
-// Uncommented window position saving functionality
+// Ensure this function is public and matches the signature used in application.rs
 pub fn save_window_position(x: i32, y: i32) -> std::io::Result<()> {
     let pos = WindowPosition { x: Some(x), y: Some(y) };
     let data_dir = PathBuf::from("data");
@@ -65,6 +65,7 @@ pub fn load_application_icon() -> Option<iced::window::Icon> {
     }
 }
 
+// Ensure this function is public and matches the signature used in application.rs
 pub fn window_settings() -> iced::window::Settings {
     use iced::window::{Settings as WindowSettings, Position};
     use iced::{Size, Point};
@@ -82,7 +83,7 @@ pub fn window_settings() -> iced::window::Settings {
             height: 800.0,  // Increased from 700.0
         },
         position,
-        resizable: true,  // Ensure window is resizable
+        resizable: true,    // Ensure window is resizable
         icon: load_application_icon(),
         ..WindowSettings::default()
     }

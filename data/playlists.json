@@ -4,8 +4,20 @@
       "id": 20,
       "name": "Fucboi's Dream",
       "tracks": []
+    },
+    {
+      "id": 21,
+      "name": "New Playlist",
+      "tracks": [
+        {
+          "path": "Z:\\Music\\Lidarr\\Metal-Rock\\Alternative\\TOOL\\TOOL - 1992 - Opiate\\06. Opiate.flac",
+          "title": "06. Opiate.flac",
+          "artist": null,
+          "album": null
+        }
+      ]
     }
   ],
-  "selected": 0,
-  "next_id": 21
+  "selected": 1,
+  "next_id": 22
 }

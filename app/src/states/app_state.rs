@@ -1,4 +1,5 @@
 // app/src/states/app_state.rs
+// This file handles the core application state and actions
 
 use std::path::PathBuf;
 use log::{debug, error, info};
@@ -78,6 +79,8 @@ impl MediaPlayer {
     fn handle_player_action(&mut self, action: PlayerAction) {
         match action {
             PlayerAction::Play(path) => {
+                // When playing a track, we pass the full path to the player
+                // This ensures it can locate and play files from anywhere on the system
                 if let Err(e) = self.player.play(&path) {
                     error!("Failed to play: {}", e);
                 }
@@ -127,10 +130,24 @@ impl MediaPlayer {
                 }
             }
             PlaylistAction::AddTrack(id, track) => {
+                // Enhanced version that provides better logging and error handling for tracks
                 if let Some(p) = self.playlists.get_playlist_mut(id) {
+                    // Ensure we're preserving the full path of the track
+                    info!("Adding track to playlist {}: {} (path: {})", 
+                         id, track.title.as_deref().unwrap_or("Unknown"), track.path);
+                    
+                    // Add the track to the playlist
                     p.tracks.push(track);
+                    
+                    // Save the updated playlists to disk
                     let path = self.data_dir.join("playlists.json");
-                    let _ = self.playlists.save_to_file(&path);
+                    if let Err(e) = self.playlists.save_to_file(&path) {
+                        error!("Failed to save playlists after adding track: {}", e);
+                    } else {
+                        info!("Successfully saved playlist with new track");
+                    }
+                } else {
+                    error!("Failed to find playlist with ID {} to add track", id);
                 }
             }
             PlaylistAction::RemoveTrack(id, idx) => {
@@ -142,7 +159,7 @@ impl MediaPlayer {
                     }
                 }
             }
-            _ => {}
+            _ => {} // Handle other cases like None
         }
     }
     

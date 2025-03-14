@@ -76,13 +76,14 @@ impl PlaylistViewState {
                 Action::Playlist(CorePlaylistAction::Delete(id))
             },
             PlaylistAction::HoverPlaylist(id) => {
-                // Update the hovered playlist ID
+                // Update the hovered playlist ID but don't affect selection
                 self.hovered_playlist_id = id;
                 // No action needed, just UI state update
-                Action::Playlist(CorePlaylistAction::Select(0))
+                Action::Playlist(CorePlaylistAction::None)
             },
             PlaylistAction::None => {
-                Action::Playlist(CorePlaylistAction::Select(0))
+                // Don't change selection state on None action
+                Action::Playlist(CorePlaylistAction::None)
             },
         }
     }
