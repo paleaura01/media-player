@@ -80,9 +80,11 @@ impl MediaPlayer {
         match action {
             PlayerAction::Play(path) => {
                 // When playing a track, we pass the full path to the player
-                // This ensures it can locate and play files from anywhere on the system
+                info!("Attempting to play file: {}", path);
                 if let Err(e) = self.player.play(&path) {
                     error!("Failed to play: {}", e);
+                } else {
+                    info!("Started playback successfully");
                 }
             }
             PlayerAction::Pause => self.player.pause(),
@@ -159,6 +161,34 @@ impl MediaPlayer {
                     }
                 }
             }
+            PlaylistAction::PlayTrack(playlist_id, track_idx) => {
+                info!("Playing track {} from playlist {}", track_idx, playlist_id);
+                
+                // Find the playlist by ID
+                if let Some(playlist) = self.playlists.get_playlist(playlist_id) {
+                    // Check if the track index is valid
+                    if track_idx < playlist.tracks.len() {
+                        // Get the track
+                        let track = &playlist.tracks[track_idx];
+                        
+                        // Get the track path
+                        let path = &track.path;
+                        
+                        // Log the path we're about to play
+                        info!("Starting playback of file at path: {}", path);
+                        
+                        // Trigger playback with explicit error handling
+                        match self.player.play(path) {
+                            Ok(_) => info!("Successfully started playback"),
+                            Err(e) => error!("Failed to play track: {}", e),
+                        }
+                    } else {
+                        error!("Track index {} is out of bounds for playlist {}", track_idx, playlist_id);
+                    }
+                } else {
+                    error!("Could not find playlist with ID {}", playlist_id);
+                }
+            },
             _ => {} // Handle other cases like None
         }
     }

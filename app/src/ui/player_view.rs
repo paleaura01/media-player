@@ -30,7 +30,13 @@ fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
 
 pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     // Left section: Album art and track info
-    let track_info = if let Some(track) = &player.current_track {
+    let track_info = if let Some(track_path) = &player.current_track {
+        // Extract just the filename from the path, not the entire path
+        let filename = std::path::Path::new(track_path)
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("Unknown");
+        
         row![
             // Album art placeholder
             container(
@@ -44,7 +50,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             Space::with_width(10),
             
             column![
-                green_text(format!("Currently Playing: {}", track)).size(16),
+                green_text(format!("Currently Playing: {}", filename)).size(16),
                 green_text("Artist - Album").size(12),
             ]
             .spacing(4)

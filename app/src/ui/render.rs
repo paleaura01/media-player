@@ -1,4 +1,4 @@
-use iced::widget::{Column, Container, Row, container, text, scrollable, Space, horizontal_rule};
+use iced::widget::{Column, Container, Row, container, text, scrollable, Space, horizontal_rule, button};
 use iced::{Element, Length, Background, Border};
 use crate::ui::theme::{
     library_container_style,
@@ -15,6 +15,7 @@ use core::library::LibraryState;
 
 use crate::ui::{player_view, playlist_view, library_view};
 use crate::states::playlist_state::PlaylistViewState; 
+use crate::ui::playlist_view::PlaylistAction;
 
 /// Enhanced render with updated layout to match reference design
 pub fn render_with_state<'a>(
@@ -63,21 +64,23 @@ pub fn render_with_state<'a>(
     let playlist_container = Container::new(
         playlist_section.map(|action| action)
     )
-    .width(Length::FillPortion(20))  // Increased from 15
+    .width(Length::FillPortion(15))
     .height(Length::Fill)
     .style(playlist_container_style());
-    
+
+    // Middle panel - Now Playing (25%)
     let now_playing_container = Container::new(
-        now_playing_section.map(|_| PlaylistAction::None)
+        now_playing_section.map(|action| action) // Now we map the PlaylistAction directly
     )
-    .width(Length::FillPortion(30))  // Increased from 25
+    .width(Length::FillPortion(25))
     .height(Length::Fill)
     .style(now_playing_container_style());
-    
+
+    // Right panel - Library (60%)
     let library_container = Container::new(
         library_section.map(|_| PlaylistAction::None)
     )
-    .width(Length::FillPortion(50))  // Decreased from 60 to balance
+    .width(Length::FillPortion(60))
     .height(Length::Fill)
     .style(library_container_style());
 
@@ -109,8 +112,8 @@ pub fn render_with_state<'a>(
         .into()
 }
 
-// Helper function to create the now playing section with improved debugging
-fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, ()> {
+// Helper function to create the now playing section with clickable tracks
+fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, PlaylistAction> {
     let title = text("Now Playing")
         .size(20)
         .style(|_| text::Style {
@@ -137,14 +140,26 @@ fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, (
                     .push(
                         playlist.tracks.iter().enumerate().fold(
                             Column::new().spacing(4),
-                            |column, (idx, track)| {
+                            |column, (track_idx, track)| {
                                 let track_title = track.title.clone().unwrap_or_else(|| track.path.clone());
-                                column.push(
+                                
+                                // Make each track clickable by wrapping in a button
+                                let track_button = button(
                                     Row::new()
-                                        .push(text(format!("{}. ", idx + 1)).size(14))
+                                        .push(text(format!("{}. ", track_idx + 1)).size(14))
                                         .push(text(track_title).size(14))
                                         .spacing(5)
                                 )
+                                .padding(5)
+                                .width(Length::Fill)
+                                .style(|_theme, _| button::Style {
+                                    background: None,
+                                    text_color: GREEN_COLOR,
+                                    ..Default::default()
+                                })
+                                .on_press(PlaylistAction::PlayTrack(playlist.id, track_idx));
+                                
+                                column.push(track_button)
                             }
                         )
                     )

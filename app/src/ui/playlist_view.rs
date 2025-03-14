@@ -17,6 +17,7 @@ pub enum PlaylistAction {
     FinishEditing,
     None,
     HoverPlaylist(Option<u32>),
+    PlayTrack(u32, usize),  // New action: playlist_id, track_index
 }
 
 // SVG loading function
@@ -77,7 +78,7 @@ pub fn view_with_state<'a>(
                         .padding(5)
                         .width(Length::Fill),
                     
-                    // Confirm button with check icon instead of text
+                    // Confirm button with check icon
                     button(
                         load_icon("ph--check-square-bold.svg")
                             .width(16)

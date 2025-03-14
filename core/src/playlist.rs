@@ -171,5 +171,6 @@ pub enum PlaylistAction {
     CancelDelete,              // Cancel the delete operation
     ConfirmDelete,             // Confirm the delete operation
     HoverPlaylist(Option<u32>),// Track mouse hover over playlist
-    None,                      // Added None variant for no-op actions
+    PlayTrack(u32, usize),     // Play a track - playlist_id, track_index
+    None,                      // No-op action
 }

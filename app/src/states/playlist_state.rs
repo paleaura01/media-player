@@ -81,6 +81,13 @@ impl PlaylistViewState {
                 // No action needed, just UI state update
                 Action::Playlist(CorePlaylistAction::None)
             },
+            PlaylistAction::PlayTrack(playlist_id, track_idx) => {
+                // Log the play track request
+                println!("Request to play track {} from playlist {}", track_idx, playlist_id);
+                
+                // Return a core action to play the track
+                Action::Playlist(CorePlaylistAction::PlayTrack(playlist_id, track_idx))
+            },
             PlaylistAction::None => {
                 // Don't change selection state on None action
                 Action::Playlist(CorePlaylistAction::None)
