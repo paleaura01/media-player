@@ -180,7 +180,16 @@ impl MediaPlayer {
                         // Trigger playback with explicit error handling
                         match self.player.play(path) {
                             Ok(_) => info!("Successfully started playback"),
-                            Err(e) => error!("Failed to play track: {}", e),
+                            Err(e) => {
+                                // Add more detailed error logging
+                                error!("Failed to play track: {}", e);
+                                error!("Path attempted: {}", path);
+                                
+                                // Check if file exists
+                                if !std::path::Path::new(path).exists() {
+                                    error!("File does not exist at path: {}", path);
+                                }
+                            }
                         }
                     } else {
                         error!("Track index {} is out of bounds for playlist {}", track_idx, playlist_id);

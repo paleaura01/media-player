@@ -3,7 +3,7 @@ use iced::widget::{column, row, container, Space, text, slider, button};
 use iced::widget::svg; // Import svg module
 use iced::{Element, Length, Alignment, Theme};
 use core::player::PlayerState;
-use crate::ui::theme::green_text; // Remove the unused GREEN_COLOR import
+use crate::ui::theme::green_text; // Import green_text helper
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]

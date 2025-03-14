@@ -39,14 +39,32 @@ pub enum Message {
 
 // Updated to return Task<Message> instead of void
 fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
+    // Update player progress on every event to keep the UI current
+    state.player.update_progress();
+    state.player_state = state.player.get_state();
+    
     match message {
         Message::Action(action) => {
             state.handle_action(action);
             Task::none()
         }
         Message::Playlist(action) => {
-            let core_action = state.playlist_view_state.handle_action(action);
-            state.handle_action(core_action);
+            // Direct handling of PlayTrack to bypass potential issues
+            match action {
+                PlaylistAction::PlayTrack(playlist_id, track_idx) => {
+                    // Directly handle the PlayTrack action here
+                    state.handle_action(core::Action::Playlist(
+                        core::PlaylistAction::PlayTrack(playlist_id, track_idx)
+                    ));
+                    // Update the player state immediately
+                    state.player_state = state.player.get_state();
+                }
+                _ => {
+                    // Handle other playlist actions as before
+                    let core_action = state.playlist_view_state.handle_action(action);
+                    state.handle_action(core_action);
+                }
+            }
             Task::none()
         }
         Message::Library(LibraryMessage::AddMusicFolder) => {
@@ -175,8 +193,9 @@ fn view(state: &MediaPlayer) -> Element<Message> {
     rendered.map(Message::Playlist)
 }
 
-// Updated subscription to handle file drop events
+// Just listen for events - we'll update the player on each event
 fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
+    // Event listener for keyboard, mouse, etc.
     iced::event::listen().map(|event| {
         match event {
             iced::Event::Keyboard(iced::keyboard::Event::KeyPressed { key, .. }) => {
@@ -207,18 +226,14 @@ fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
             iced::Event::Window(iced::window::Event::Focused) => {
                 Message::WindowFocusGained
             },
-            // Handle file drag and drop events - these are crucial for the drag-and-drop functionality
+            // Handle file drag and drop events
             iced::Event::Window(iced::window::Event::FileHovered(_)) => {
-                // This event is triggered when files are dragged over the window
                 Message::FileHovered
             },
             iced::Event::Window(iced::window::Event::FileDropped(path)) => {
-                // This event is triggered when a file is dropped onto the window
-                // The path contains the full file path, which we'll use to create a track
                 Message::FileDropped(path)
             },
             iced::Event::Window(iced::window::Event::FilesHoveredLeft) => {
-                // This event is triggered when files are dragged away from the window
                 Message::FilesHoveredLeft
             },
             _ => {
