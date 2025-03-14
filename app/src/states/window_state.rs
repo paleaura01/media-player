@@ -78,10 +78,11 @@ pub fn window_settings() -> iced::window::Settings {
 
     WindowSettings {
         size: Size {
-            width: 1000.0,
-            height: 700.0,
+            width: 1200.0,  // Increased from 1000.0
+            height: 800.0,  // Increased from 700.0
         },
         position,
+        resizable: true,  // Ensure window is resizable
         icon: load_application_icon(),
         ..WindowSettings::default()
     }

@@ -77,12 +77,11 @@ pub fn view_with_state<'a>(
                         .padding(5)
                         .width(Length::Fill),
                     
-                    // Confirm button
+                    // Confirm button with check icon instead of text
                     button(
-                        text("✓").style(|_: &Theme| text::Style {
-                            color: Some(GREEN_COLOR),
-                            ..Default::default()
-                        })
+                        load_icon("ph--check-square-bold.svg")
+                            .width(16)
+                            .height(16)
                     )
                     .padding(5)
                     .on_press(PlaylistAction::FinishEditing)

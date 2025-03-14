@@ -63,23 +63,21 @@ pub fn render_with_state<'a>(
     let playlist_container = Container::new(
         playlist_section.map(|action| action)
     )
-    .width(Length::FillPortion(15))
+    .width(Length::FillPortion(20))  // Increased from 15
     .height(Length::Fill)
     .style(playlist_container_style());
-
-    // Middle panel - Now Playing (25%)
+    
     let now_playing_container = Container::new(
         now_playing_section.map(|_| PlaylistAction::None)
     )
-    .width(Length::FillPortion(25))
+    .width(Length::FillPortion(30))  // Increased from 25
     .height(Length::Fill)
     .style(now_playing_container_style());
-
-    // Right panel - Library (60%)
+    
     let library_container = Container::new(
         library_section.map(|_| PlaylistAction::None)
     )
-    .width(Length::FillPortion(60))
+    .width(Length::FillPortion(50))  // Decreased from 60 to balance
     .height(Length::Fill)
     .style(library_container_style());
 
