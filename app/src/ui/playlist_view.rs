@@ -1,3 +1,4 @@
+// app/src/ui/playlist_view.rs
 use iced::widget::{button, column, container, row, text, scrollable, Space, text_input};
 use iced::widget::svg; // For SVG
 use iced::{Alignment, Element, Length, Theme};
@@ -18,13 +19,12 @@ pub enum PlaylistAction {
     HoverPlaylist(Option<u32>),
 }
 
-// 1) Return Svg<iced::Theme> instead of Svg<PlaylistAction>.
+// SVG loading function
 fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
     let base_path = std::env::current_dir().unwrap_or_default();
     let icon_path = base_path.join("app").join("assets").join("icons").join(name);
     println!("Loading icon from: {}", icon_path.display());
 
-    // 2) Create the Svg using iced::Theme as the theme type param.
     svg::Svg::new(svg::Handle::from_path(icon_path))
 }
 
@@ -40,11 +40,10 @@ pub fn view_with_state<'a>(
             ..Default::default()
         });
     
-    // Add button with an SVG icon
+    // Add button with an SVG icon - using fill version
     let add_button = button(
         row![
-            // 3) Now we can do .width(16).height(16) on the Svg<iced::Theme>
-            load_icon("ph--file-plus-thin.svg")
+            load_icon("ph--folder-plus-fill.svg")
                 .width(16)
                 .height(16),
             Space::with_width(5),
@@ -115,10 +114,10 @@ pub fn view_with_state<'a>(
                         ..Default::default()
                     }),
                     
-                    // Delete button (✖) - only visible on hover
+                    // Delete button - using bold version
                     if is_hovered {
                         button(
-                            load_icon("ph--x-square-thin.svg")
+                            load_icon("ph--x-square-bold.svg")
                                 .width(16)
                                 .height(16)
                         )

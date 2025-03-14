@@ -22,7 +22,7 @@
     },
     {
       "id": 5,
-      "name": "fag",
+      "name": "",
       "tracks": []
     },
     {
@@ -39,8 +39,13 @@
       "id": 8,
       "name": "New Playlist",
       "tracks": []
+    },
+    {
+      "id": 9,
+      "name": "New Playlist",
+      "tracks": []
     }
   ],
   "selected": null,
-  "next_id": 9
+  "next_id": 10
 }

@@ -1,5 +1,6 @@
 // app/src/ui/library_view.rs
 use iced::widget::{column, container, text, row, button, text_input, scrollable, Space};
+use iced::widget::svg; // Add this for SVG support
 use iced::{Element, Length, Alignment, Theme};
 use core::library::LibraryState;
 use crate::ui::theme::{GREEN_COLOR, DARK_GREEN_COLOR};
@@ -12,6 +13,15 @@ pub enum LibraryMessage {
     ToggleView,
 }
 
+// Add the load_icon function to match the other files
+fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
+    let base_path = std::env::current_dir().unwrap_or_default();
+    let icon_path = base_path.join("app").join("assets").join("icons").join(name);
+    println!("Loading icon from: {}", icon_path.display());
+
+    svg::Svg::new(svg::Handle::from_path(icon_path))
+}
+
 // Create the library view with search functionality
 pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
     // Search bar at top
@@ -21,30 +31,28 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
             .padding(8)
             .width(Length::Fill),
             
-        // View toggle buttons with text icons
+        // View toggle buttons with SVG icons
         button(
-            text("▦").size(16).style(|_: &Theme| text::Style {
-                color: Some(GREEN_COLOR),
-                ..Default::default()
-            })
+            load_icon("ph--grid-nine-fill.svg")
+                .width(16)
+                .height(16)
         )
         .padding(8)
         .on_press(LibraryMessage::ToggleView)
         .style(|_theme, _| button::Style {
-            text_color: GREEN_COLOR,
+            background: None,
             ..Default::default()
         }),
             
         button(
-            text("≡").size(16).style(|_: &Theme| text::Style {
-                color: Some(GREEN_COLOR),
-                ..Default::default()
-            })
+            load_icon("ph--list-bullets-fill.svg")
+                .width(16)
+                .height(16)
         )
         .padding(8)
         .on_press(LibraryMessage::ToggleView)
         .style(|_theme, _| button::Style {
-            text_color: GREEN_COLOR,
+            background: None,
             ..Default::default()
         })
     ]
@@ -62,10 +70,9 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
             Space::with_height(20),
             button(
                 row![
-                    text("+").size(16).style(|_: &Theme| text::Style {
-                        color: Some(GREEN_COLOR),
-                        ..Default::default()
-                    }),
+                    load_icon("ph--folder-plus-fill.svg")
+                        .width(16)
+                        .height(16),
                     Space::with_width(5),
                     text("Add Music Folder").style(|_: &Theme| text::Style {
                         color: Some(GREEN_COLOR),
@@ -77,7 +84,7 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
             .on_press(LibraryMessage::AddMusicFolder)
             .style(|_theme, _| button::Style {
                 text_color: GREEN_COLOR,
-               border: iced::Border {
+                border: iced::Border {
                     color: DARK_GREEN_COLOR,
                     width: 1.0,
                     radius: 4.0.into(),

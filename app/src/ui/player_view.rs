@@ -1,8 +1,9 @@
 // app/src/ui/player_view.rs
-use iced::widget::{column, row, container, Space, text, slider, button, image};
+use iced::widget::{column, row, container, Space, text, slider, button};
+use iced::widget::svg; // Import svg module
 use iced::{Element, Length, Alignment, Theme};
 use core::player::PlayerState;
-use crate::ui::theme::{green_text, GREEN_COLOR};
+use crate::ui::theme::green_text; // Remove the unused GREEN_COLOR import
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -18,15 +19,13 @@ pub enum PlayerAction {
     Seek(f32),
 }
 
-// Helper function to load SVG icons with absolute path
-fn load_icon(name: &str) -> image::Handle {
+// Load SVG icons as svg widgets
+fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
     let base_path = std::env::current_dir().unwrap_or_default();
     let icon_path = base_path.join("app").join("assets").join("icons").join(name);
-    
-    // This will print the full path for debugging
     println!("Loading icon from: {}", icon_path.display());
-    
-    image::Handle::from_path(icon_path)
+
+    svg::Svg::new(svg::Handle::from_path(icon_path))
 }
 
 pub fn view(player: &PlayerState) -> Element<PlayerAction> {
@@ -102,14 +101,14 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Right: Playback controls and volume with text-based icons
+    // Right: Playback controls and volume with SVG icons using svg widget directly
+    // Updated to use the bold and fill icons
     let controls = row![
-        // Previous track - smaller button
+        // Previous track button with SVG icon
         button(
-            text("⏮").size(20).style(|_: &Theme| text::Style {
-                color: Some(GREEN_COLOR),
-                ..Default::default()
-            })
+            load_icon("ph--skip-back-fill.svg")
+                .width(20)
+                .height(20)
         )
         .padding(5)
         .on_press(PlayerAction::Previous)
@@ -118,12 +117,11 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Rewind - smaller button
+        // Rewind button with SVG icon
         button(
-            text("⏪").size(20).style(|_: &Theme| text::Style {
-                color: Some(GREEN_COLOR),
-                ..Default::default()
-            })
+            load_icon("ph--rewind-fill.svg")
+                .width(20)
+                .height(20)
         )
         .padding(5)
         .on_press(PlayerAction::SkipBackward)
@@ -132,13 +130,12 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Play/Pause - larger button
+        // Play/Pause button with SVG icon - using bold versions
         if player.status == core::player::PlaybackStatus::Playing {
             button(
-                text("⏸").size(30).style(|_: &Theme| text::Style {
-                    color: Some(GREEN_COLOR),
-                    ..Default::default()
-                })
+                load_icon("ph--pause-circle-bold.svg")
+                    .width(30)
+                    .height(30)
             )
             .padding(5)
             .on_press(PlayerAction::Pause)
@@ -148,10 +145,9 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             })
         } else {
             button(
-                text("▶").size(30).style(|_: &Theme| text::Style {
-                    color: Some(GREEN_COLOR),
-                    ..Default::default()
-                })
+                load_icon("ph--play-circle-bold.svg")
+                    .width(30)
+                    .height(30)
             )
             .padding(5)
             .on_press(PlayerAction::Play)
@@ -161,12 +157,11 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             })
         },
         
-        // Fast-forward - smaller button
+        // Fast-forward button with SVG icon
         button(
-            text("⏩").size(20).style(|_: &Theme| text::Style {
-                color: Some(GREEN_COLOR),
-                ..Default::default()
-            })
+            load_icon("ph--fast-forward-fill.svg")
+                .width(20)
+                .height(20)
         )
         .padding(5)
         .on_press(PlayerAction::SkipForward)
@@ -175,12 +170,11 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Next track - smaller button
+        // Next track button with SVG icon
         button(
-            text("⏭").size(20).style(|_: &Theme| text::Style {
-                color: Some(GREEN_COLOR),
-                ..Default::default()
-            })
+            load_icon("ph--skip-forward-fill.svg")
+                .width(20)
+                .height(20)
         )
         .padding(5)
         .on_press(PlayerAction::Next)
@@ -191,10 +185,9 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         
         // Volume slider with icon
         row![
-            text("🔊").size(16).style(|_: &Theme| text::Style {
-                color: Some(GREEN_COLOR),
-                ..Default::default()
-            }),
+            load_icon("ph--speaker-high-fill.svg")
+                .width(16)
+                .height(16),
             
             slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
                 .width(Length::Fixed(100.0))
