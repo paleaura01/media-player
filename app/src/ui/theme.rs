@@ -16,11 +16,16 @@ pub fn dark_theme() -> iced::Theme {
     iced::Theme::Dark
 }
 
-// Borderless container for player
-pub fn borderless_dark_container_style() -> impl Fn(&iced::Theme) -> container::Style {
+// Player container style with border
+pub fn player_container_style() -> impl Fn(&iced::Theme) -> container::Style {
     |_| container::Style {
         background: Some(Background::Color(DARK_BG_COLOR)),
-        border: Border::default(), // No border
+        border: Border {
+            color: DARK_GREEN_COLOR,
+            width: 1.0,
+            radius: 0.0.into(),  // Square corners
+            ..Default::default()
+        },
         text_color: Some(GREEN_COLOR),
         ..Default::default()
     }

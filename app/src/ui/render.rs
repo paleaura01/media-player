@@ -4,7 +4,7 @@ use crate::ui::theme::{
     library_container_style,
     playlist_container_style,
     now_playing_container_style,
-    borderless_dark_container_style, // Added this import
+    player_container_style, // Updated import name
     DARK_BG_COLOR,
     DARK_GREEN_COLOR,
     GREEN_COLOR,
@@ -57,7 +57,7 @@ pub fn render_with_state<'a>(
         })
     )
     .width(Length::Fill)
-    .style(borderless_dark_container_style()); // Using the function here instead of inline style
+    .style(player_container_style()); // Using the function here instead of inline style
 
     // Left panel - Playlists (15%)
     let playlist_container = Container::new(
