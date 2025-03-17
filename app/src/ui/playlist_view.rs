@@ -18,6 +18,7 @@ pub enum PlaylistAction {
     None,
     HoverPlaylist(Option<u32>),
     PlayTrack(u32, usize),  // New action: playlist_id, track_index
+    PlayerControl(core::PlayerAction),  // New variant to handle player controls
 }
 
 // SVG loading function

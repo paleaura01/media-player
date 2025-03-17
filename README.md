@@ -15,7 +15,7 @@ A media player built in Rust using Symphonia for audio decoding and hot-lib-relo
    - Navigate to the project directory.
    - For development with hot reloading, run:
      ```
-     cargo run --bin dev
+     cargo clean && cargo run --bin dev
      ```
    - For production build:
      ```

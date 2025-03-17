@@ -34,18 +34,25 @@ pub fn render_with_state<'a>(
     let library_section = library_view::view_with_search(library);
     let now_playing_section = create_now_playing_section(playlists);
     
-    // Player container at the top
+    // Player container at the top with updated action mapping
     let player_container = Container::new(
         player_section.map(|ui_action| match ui_action {
-            player_view::PlayerAction::Play => PlaylistAction::None,
-            player_view::PlayerAction::Pause => PlaylistAction::None,
-            player_view::PlayerAction::Stop => PlaylistAction::None,
-            player_view::PlayerAction::SkipForward => PlaylistAction::None,
-            player_view::PlayerAction::SkipBackward => PlaylistAction::None,
-            player_view::PlayerAction::Next => PlaylistAction::None,
-            player_view::PlayerAction::Previous => PlaylistAction::None,
-            player_view::PlayerAction::VolumeChange(_) => PlaylistAction::None,
-            player_view::PlayerAction::Seek(_) => PlaylistAction::None,
+            player_view::PlayerAction::Play => 
+                PlaylistAction::PlayerControl(core::PlayerAction::Resume),
+            player_view::PlayerAction::Pause => 
+                PlaylistAction::PlayerControl(core::PlayerAction::Pause),
+            player_view::PlayerAction::Stop => 
+                PlaylistAction::PlayerControl(core::PlayerAction::Stop),
+            player_view::PlayerAction::SkipForward => 
+                PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),  // Skip forward 10%
+            player_view::PlayerAction::SkipBackward => 
+                PlaylistAction::PlayerControl(core::PlayerAction::Seek(-0.1)), // Skip backward 10%
+            player_view::PlayerAction::Next => PlaylistAction::None, // For now use None, improve later
+            player_view::PlayerAction::Previous => PlaylistAction::None, // For now use None, improve later
+            player_view::PlayerAction::VolumeChange(v) => 
+                PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
+            player_view::PlayerAction::Seek(pos) => 
+                PlaylistAction::PlayerControl(core::PlayerAction::Seek(pos)),
         })
     )
     .width(Length::Fill)

@@ -88,6 +88,12 @@ impl PlaylistViewState {
                 // Return a core action to play the track
                 Action::Playlist(CorePlaylistAction::PlayTrack(playlist_id, track_idx))
             },
+            // Add handler for the new PlayerControl action variant
+            PlaylistAction::PlayerControl(player_action) => {
+                // Directly convert to a core player action
+                println!("Player control action: {:?}", player_action);
+                Action::Player(player_action)
+            },
             PlaylistAction::None => {
                 // Don't change selection state on None action
                 Action::Playlist(CorePlaylistAction::None)

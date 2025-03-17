@@ -6,3 +6,5 @@ Cargo.lock
 *.wav
 *.flac
 sample.*
+data/window_position.json
+data/playlists.json
