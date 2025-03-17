@@ -1,9 +1,10 @@
 use iced::widget::{Column, Container, Row, container, text, scrollable, Space, horizontal_rule, button};
-use iced::{Element, Length, Background, Border};
+use iced::{Element, Length, Background};
 use crate::ui::theme::{
     library_container_style,
     playlist_container_style,
     now_playing_container_style,
+    borderless_dark_container_style, // Added this import
     DARK_BG_COLOR,
     DARK_GREEN_COLOR,
     GREEN_COLOR,
@@ -56,16 +57,7 @@ pub fn render_with_state<'a>(
         })
     )
     .width(Length::Fill)
-    .style(|_| container::Style {
-        background: Some(Background::Color(DARK_BG_COLOR)),
-        border: Border {
-            color: DARK_GREEN_COLOR,
-            width: 1.0,
-            radius: 0.0.into(),
-        },
-        text_color: Some(GREEN_COLOR),
-        ..Default::default()
-    });
+    .style(borderless_dark_container_style()); // Using the function here instead of inline style
 
     // Left panel - Playlists (15%)
     let playlist_container = Container::new(
@@ -118,6 +110,8 @@ pub fn render_with_state<'a>(
         .height(Length::Fill)
         .into()
 }
+
+
 
 // Helper function to create the now playing section with clickable tracks
 fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, PlaylistAction> {
