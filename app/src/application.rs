@@ -45,9 +45,24 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
     
     match message {
         Message::Action(action) => {
-            state.handle_action(action);
+            match action {
+                core::Action::Player(player_action) => {
+                    match player_action {
+                        core::PlayerAction::Seek(pos) => {
+                            // Handle seeking
+                            state.player.seek(pos);
+                        },
+                        core::PlayerAction::SetVolume(vol) => {
+                            // Handle volume changes
+                            state.player.set_volume(vol);
+                        },
+                        _ => state.handle_action(core::Action::Player(player_action)),
+                    }
+                },
+                _ => state.handle_action(action),
+            }
             Task::none()
-        }
+        },
         Message::Playlist(action) => {
             // Direct handling of PlayTrack to bypass potential issues
             match action {
@@ -59,6 +74,12 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     // Update the player state immediately
                     state.player_state = state.player.get_state();
                 }
+                PlaylistAction::PlayerControl(player_action) => {
+                    // Handle player control actions from the UI
+                    state.handle_action(core::Action::Player(player_action));
+                    // Update the player state immediately
+                    state.player_state = state.player.get_state();
+                }
                 _ => {
                     // Handle other playlist actions as before
                     let core_action = state.playlist_view_state.handle_action(action);
@@ -66,7 +87,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 }
             }
             Task::none()
-        }
+        },
         Message::Library(LibraryMessage::AddMusicFolder) => {
             // Ideally you'd use rfd here, but for now we'll manually implement
             // by using a core library action
@@ -74,16 +95,16 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 core::LibraryAction::StartScan
             ));
             Task::none()
-        }
+        },
         Message::Library(LibraryMessage::None) => {
             Task::none()
-        }
+        },
         Message::Library(LibraryMessage::ToggleView) => {
             // Handle the toggle view action here
             // For now, we'll just do nothing as the view toggle functionality
             // isn't fully implemented
             Task::none()
-        }
+        },
         Message::FolderSelected(Some(path)) => {
             if let Some(path_str) = path.to_str() {
                 state.handle_action(core::Action::Library(
@@ -94,35 +115,35 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 ));
             }
             Task::none()
-        }
+        },
         Message::FolderSelected(None) => {
             Task::none()
-        }
+        },
         Message::WindowClosed { x, y } => {
             if let Err(e) = window_state::save_window_position(x, y) {
                 log::error!("Failed to save window position: {}", e);
             }
             Task::none()
-        }
+        },
         Message::MousePosition(_position) => {
             // We don't change selection state based on mouse position
             Task::none()
-        }
+        },
         Message::WindowFocusLost => {
             // Intentionally do nothing - keep selection state
             println!("Window focus lost - maintaining selection state");
             Task::none()
-        }
+        },
         Message::WindowFocusGained => {
             // Intentionally do nothing - keep selection state
             println!("Window focus gained - maintaining selection state");
             Task::none()
-        }
+        },
         Message::FileHovered => {
             // Visual feedback could be added here (like highlighting the drop zone)
             println!("File is being hovered over the window");
             Task::none()
-        }
+        },
         Message::FileDropped(path) => {
             println!("File dropped: {:?}", path);
             
@@ -173,12 +194,12 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             }
             
             Task::none()
-        }
+        },
         Message::FilesHoveredLeft => {
             // Clean up any visual feedback 
             println!("Files no longer being hovered over the window");
             Task::none()
-        }
+        },
     }
 }
 

@@ -1,9 +1,9 @@
 // app/src/ui/player_view.rs
-use iced::widget::{column, row, container, Space, text, slider, button};
+use iced::widget::{column, row, container, Space, slider, button};
 use iced::widget::svg; // Import svg module
-use iced::{Element, Length, Alignment, Theme};
+use iced::{Element, Length, Alignment, Theme, Border};
 use core::player::PlayerState;
-use crate::ui::theme::green_text; // Import green_text helper
+use crate::ui::theme::{green_text, green_progress_bar, GREEN_COLOR, DARK_GREEN_COLOR}; // Import theme helpers
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -87,22 +87,18 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         format!("{}:{:02}", secs / 60, secs % 60)
     });
     
-    // Create a progress bar
-    let progress_bar = slider(0.0..=1.0, player.progress, PlayerAction::Seek)
-        .width(Length::Fill);
+    // Create a stylized progress bar using our theme function
+    let progress_bar = green_progress_bar(player.progress)
+        .width(Length::Fill)
+        .height(Length::Fixed(8.0));
     
+    // Time display with green text
     let progress = row![
-        text(current_time).size(12).style(|_: &Theme| text::Style {
-            color: Some(iced::Color::from_rgb(0.7, 0.7, 0.7)),
-            ..Default::default()
-        }),
+        green_text(current_time).size(12),
         
         progress_bar,
             
-        text(total_time).size(12).style(|_: &Theme| text::Style {
-            color: Some(iced::Color::from_rgb(0.7, 0.7, 0.7)),
-            ..Default::default()
-        })
+        green_text(total_time).size(12)
     ]
     .spacing(10)
     .align_y(Alignment::Center);
@@ -189,7 +185,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Volume slider with icon
+        // Volume slider with icon and properly styled slider
         row![
             load_icon("ph--speaker-high-fill.svg")
                 .width(16)
@@ -197,6 +193,26 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             
             slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
                 .width(Length::Fixed(100.0))
+                .style(|_theme: &Theme, _| slider::Style {
+                    rail: slider::Rail {
+                        backgrounds: (
+                            iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1)),
+                            iced::Background::Color(GREEN_COLOR)
+                        ),
+                        width: 1.0,
+                        border: Border {
+                            color: DARK_GREEN_COLOR,
+                            width: 1.0,
+                            radius: 2.0.into(),
+                        },
+                    },
+                    handle: slider::Handle {
+                        shape: slider::HandleShape::Circle { radius: 7.0 },
+                        background: iced::Background::Color(GREEN_COLOR),
+                        border_width: 1.0,
+                        border_color: GREEN_COLOR,
+                    },
+                })
         ]
         .spacing(5)
         .align_y(Alignment::Center)

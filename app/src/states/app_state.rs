@@ -90,8 +90,8 @@ impl MediaPlayer {
             PlayerAction::Pause => self.player.pause(),
             PlayerAction::Resume => self.player.resume(),
             PlayerAction::Stop => self.player.stop(),
-            PlayerAction::SetVolume(_v) => {}
-            PlayerAction::Seek(_pos) => {}
+            PlayerAction::SetVolume(v) => self.player.set_volume(v),
+            PlayerAction::Seek(pos) => self.player.seek(pos),
         }
     }
     
