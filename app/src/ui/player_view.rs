@@ -104,8 +104,39 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Right: Playback controls and volume with SVG icons using svg widget directly
-    // Updated to use the bold and fill icons
+    // Volume control - moved to its own variable to be positioned at the far right
+    let volume_control = row![
+        load_icon("ph--speaker-high-fill.svg")
+            .width(16)
+            .height(16),
+        
+        slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
+            .width(Length::Fixed(100.0))
+            .style(|_theme: &Theme, _| slider::Style {
+                rail: slider::Rail {
+                    backgrounds: (
+                        iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1)),
+                        iced::Background::Color(GREEN_COLOR)
+                    ),
+                    width: 1.0,
+                    border: Border {
+                        color: DARK_GREEN_COLOR,
+                        width: 1.0,
+                        radius: 2.0.into(),
+                    },
+                },
+                handle: slider::Handle {
+                    shape: slider::HandleShape::Circle { radius: 7.0 },
+                    background: iced::Background::Color(GREEN_COLOR),
+                    border_width: 1.0,
+                    border_color: GREEN_COLOR,
+                },
+            })
+    ]
+    .spacing(5)
+    .align_y(Alignment::Center);
+    
+    // Right: Playback controls - reordered with shuffle and next buttons switched
     let controls = row![
         // Previous track button with SVG icon
         button(
@@ -173,54 +204,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Volume slider with icon and properly styled slider
-        row![
-            load_icon("ph--speaker-high-fill.svg")
-                .width(16)
-                .height(16),
-            
-            slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
-                .width(Length::Fixed(100.0))
-                .style(|_theme: &Theme, _| slider::Style {
-                    rail: slider::Rail {
-                        backgrounds: (
-                            iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1)),
-                            iced::Background::Color(GREEN_COLOR)
-                        ),
-                        width: 1.0,
-                        border: Border {
-                            color: DARK_GREEN_COLOR,
-                            width: 1.0,
-                            radius: 2.0.into(),
-                        },
-                    },
-                    handle: slider::Handle {
-                        shape: slider::HandleShape::Circle { radius: 7.0 },
-                        background: iced::Background::Color(GREEN_COLOR),
-                        border_width: 1.0,
-                        border_color: GREEN_COLOR,
-                    },
-                })
-        ]
-        .spacing(5)
-        .align_y(Alignment::Center),
-        
-        // Add the Shuffle button - show different color when enabled
-        button(
-            load_icon("ph--shuffle-bold.svg")
-                .width(20)
-                .height(20)
-        )
-        .padding(5)
-        .on_press(PlayerAction::Shuffle)
-        .style(|_theme, _| button::Style {
-            background: None,
-            // Apply different color based on shuffle status
-            text_color: if player.shuffle_enabled { GREEN_COLOR } else { iced::Color::from_rgb(0.5, 0.5, 0.5) },
-            ..Default::default()
-        }),
-        
-        // Next track button with SVG icon
+        // Next track button - moved before the shuffle button
         button(
             load_icon("ph--skip-forward-fill.svg")
                 .width(20)
@@ -231,20 +215,39 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         .style(|_theme, _| button::Style {
             background: None,
             ..Default::default()
+        }),
+        
+        // Shuffle button - moved after the next button
+        button(
+            load_icon(if player.shuffle_enabled {
+                "ph--shuffle-bold.svg"
+            } else {
+                "ph--shuffle-off-bold.svg"
+            })
+                .width(20)
+                .height(20)
+        )
+        .padding(5)
+        .on_press(PlayerAction::Shuffle)
+        .style(|_theme, _| button::Style {
+            background: None,
+            ..Default::default()
         })
     ]
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Overall player layout
+    // Overall player layout - with volume control moved to the far right
     let content = column![
-        // Main row with track info, progress, and controls
+        // Main row with track info, progress, controls, and volume
         row![
             track_info.width(Length::FillPortion(3)),
             Space::with_width(20),
-            progress.width(Length::FillPortion(5)),
+            progress.width(Length::FillPortion(4)),
             Space::with_width(20),
-            controls.width(Length::FillPortion(4))
+            controls,
+            Space::with_width(Length::Fill), // This pushes volume control to the far right
+            volume_control
         ]
         .padding(10)
         .spacing(20)

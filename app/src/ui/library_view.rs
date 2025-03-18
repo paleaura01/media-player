@@ -3,7 +3,7 @@ use iced::widget::{column, container, text, row, button, text_input, scrollable,
 use iced::widget::svg; // Add this for SVG support
 use iced::{Element, Length, Alignment, Theme};
 use core::library::LibraryState;
-use crate::ui::theme::{GREEN_COLOR, DARK_GREEN_COLOR};
+use crate::ui::theme::{GREEN_COLOR, DARK_GREEN_COLOR, DARK_BG_COLOR};
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -26,10 +26,25 @@ fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
 pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
     // Search bar at top
     let search_bar = row![
-        // Search input
+        // Search input - styled to match player background
         text_input("Search library...", "")
             .padding(8)
-            .width(Length::Fill),
+            .width(Length::Fill)
+            .style(|theme: &Theme, status: text_input::Status| {
+                text_input::Style {
+                    background: iced::Background::Color(DARK_BG_COLOR),
+                    border: iced::Border {
+                        color: DARK_GREEN_COLOR,
+                        width: 1.0,
+                        radius: 4.0.into(),
+                    },
+                    // Use Color values for placeholder and value
+                    placeholder: iced::Color::from_rgb(0.7, 0.7, 0.7),
+                    value: iced::Color::from_rgb(0.9, 0.9, 0.9),
+                    selection: iced::Color::from_rgb(0.3, 0.8, 0.3),
+                    icon: Default::default(),
+                }
+            }),
             
         // View toggle buttons with SVG icons
         button(
