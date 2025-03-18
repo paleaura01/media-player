@@ -17,6 +17,7 @@ pub enum PlayerAction {
     Previous,
     VolumeChange(f32),
     Seek(f32),
+    Shuffle, // Added Shuffle action
 }
 
 // Load SVG icons as svg widgets
@@ -172,19 +173,6 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Next track button with SVG icon
-        button(
-            load_icon("ph--skip-forward-fill.svg")
-                .width(20)
-                .height(20)
-        )
-        .padding(5)
-        .on_press(PlayerAction::Next)
-        .style(|_theme, _| button::Style {
-            background: None,
-            ..Default::default()
-        }),
-        
         // Volume slider with icon and properly styled slider
         row![
             load_icon("ph--speaker-high-fill.svg")
@@ -215,7 +203,35 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
                 })
         ]
         .spacing(5)
-        .align_y(Alignment::Center)
+        .align_y(Alignment::Center),
+        
+        // Add the Shuffle button - show different color when enabled
+        button(
+            load_icon("ph--shuffle-bold.svg")
+                .width(20)
+                .height(20)
+        )
+        .padding(5)
+        .on_press(PlayerAction::Shuffle)
+        .style(|_theme, _| button::Style {
+            background: None,
+            // Apply different color based on shuffle status
+            text_color: if player.shuffle_enabled { GREEN_COLOR } else { iced::Color::from_rgb(0.5, 0.5, 0.5) },
+            ..Default::default()
+        }),
+        
+        // Next track button with SVG icon
+        button(
+            load_icon("ph--skip-forward-fill.svg")
+                .width(20)
+                .height(20)
+        )
+        .padding(5)
+        .on_press(PlayerAction::Next)
+        .style(|_theme, _| button::Style {
+            background: None,
+            ..Default::default()
+        })
     ]
     .spacing(10)
     .align_y(Alignment::Center);

@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use log::{debug, error, info};
 use core::{Action, PlayerAction, PlaylistAction, LibraryAction, Track, Player, PlayerState, PlaylistState, LibraryState};
 use crate::states::playlist_state::PlaylistViewState;
+use rand::Rng; // For picking random track if shuffle is on
 
 pub struct MediaPlayer {
     pub player: Player,
@@ -48,7 +49,9 @@ impl Default for MediaPlayer {
         };
 
         let player = Player::new();
-        let player_state = player.get_state();
+        let mut player_state = player.get_state();
+        // Make sure shuffle starts off
+        player_state.shuffle_enabled = false;
 
         info!("MediaPlayer default state created");
 
@@ -64,7 +67,6 @@ impl Default for MediaPlayer {
 }
 
 impl MediaPlayer {
-   
     pub fn handle_action(&mut self, action: Action) {
         debug!("Handling Action: {:?}", action);
         match action {
@@ -92,113 +94,147 @@ impl MediaPlayer {
             PlayerAction::Stop => self.player.stop(),
             PlayerAction::SetVolume(v) => self.player.set_volume(v),
             PlayerAction::Seek(pos) => self.player.seek(pos),
+            PlayerAction::Shuffle => {
+                // Toggle shuffle mode
+                self.player_state.shuffle_enabled = !self.player_state.shuffle_enabled;
+                if self.player_state.shuffle_enabled {
+                    info!("Shuffle enabled");
+                } else {
+                    info!("Shuffle disabled");
+                }
+            },
+            PlayerAction::NextTrack => {
+                // Code for next track with shuffle consideration
+                info!("Next track button pressed");
+                
+                if let Some(idx) = self.playlists.selected {
+                    if idx < self.playlists.playlists.len() {
+                        let playlist = &self.playlists.playlists[idx];
+                        
+                        if self.player_state.shuffle_enabled {
+                            // If shuffle is enabled, select a random track
+                            if !playlist.tracks.is_empty() {
+                                let random_idx = rand::thread_rng().gen_range(0..playlist.tracks.len());
+                                
+                                let track = &playlist.tracks[random_idx];
+                                info!("Playing random track: {}", track.path);
+                                self.handle_action(core::Action::Playlist(
+                                    core::PlaylistAction::PlayTrack(playlist.id, random_idx)
+                                ));
+                            }
+                        } else {
+                            // Sequential next track logic
+                            if let Some(current_track_path) = &self.player_state.current_track {
+                                let current_idx = playlist.tracks.iter()
+                                    .position(|track| &track.path == current_track_path);
+                                    
+                                if let Some(idx) = current_idx {
+                                    let next_idx = (idx + 1) % playlist.tracks.len();
+                                    
+                                    let track = &playlist.tracks[next_idx];
+                                    info!("Playing next track: {}", track.path);
+                                    self.handle_action(core::Action::Playlist(
+                                        core::PlaylistAction::PlayTrack(playlist.id, next_idx)
+                                    ));
+                                } else if !playlist.tracks.is_empty() {
+                                    // Current track not in playlist, start with first
+                                    self.handle_action(core::Action::Playlist(
+                                        core::PlaylistAction::PlayTrack(playlist.id, 0)
+                                    ));
+                                }
+                            } else if !playlist.tracks.is_empty() {
+                                // No track playing, start with first
+                                self.handle_action(core::Action::Playlist(
+                                    core::PlaylistAction::PlayTrack(playlist.id, 0)
+                                ));
+                            }
+                        }
+                    }
+                }
+            },
+            PlayerAction::PreviousTrack => {
+                // Code for previous track (similar to NextTrack but going backwards)
+                info!("Previous track button pressed");
+                
+                if let Some(idx) = self.playlists.selected {
+                    if idx < self.playlists.playlists.len() {
+                        let playlist = &self.playlists.playlists[idx];
+                        
+                        if let Some(current_track_path) = &self.player_state.current_track {
+                            let current_idx = playlist.tracks.iter()
+                                .position(|track| &track.path == current_track_path);
+                                
+                            if let Some(idx) = current_idx {
+                                let prev_idx = if idx == 0 {
+                                    playlist.tracks.len() - 1 // Wrap around to the end
+                                } else {
+                                    idx - 1
+                                };
+                                
+                                let track = &playlist.tracks[prev_idx];
+                                info!("Playing previous track: {}", track.path);
+                                self.handle_action(core::Action::Playlist(
+                                    core::PlaylistAction::PlayTrack(playlist.id, prev_idx)
+                                ));
+                            } else if !playlist.tracks.is_empty() {
+                                // Current track not in playlist, start with last
+                                let last_idx = playlist.tracks.len() - 1;
+                                self.handle_action(core::Action::Playlist(
+                                    core::PlaylistAction::PlayTrack(playlist.id, last_idx)
+                                ));
+                            }
+                        } else if !playlist.tracks.is_empty() {
+                            // No track playing, start with last
+                            let last_idx = playlist.tracks.len() - 1;
+                            self.handle_action(core::Action::Playlist(
+                                core::PlaylistAction::PlayTrack(playlist.id, last_idx)
+                            ));
+                        }
+                    }
+                }
+            },
         }
     }
     
     fn handle_playlist_action(&mut self, action: PlaylistAction) {
         match action {
             PlaylistAction::Create(name) => {
-                info!("Creating playlist: {}", name);
                 self.playlists.create_playlist(name);
-                let path = self.data_dir.join("playlists.json");
-                let _ = self.playlists.save_to_file(&path);
-            }
-            PlaylistAction::Select(id) => {
-                info!("Selecting playlist with ID: {}", id);
-                let idx = self.playlists.playlists.iter().position(|p| p.id == id);
-                if let Some(idx) = idx {
-                    info!("Found playlist at index: {}", idx);
-                    self.playlists.selected = Some(idx);
-                } else {
-                    error!("Could not find playlist with ID: {}", id);
-                    self.playlists.selected = None;
-                }
-            }
+            },
             PlaylistAction::Delete(id) => {
-                info!("Deleting playlist with ID: {}", id);
                 self.playlists.delete_playlist(id);
-                let path = self.data_dir.join("playlists.json");
-                if let Err(e) = self.playlists.save_to_file(&path) {
-                    error!("Failed to save playlists after deletion: {}", e);
-                } else {
-                    info!("Successfully deleted playlist and saved changes");
-                }
-            }
-            PlaylistAction::Rename(id, nm) => {
-                if let Some(p) = self.playlists.get_playlist_mut(id) {
-                    p.name = nm;
-                    let path = self.data_dir.join("playlists.json");
-                    let _ = self.playlists.save_to_file(&path);
-                }
-            }
-            PlaylistAction::AddTrack(id, track) => {
-                // Enhanced version that provides better logging and error handling for tracks
-                if let Some(p) = self.playlists.get_playlist_mut(id) {
-                    // Ensure we're preserving the full path of the track
-                    info!("Adding track to playlist {}: {} (path: {})", 
-                         id, track.title.as_deref().unwrap_or("Unknown"), track.path);
-                    
-                    // Add the track to the playlist
-                    p.tracks.push(track);
-                    
-                    // Save the updated playlists to disk
-                    let path = self.data_dir.join("playlists.json");
-                    if let Err(e) = self.playlists.save_to_file(&path) {
-                        error!("Failed to save playlists after adding track: {}", e);
-                    } else {
-                        info!("Successfully saved playlist with new track");
-                    }
-                } else {
-                    error!("Failed to find playlist with ID {} to add track", id);
-                }
-            }
-            PlaylistAction::RemoveTrack(id, idx) => {
-                if let Some(p) = self.playlists.get_playlist_mut(id) {
-                    if idx < p.tracks.len() {
-                        p.tracks.remove(idx);
-                        let path = self.data_dir.join("playlists.json");
-                        let _ = self.playlists.save_to_file(&path);
-                    }
-                }
-            }
-            PlaylistAction::PlayTrack(playlist_id, track_idx) => {
-                info!("Playing track {} from playlist {}", track_idx, playlist_id);
-                
-                // Find the playlist by ID
-                if let Some(playlist) = self.playlists.get_playlist(playlist_id) {
-                    // Check if the track index is valid
-                    if track_idx < playlist.tracks.len() {
-                        // Get the track
-                        let track = &playlist.tracks[track_idx];
-                        
-                        // Get the track path
-                        let path = &track.path;
-                        
-                        // Log the path we're about to play
-                        info!("Starting playback of file at path: {}", path);
-                        
-                        // Trigger playback with explicit error handling
-                        match self.player.play(path) {
-                            Ok(_) => info!("Successfully started playback"),
-                            Err(e) => {
-                                // Add more detailed error logging
-                                error!("Failed to play track: {}", e);
-                                error!("Path attempted: {}", path);
-                                
-                                // Check if file exists
-                                if !std::path::Path::new(path).exists() {
-                                    error!("File does not exist at path: {}", path);
-                                }
-                            }
-                        }
-                    } else {
-                        error!("Track index {} is out of bounds for playlist {}", track_idx, playlist_id);
-                    }
-                } else {
-                    error!("Could not find playlist with ID {}", playlist_id);
+            },
+            PlaylistAction::Select(id) => {
+                if let Some(pos) = self.playlists.playlists.iter().position(|p| p.id == id) {
+                    self.playlists.selected = Some(pos);
                 }
             },
-            _ => {} // Handle other cases like None
+            PlaylistAction::Rename(id, new_name) => {
+                let _ = self.playlists.rename_playlist(id, new_name);
+            },
+            PlaylistAction::AddTrack(playlist_id, track) => {
+                if let Some(playlist) = self.playlists.get_playlist_mut(playlist_id) {
+                    playlist.tracks.push(track);
+                }
+            },
+            PlaylistAction::RemoveTrack(playlist_id, index) => {
+                if let Some(playlist) = self.playlists.get_playlist_mut(playlist_id) {
+                    if index < playlist.tracks.len() {
+                        playlist.tracks.remove(index);
+                    }
+                }
+            },
+            PlaylistAction::PlayTrack(playlist_id, track_idx) => {
+                if let Some(playlist) = self.playlists.get_playlist(playlist_id) {
+                    if track_idx < playlist.tracks.len() {
+                        let track = &playlist.tracks[track_idx];
+                        self.handle_action(core::Action::Player(
+                            core::PlayerAction::Play(track.path.clone())
+                        ));
+                    }
+                }
+            },
+            _ => {}
         }
     }
     

@@ -48,16 +48,20 @@ pub fn render_with_state<'a>(
                 PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),  // Skip forward 10%
             player_view::PlayerAction::SkipBackward => 
                 PlaylistAction::PlayerControl(core::PlayerAction::Seek(-0.1)), // Skip backward 10%
-            player_view::PlayerAction::Next => PlaylistAction::None, // For now use None, improve later
-            player_view::PlayerAction::Previous => PlaylistAction::None, // For now use None, improve later
+            player_view::PlayerAction::Next => 
+                PlaylistAction::PlayerControl(core::PlayerAction::NextTrack), // Use new NextTrack action
+            player_view::PlayerAction::Previous => 
+                PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack), // Use new PreviousTrack action
             player_view::PlayerAction::VolumeChange(v) => 
                 PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
             player_view::PlayerAction::Seek(pos) => 
                 PlaylistAction::PlayerControl(core::PlayerAction::Seek(pos)),
+            player_view::PlayerAction::Shuffle =>
+                PlaylistAction::PlayerControl(core::PlayerAction::Shuffle),
         })
     )
-    .width(Length::Fill)
-    .style(player_container_style()); // Using the function here instead of inline style
+.width(Length::Fill)
+.style(player_container_style()); // Using the function here instead of inline style
 
     // Left panel - Playlists (15%)
     let playlist_container = Container::new(

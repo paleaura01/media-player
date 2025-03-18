@@ -137,6 +137,7 @@ dependencies = [
  "iced",
  "lazy_static",
  "log",
+ "rand",
  "rfd",
  "serde",
  "serde_json",

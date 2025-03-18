@@ -89,6 +89,7 @@ pub struct PlayerState {
     pub volume: f32,
     pub duration: Option<Duration>,
     pub position: Option<Duration>,
+    pub shuffle_enabled: bool,  // Added shuffle_enabled field
 }
 
 impl PlayerState {
@@ -100,6 +101,7 @@ impl PlayerState {
             volume: 0.8,
             duration: None,
             position: None,
+            shuffle_enabled: false,  // Initialize to false
         }
     }
 }
@@ -119,6 +121,9 @@ pub enum PlayerAction {
     Stop,
     SetVolume(f32),
     Seek(f32),
+    Shuffle,      // Added for shuffle functionality
+    NextTrack,    // Added for next track
+    PreviousTrack, // Added for previous track
 }
 
 pub struct Player {
