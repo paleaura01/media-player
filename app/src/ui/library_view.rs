@@ -1,12 +1,11 @@
 // app/src/ui/library_view.rs
 use iced::widget::{column, container, text, row, button, text_input, scrollable, Space};
-use iced::widget::svg; // Add this for SVG support
+use iced::widget::svg; // For SVG
 use iced::{Element, Length, Alignment, Theme};
 use core::library::LibraryState;
 use crate::ui::theme::{GREEN_COLOR, DARK_GREEN_COLOR, DARK_BG_COLOR};
 
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub enum LibraryMessage {
     None,
     AddMusicFolder,
@@ -30,7 +29,7 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
         text_input("Search library...", "")
             .padding(8)
             .width(Length::Fill)
-            .style(|theme: &Theme, status: text_input::Status| {
+            .style(|_theme: &Theme, _status: text_input::Status| {
                 text_input::Style {
                     background: iced::Background::Color(DARK_BG_COLOR),
                     border: iced::Border {

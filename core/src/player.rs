@@ -127,7 +127,7 @@ pub enum PlayerAction {
 }
 
 pub struct Player {
-    state: Arc<Mutex<PlayerState>>,
+    pub state: Arc<Mutex<PlayerState>>,
     pause_flag: Arc<AtomicBool>,
     stop_flag: Arc<AtomicBool>,
     playback_thread: Option<thread::JoinHandle<()>>,
@@ -321,6 +321,13 @@ impl Player {
         match self.state.lock() {
             Ok(state) => state.clone(),
             Err(_) => PlayerState::new() // Return default state if lock fails
+        }
+    }
+    
+    // Added method to toggle shuffle state
+    pub fn toggle_shuffle_state(&mut self) {
+        if let Ok(mut state) = self.state.lock() {
+            state.shuffle_enabled = !state.shuffle_enabled;
         }
     }
 }
@@ -793,28 +800,27 @@ fn play_audio_file(
         needs_data.store(false, Ordering::Release);
         
         // Process just one packet at a time for more responsive control
-        // Process just one packet at a time for more responsive control
-let packet_result: Result<symphonia::core::formats::Packet, symphonia::core::errors::Error> = match format.next_packet() {
-    Ok(packet) => {
-        if packet.track_id() != track_id {
-            continue;
-        }
-        Ok(packet)
-    },
-    Err(e) => {
-        // Check if it's EOF or a real error
-        if let symphonia::core::errors::Error::IoError(ref err) = e {
-            if err.kind() == std::io::ErrorKind::UnexpectedEof {
-                is_eof = true;
-                info!("End of file reached");
+        let packet_result: Result<symphonia::core::formats::Packet, symphonia::core::errors::Error> = match format.next_packet() {
+            Ok(packet) => {
+                if packet.track_id() != track_id {
+                    continue;
+                }
+                Ok(packet)
+            },
+            Err(e) => {
+                // Check if it's EOF or a real error
+                if let symphonia::core::errors::Error::IoError(ref err) = e {
+                    if err.kind() == std::io::ErrorKind::UnexpectedEof {
+                        is_eof = true;
+                        info!("End of file reached");
+                        continue;
+                    }
+                }
+                // Handle other errors by skipping this iteration
+                warn!("Error reading packet: {}", e);
                 continue;
             }
-        }
-        // Handle other errors by skipping this iteration
-        warn!("Error reading packet: {}", e);
-        continue;
-    }
-};
+        };
         
         if let Ok(packet) = packet_result {
             match decoder.decode(&packet) {

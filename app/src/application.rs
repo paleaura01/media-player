@@ -7,6 +7,7 @@ use crate::states::window_state;
 use crate::states::app_state::MediaPlayer;
 use iced::keyboard::key::Named;
 use std::path::PathBuf;
+use rand::Rng; // Add this import for gen_range
 
 // Import message types from UI modules
 use crate::ui::playlist_view::PlaylistAction;
@@ -48,6 +49,32 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             match action {
                 core::Action::Player(player_action) => {
                     match player_action {
+                        core::PlayerAction::Resume => {
+                            // Check if we're trying to resume but there's no current track
+                            if state.player_state.current_track.is_none() {
+                                // If a playlist is selected, play the first/random track
+                                if let Some(idx) = state.playlists.selected {
+                                    if idx < state.playlists.playlists.len() {
+                                        let playlist = &state.playlists.playlists[idx];
+                                        if !playlist.tracks.is_empty() {
+                                            let track_idx = if state.player_state.shuffle_enabled {
+                                                // If shuffle is on, pick random track
+                                                rand::thread_rng().gen_range(0..playlist.tracks.len())
+                                            } else {
+                                                // Otherwise, start with the first track
+                                                0
+                                            };
+                                            // Directly play this track
+                                            let track = &playlist.tracks[track_idx];
+                                            state.player.play(&track.path).ok();
+                                            state.player_state = state.player.get_state();
+                                            return Task::none();
+                                        }
+                                    }
+                                }
+                            }
+                            state.handle_action(core::Action::Player(player_action));
+                        },
                         core::PlayerAction::Seek(pos) => {
                             // Handle seeking
                             state.player.seek(pos);

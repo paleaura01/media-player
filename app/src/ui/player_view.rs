@@ -10,13 +10,13 @@ use crate::ui::theme::{green_text, green_progress_bar, GREEN_COLOR, DARK_GREEN_C
 pub enum PlayerAction {
     Play,
     Pause,
-    Stop,
+    // Removed the unused `Stop` variant
+    // Removed the unused `Seek(f32)` variant
     SkipForward,
     SkipBackward,
     Next,
     Previous,
     VolumeChange(f32),
-    Seek(f32),
     Shuffle, // Added Shuffle action
 }
 
@@ -237,7 +237,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Overall player layout - with volume control moved to the far right
+    // Overall player layout - REMOVED extra space that was causing the huge gap
     let content = column![
         // Main row with track info, progress, controls, and volume
         row![
@@ -246,7 +246,6 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             progress.width(Length::FillPortion(4)),
             Space::with_width(20),
             controls,
-            Space::with_width(Length::Fill), // This pushes volume control to the far right
             volume_control
         ]
         .padding(10)

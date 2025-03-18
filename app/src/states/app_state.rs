@@ -99,8 +99,16 @@ impl MediaPlayer {
                 self.player_state.shuffle_enabled = !self.player_state.shuffle_enabled;
                 if self.player_state.shuffle_enabled {
                     info!("Shuffle enabled");
+                    // Make sure shuffle is reflected in player state
+                    if let Ok(mut state) = self.player.state.lock() {
+                        state.shuffle_enabled = true;
+                    }
                 } else {
                     info!("Shuffle disabled");
+                    // Make sure shuffle is reflected in player state
+                    if let Ok(mut state) = self.player.state.lock() {
+                        state.shuffle_enabled = false;
+                    }
                 }
             },
             PlayerAction::NextTrack => {
@@ -143,10 +151,22 @@ impl MediaPlayer {
                                     ));
                                 }
                             } else if !playlist.tracks.is_empty() {
-                                // No track playing, start with first
-                                self.handle_action(core::Action::Playlist(
-                                    core::PlaylistAction::PlayTrack(playlist.id, 0)
-                                ));
+                                // No track playing yet
+                                // If shuffle is ON, pick a random track
+                                // If shuffle is OFF, start with the first track
+                                if self.player_state.shuffle_enabled {
+                                    let random_idx = rand::thread_rng().gen_range(0..playlist.tracks.len());
+                                    let track = &playlist.tracks[random_idx];
+                                    info!("(No track) shuffle => playing random track: {}", track.path);
+                                    self.handle_action(core::Action::Playlist(
+                                        core::PlaylistAction::PlayTrack(playlist.id, random_idx)
+                                    ));
+                                } else {
+                                    info!("(No track) playing the first track in the playlist");
+                                    self.handle_action(core::Action::Playlist(
+                                        core::PlaylistAction::PlayTrack(playlist.id, 0)
+                                    ));
+                                }
                             }
                         }
                     }

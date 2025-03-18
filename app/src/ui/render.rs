@@ -42,8 +42,6 @@ pub fn render_with_state<'a>(
                 PlaylistAction::PlayerControl(core::PlayerAction::Resume),
             player_view::PlayerAction::Pause => 
                 PlaylistAction::PlayerControl(core::PlayerAction::Pause),
-            player_view::PlayerAction::Stop => 
-                PlaylistAction::PlayerControl(core::PlayerAction::Stop),
             player_view::PlayerAction::SkipForward => 
                 PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),  // Skip forward 10%
             player_view::PlayerAction::SkipBackward => 
@@ -54,8 +52,6 @@ pub fn render_with_state<'a>(
                 PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack), // Use new PreviousTrack action
             player_view::PlayerAction::VolumeChange(v) => 
                 PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
-            player_view::PlayerAction::Seek(pos) => 
-                PlaylistAction::PlayerControl(core::PlayerAction::Seek(pos)),
             player_view::PlayerAction::Shuffle =>
                 PlaylistAction::PlayerControl(core::PlayerAction::Shuffle),
         })
