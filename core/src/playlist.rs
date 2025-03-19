@@ -1,10 +1,9 @@
-use std::path::Path;
-use anyhow::Result;
 use serde::{Serialize, Deserialize};
+use std::path::Path;
 use std::fs;
-use std::time::Instant;
+use anyhow::Result;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Track {
     pub path: String,
     pub title: Option<String>,
@@ -12,64 +11,35 @@ pub struct Track {
     pub album: Option<String>,
 }
 
-impl Track {
-    pub fn new(path: String) -> Self {
-        let title = Path::new(&path)
-            .file_name()
-            .and_then(|name| name.to_str())
-            .map(|s| s.to_string());
-        Self { path, title, artist: None, album: None }
-    }
+#[derive(Clone, Debug)]
+pub enum PlaylistAction {
+    Create(String),
+    Delete(u32),
+    Select(u32),
+    Rename(u32, String),
+    AddTrack(u32, Track),
+    RemoveTrack(u32, usize),
+    PlayTrack(u32, usize),
+    None,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Playlist {
-    pub id: u32,
-    pub name: String,
-    pub tracks: Vec<Track>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PlaylistState {
     pub playlists: Vec<Playlist>,
     pub selected: Option<usize>,
-    #[serde(skip)]
-    pub editing_id: Option<u32>,  // Track which playlist is being edited
-    #[serde(skip)]
-    pub editing_text: String,     // Track the current editing text
-    #[serde(skip)]
-    pub last_clicked_id: Option<u32>, // Track last clicked playlist for double-click detection
-    #[serde(skip)]
-    pub last_clicked_time: Option<Instant>, // Track timestamp of last click
-    #[serde(skip)]
-    pub showing_create_popup: bool, // Flag to show the create playlist popup
-    #[serde(skip)]
-    pub new_playlist_name: String, // Text field for new playlist name
-    #[serde(skip)]
-    pub deleting_playlist_id: Option<u32>, // Track which playlist is pending deletion
-    #[serde(skip)]
-    pub hovered_playlist_id: Option<u32>, // Track which playlist is being hovered
-    next_id: u32,
+    next_id: u32, // Added for ID generation
 }
 
 impl PlaylistState {
     pub fn new() -> Self {
-        Self { 
-            playlists: Vec::new(), 
-            selected: None, 
-            editing_id: None,
-            editing_text: String::new(),
-            last_clicked_id: None,
-            last_clicked_time: None,
-            showing_create_popup: false,
-            new_playlist_name: "New Playlist".to_string(),
-            deleting_playlist_id: None,
-            hovered_playlist_id: None,
-            next_id: 1 
+        Self {
+            playlists: Vec::new(),
+            selected: None,
+            next_id: 1,
         }
     }
     
-    // Rest of the code remains the same
+    // Add this method that the app is expecting
     pub fn load_from_file(path: &Path) -> Result<Self> {
         // Check if file exists and has content
         if !path.exists() || path.metadata()?.len() == 0 {
@@ -84,6 +54,7 @@ impl PlaylistState {
         Ok(state)
     }
     
+    // Save playlist state to file
     pub fn save_to_file(&self, path: &Path) -> Result<()> {
         // Serialize to JSON
         let json = serde_json::to_string_pretty(self)?;
@@ -93,6 +64,7 @@ impl PlaylistState {
         Ok(())
     }
     
+    // Create a new playlist
     pub fn create_playlist(&mut self, name: String) -> Playlist {
         let id = self.next_id;
         self.next_id += 1;
@@ -105,6 +77,7 @@ impl PlaylistState {
         playlist
     }
     
+    // Delete a playlist by ID
     pub fn delete_playlist(&mut self, id: u32) {
         if let Some(pos) = self.playlists.iter().position(|p| p.id == id) {
             self.playlists.remove(pos);
@@ -118,14 +91,17 @@ impl PlaylistState {
         }
     }
     
-    pub fn get_playlist_mut(&mut self, id: u32) -> Option<&mut Playlist> {
-        self.playlists.iter_mut().find(|p| p.id == id)
-    }
-    
+    // Get a playlist by ID
     pub fn get_playlist(&self, id: u32) -> Option<&Playlist> {
         self.playlists.iter().find(|p| p.id == id)
     }
     
+    // Get a mutable playlist by ID
+    pub fn get_playlist_mut(&mut self, id: u32) -> Option<&mut Playlist> {
+        self.playlists.iter_mut().find(|p| p.id == id)
+    }
+    
+    // Rename a playlist
     pub fn rename_playlist(&mut self, id: u32, new_name: String) -> bool {
         if let Some(playlist) = self.get_playlist_mut(id) {
             playlist.name = new_name;
@@ -134,43 +110,11 @@ impl PlaylistState {
             false
         }
     }
-    
-    pub fn add_track_to_selected(&mut self, track: Track) -> bool {
-        if let Some(idx) = self.selected {
-            if idx < self.playlists.len() {
-                let playlist_id = self.playlists[idx].id;
-                if let Some(playlist) = self.get_playlist_mut(playlist_id) {
-                    playlist.tracks.push(track);
-                    return true;
-                }
-            }
-        }
-        false
-    }
 }
 
-// Add the None variant to the PlaylistAction enum in core/src/playlist.rs
-#[derive(Clone, Debug)]
-pub enum PlaylistAction {
-    Create(String),
-    Delete(u32),
-    Select(u32),
-    Rename(u32, String),
-    AddTrack(u32, Track),
-    RemoveTrack(u32, usize),
-    Click(u32),                // For playlist click (to implement double-click)
-    StartEditing(u32),         // Start editing a playlist name
-    UpdateEditingText(String), // Update the editing text as the user types
-    SaveEdit,                  // Save the current edit
-    CancelEdit,                // Cancel editing
-    ClickOutside,              // Handle clicking outside the editing area
-    ShowCreatePopup,           // Show the create playlist popup
-    HideCreatePopup,           // Hide the create playlist popup
-    UpdateNewPlaylistName(String), // Update the new playlist name text field
-    ShowDeleteConfirmation(u32), // Show the delete confirmation popup
-    CancelDelete,              // Cancel the delete operation
-    ConfirmDelete,             // Confirm the delete operation
-    HoverPlaylist(Option<u32>),// Track mouse hover over playlist
-    PlayTrack(u32, usize),     // Play a track - playlist_id, track_index
-    None,                      // No-op action
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Playlist {
+    pub id: u32,
+    pub name: String,
+    pub tracks: Vec<Track>,
 }

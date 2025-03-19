@@ -1,10 +1,15 @@
+// core/src/lib.rs
+pub mod audio;
 pub mod player;
 pub mod playlist;
 pub mod library;
 
-pub use player::{Player, PlayerState, PlaybackStatus, PlayerAction};
-pub use playlist::{PlaylistState, Playlist, Track, PlaylistAction};
-pub use library::{LibraryState, LibraryAction};
+// Re-export key types for convenience
+pub use player::state::{PlayerState, PlaybackStatus};
+pub use player::actions::PlayerAction;
+pub use player::Player;
+pub use playlist::{PlaylistAction, PlaylistState, Playlist, Track};
+pub use library::{LibraryAction, LibraryState};
 
 #[derive(Debug, Clone)]
 pub enum Action {

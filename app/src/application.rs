@@ -7,6 +7,7 @@ use crate::states::window_state;
 use crate::states::app_state::MediaPlayer;
 use iced::keyboard::key::Named;
 use std::path::PathBuf;
+use std::fs;
 
 // Import message types from UI modules
 use crate::ui::playlist_view::PlaylistAction;
@@ -30,9 +31,9 @@ pub enum Message {
     WindowFocusLost,
     WindowFocusGained,
     /// File drag and drop events - these enable adding tracks via drag-and-drop
-    FileHovered,             // Fired when a file is being dragged over the window
-    FileDropped(PathBuf),    // Fired when a file is dropped onto the window
-    FilesHoveredLeft,        // Fired when dragged files exit the window without being dropped
+    FileHovered,          // Fired when a file is being dragged over the window
+    FileDropped(PathBuf), // Fired when a file is dropped onto the window
+    FilesHoveredLeft,     // Fired when dragged files exit the window without being dropped
 }
 
 
@@ -45,8 +46,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
     state.player.update_progress();
     state.player_state = state.player.get_state();
     
-    // Restore shuffle state after update - this ensures it's preserved
-    // across all state updates regardless of event type
+    // Restore shuffle state after update
     state.player_state.shuffle_enabled = shuffle_was_enabled;
     
     match message {
@@ -200,40 +200,46 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 if selected_idx < state.playlists.playlists.len() {
                     let playlist_id = state.playlists.playlists[selected_idx].id;
                     
-                    // Convert the path to a string
-                    if let Some(path_str) = path.to_str() {
-                        // Extract the filename to use as the track title
-                        let filename = path.file_name()
-                            .and_then(|n| n.to_str())
-                            .unwrap_or("Unknown")
-                            .to_string();
-                        
-                        // Check if this is an audio file by examining the extension
-                        let extension = path.extension()
-                            .and_then(|ext| ext.to_str())
-                            .unwrap_or("")
-                            .to_lowercase();
-                        
-                        // List of supported audio formats
-                        if ["mp3", "wav", "flac", "ogg", "m4a", "aac"].contains(&extension.as_str()) {
-                            // Create a track with the file information
-                            // The path needs to be stored as a string for later playback
-                            let track = core::Track {
-                                path: path_str.to_string(),  // Store the full path for playback
-                                title: Some(filename.clone()),  // Clone filename so we can use it again below
-                                artist: None,                // These could be populated by metadata later
-                                album: None,
-                            };
+                    // Convert the path to a string (canonicalize for absolute)
+                    match fs::canonicalize(&path) {
+                        Ok(abs_path) => {
+                            let path_str = abs_path.to_string_lossy().to_string();
                             
-                            // Add the track to the selected playlist
-                            state.handle_action(core::Action::Playlist(
-                                core::PlaylistAction::AddTrack(playlist_id, track)
-                            ));
+                            // Extract the filename to use as the track title
+                            let filename = abs_path.file_name()
+                                .and_then(|n| n.to_str())
+                                .unwrap_or("Unknown")
+                                .to_string();
                             
-                            // Log success
-                            println!("Added track to playlist {}: {}", playlist_id, filename);
-                        } else {
-                            println!("Dropped file is not a supported audio format: {}", extension);
+                            // Check if this is an audio file by extension
+                            let extension = abs_path.extension()
+                                .and_then(|ext| ext.to_str())
+                                .unwrap_or("")
+                                .to_lowercase();
+                            
+                            // List of supported audio formats
+                            if ["mp3", "wav", "flac", "ogg", "m4a", "aac"].contains(&extension.as_str()) {
+                                // Create a track with the file information
+                                let track = core::Track {
+                                    path: path_str,          // Store the absolute path
+                                    title: Some(filename.clone()),
+                                    artist: None,
+                                    album: None,
+                                };
+                                
+                                // Add the track to the selected playlist
+                                state.handle_action(core::Action::Playlist(
+                                    core::PlaylistAction::AddTrack(playlist_id, track)
+                                ));
+                                
+                                // Log success
+                                println!("Added track to playlist {}: {}", playlist_id, filename);
+                            } else {
+                                println!("Dropped file is not a supported audio format: {}", extension);
+                            }
+                        },
+                        Err(err) => {
+                            println!("Could not resolve absolute path for dropped file: {}", err);
                         }
                     }
                 }
