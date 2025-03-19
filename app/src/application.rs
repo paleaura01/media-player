@@ -7,14 +7,12 @@ use crate::states::window_state;
 use crate::states::app_state::MediaPlayer;
 use iced::keyboard::key::Named;
 use std::path::PathBuf;
-use rand::Rng; // Add this import for gen_range
 
 // Import message types from UI modules
 use crate::ui::playlist_view::PlaylistAction;
 use crate::ui::library_view::LibraryMessage;
 
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub enum Message {
     /// Core action messages
     Action(core::Action),
@@ -40,41 +38,25 @@ pub enum Message {
 
 // Updated to return Task<Message> instead of void
 fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
+    // Save shuffle state before updating
+    let shuffle_was_enabled = state.player_state.shuffle_enabled;
+    
     // Update player progress on every event to keep the UI current
     state.player.update_progress();
     state.player_state = state.player.get_state();
     
+    // Restore shuffle state after update - this ensures it's preserved
+    // across all state updates regardless of event type
+    state.player_state.shuffle_enabled = shuffle_was_enabled;
+    
     match message {
         Message::Action(action) => {
+            // Save shuffle state before action
+            let shuffle_before = state.player_state.shuffle_enabled;
+            
             match action {
                 core::Action::Player(player_action) => {
                     match player_action {
-                        core::PlayerAction::Resume => {
-                            // Check if we're trying to resume but there's no current track
-                            if state.player_state.current_track.is_none() {
-                                // If a playlist is selected, play the first/random track
-                                if let Some(idx) = state.playlists.selected {
-                                    if idx < state.playlists.playlists.len() {
-                                        let playlist = &state.playlists.playlists[idx];
-                                        if !playlist.tracks.is_empty() {
-                                            let track_idx = if state.player_state.shuffle_enabled {
-                                                // If shuffle is on, pick random track
-                                                rand::thread_rng().gen_range(0..playlist.tracks.len())
-                                            } else {
-                                                // Otherwise, start with the first track
-                                                0
-                                            };
-                                            // Directly play this track
-                                            let track = &playlist.tracks[track_idx];
-                                            state.player.play(&track.path).ok();
-                                            state.player_state = state.player.get_state();
-                                            return Task::none();
-                                        }
-                                    }
-                                }
-                            }
-                            state.handle_action(core::Action::Player(player_action));
-                        },
                         core::PlayerAction::Seek(pos) => {
                             // Handle seeking
                             state.player.seek(pos);
@@ -83,14 +65,32 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                             // Handle volume changes
                             state.player.set_volume(vol);
                         },
-                        _ => state.handle_action(core::Action::Player(player_action)),
+                        core::PlayerAction::Shuffle => {
+                            // Toggle shuffle mode
+                            state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
+                            println!("Shuffle toggled to: {}", state.player_state.shuffle_enabled);
+                        },
+                        _ => {
+                            // Handle other player actions
+                            state.handle_action(core::Action::Player(player_action));
+                            // Ensure shuffle state is preserved after action
+                            state.player_state.shuffle_enabled = shuffle_before;
+                        }
                     }
                 },
-                _ => state.handle_action(action),
+                _ => {
+                    state.handle_action(action);
+                    // Ensure shuffle state is preserved after any action
+                    state.player_state.shuffle_enabled = shuffle_before;
+                }
             }
+            
             Task::none()
         },
         Message::Playlist(action) => {
+            // Save shuffle state before action
+            let shuffle_before = state.player_state.shuffle_enabled;
+            
             // Direct handling of PlayTrack to bypass potential issues
             match action {
                 PlaylistAction::PlayTrack(playlist_id, track_idx) => {
@@ -98,19 +98,43 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     state.handle_action(core::Action::Playlist(
                         core::PlaylistAction::PlayTrack(playlist_id, track_idx)
                     ));
-                    // Update the player state immediately
+                    // Update the player state immediately BUT preserve shuffle
                     state.player_state = state.player.get_state();
+                    state.player_state.shuffle_enabled = shuffle_before;
+                    println!("After PlayTrack, shuffle is: {}", state.player_state.shuffle_enabled);
                 }
                 PlaylistAction::PlayerControl(player_action) => {
-                    // Handle player control actions from the UI
-                    state.handle_action(core::Action::Player(player_action));
-                    // Update the player state immediately
-                    state.player_state = state.player.get_state();
+                    // Special handling for shuffle to ensure state is preserved
+                    if let core::PlayerAction::Shuffle = player_action {
+                        // Toggle shuffle mode directly
+                        state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
+                        println!("Shuffle toggled to: {}", state.player_state.shuffle_enabled);
+                    } else {
+                        // For Next/Previous track, we need special handling
+                        match player_action {
+                            core::PlayerAction::NextTrack | core::PlayerAction::PreviousTrack => {
+                                // Handle the action
+                                state.handle_action(core::Action::Player(player_action));
+                                // Ensure shuffle is preserved after track change
+                                state.player_state = state.player.get_state();
+                                state.player_state.shuffle_enabled = shuffle_before;
+                                println!("After Next/Prev, shuffle is: {}", state.player_state.shuffle_enabled);
+                            },
+                            _ => {
+                                // Handle other player control actions
+                                state.handle_action(core::Action::Player(player_action));
+                                // Preserve shuffle state
+                                state.player_state.shuffle_enabled = shuffle_before;
+                            }
+                        }
+                    }
                 }
                 _ => {
-                    // Handle other playlist actions as before
+                    // Handle other playlist actions
                     let core_action = state.playlist_view_state.handle_action(action);
                     state.handle_action(core_action);
+                    // Preserve shuffle state
+                    state.player_state.shuffle_enabled = shuffle_before;
                 }
             }
             Task::none()
@@ -121,9 +145,6 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             state.handle_action(core::Action::Library(
                 core::LibraryAction::StartScan
             ));
-            Task::none()
-        },
-        Message::Library(LibraryMessage::None) => {
             Task::none()
         },
         Message::Library(LibraryMessage::ToggleView) => {

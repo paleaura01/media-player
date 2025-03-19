@@ -1,13 +1,13 @@
 // app/src/ui/library_view.rs
 use iced::widget::{column, container, text, row, button, text_input, scrollable, Space};
-use iced::widget::svg; // For SVG
+use iced::widget::svg;
 use iced::{Element, Length, Alignment, Theme};
 use core::library::LibraryState;
 use crate::ui::theme::{GREEN_COLOR, DARK_GREEN_COLOR, DARK_BG_COLOR};
 
 #[derive(Debug, Clone)]
 pub enum LibraryMessage {
-    None,
+    // Removed the unused None variant
     AddMusicFolder,
     ToggleView,
 }

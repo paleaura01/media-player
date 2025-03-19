@@ -1,3 +1,4 @@
+// app/src/ui/render.rs
 use iced::widget::{Column, Container, Row, container, text, scrollable, Space, horizontal_rule, button};
 use iced::{Element, Length, Background};
 use crate::ui::theme::{
@@ -42,6 +43,8 @@ pub fn render_with_state<'a>(
                 PlaylistAction::PlayerControl(core::PlayerAction::Resume),
             player_view::PlayerAction::Pause => 
                 PlaylistAction::PlayerControl(core::PlayerAction::Pause),
+            player_view::PlayerAction::Stop => 
+                PlaylistAction::PlayerControl(core::PlayerAction::Stop),
             player_view::PlayerAction::SkipForward => 
                 PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),  // Skip forward 10%
             player_view::PlayerAction::SkipBackward => 
@@ -52,12 +55,14 @@ pub fn render_with_state<'a>(
                 PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack), // Use new PreviousTrack action
             player_view::PlayerAction::VolumeChange(v) => 
                 PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
+            player_view::PlayerAction::Seek(pos) => 
+                PlaylistAction::PlayerControl(core::PlayerAction::Seek(pos)),
             player_view::PlayerAction::Shuffle =>
                 PlaylistAction::PlayerControl(core::PlayerAction::Shuffle),
         })
     )
-.width(Length::Fill)
-.style(player_container_style()); // Using the function here instead of inline style
+    .width(Length::Fill)
+    .style(player_container_style()); // Using the function here instead of inline style
 
     // Left panel - Playlists (15%)
     let playlist_container = Container::new(
@@ -110,8 +115,6 @@ pub fn render_with_state<'a>(
         .height(Length::Fill)
         .into()
 }
-
-
 
 // Helper function to create the now playing section with clickable tracks
 fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, PlaylistAction> {

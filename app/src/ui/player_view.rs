@@ -6,17 +6,16 @@ use core::player::PlayerState;
 use crate::ui::theme::{green_text, green_progress_bar, GREEN_COLOR, DARK_GREEN_COLOR}; // Import theme helpers
 
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub enum PlayerAction {
     Play,
     Pause,
-    // Removed the unused `Stop` variant
-    // Removed the unused `Seek(f32)` variant
+    Stop,
     SkipForward,
     SkipBackward,
     Next,
     Previous,
     VolumeChange(f32),
+    Seek(f32),
     Shuffle, // Added Shuffle action
 }
 
@@ -104,41 +103,9 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Volume control - moved to its own variable to be positioned at the far right
-    let volume_control = row![
-        load_icon("ph--speaker-high-fill.svg")
-            .width(16)
-            .height(16),
-        
-        slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
-            .width(Length::Fixed(100.0))
-            .style(|_theme: &Theme, _| slider::Style {
-                rail: slider::Rail {
-                    backgrounds: (
-                        iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1)),
-                        iced::Background::Color(GREEN_COLOR)
-                    ),
-                    width: 1.0,
-                    border: Border {
-                        color: DARK_GREEN_COLOR,
-                        width: 1.0,
-                        radius: 2.0.into(),
-                    },
-                },
-                handle: slider::Handle {
-                    shape: slider::HandleShape::Circle { radius: 7.0 },
-                    background: iced::Background::Color(GREEN_COLOR),
-                    border_width: 1.0,
-                    border_color: GREEN_COLOR,
-                },
-            })
-    ]
-    .spacing(5)
-    .align_y(Alignment::Center);
-    
-    // Right: Playback controls - reordered with shuffle and next buttons switched
+    // Playback controls with volume at the right end - no extra spacing
     let controls = row![
-        // Previous track button with SVG icon
+        // Previous track button
         button(
             load_icon("ph--skip-back-fill.svg")
                 .width(20)
@@ -151,7 +118,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Rewind button with SVG icon
+        // Rewind button
         button(
             load_icon("ph--rewind-fill.svg")
                 .width(20)
@@ -164,7 +131,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Play/Pause button with SVG icon - using bold versions
+        // Play/Pause button
         if player.status == core::player::PlaybackStatus::Playing {
             button(
                 load_icon("ph--pause-circle-bold.svg")
@@ -191,7 +158,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             })
         },
         
-        // Fast-forward button with SVG icon
+        // Fast-forward button
         button(
             load_icon("ph--fast-forward-fill.svg")
                 .width(20)
@@ -204,7 +171,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Next track button - moved before the shuffle button
+        // Next track button
         button(
             load_icon("ph--skip-forward-fill.svg")
                 .width(20)
@@ -217,7 +184,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Shuffle button - moved after the next button
+        // Shuffle button - should change color based on shuffle state
         button(
             load_icon(if player.shuffle_enabled {
                 "ph--shuffle-bold.svg"
@@ -232,21 +199,55 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         .style(|_theme, _| button::Style {
             background: None,
             ..Default::default()
-        })
+        }),
+        
+        // Small spacing (not flexible Fill) to separate volume control slightly
+        Space::with_width(20),
+        
+        // Volume control
+        row![
+            load_icon("ph--speaker-high-fill.svg")
+                .width(16)
+                .height(16),
+            
+            slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
+                .width(Length::Fixed(100.0))
+                .style(|_theme: &Theme, _| slider::Style {
+                    rail: slider::Rail {
+                        backgrounds: (
+                            iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1)),
+                            iced::Background::Color(GREEN_COLOR)
+                        ),
+                        width: 1.0,
+                        border: Border {
+                            color: DARK_GREEN_COLOR,
+                            width: 1.0,
+                            radius: 2.0.into(),
+                        },
+                    },
+                    handle: slider::Handle {
+                        shape: slider::HandleShape::Circle { radius: 7.0 },
+                        background: iced::Background::Color(GREEN_COLOR),
+                        border_width: 1.0,
+                        border_color: GREEN_COLOR,
+                    },
+                })
+        ]
+        .spacing(5)
+        .align_y(Alignment::Center)
     ]
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Overall player layout - REMOVED extra space that was causing the huge gap
+    // Overall player layout - now with a simpler layout with controls on a single row
     let content = column![
-        // Main row with track info, progress, controls, and volume
+        // Main row with track info, progress, and all controls in one row
         row![
             track_info.width(Length::FillPortion(3)),
             Space::with_width(20),
             progress.width(Length::FillPortion(4)),
             Space::with_width(20),
-            controls,
-            volume_control
+            controls.width(Length::FillPortion(5))
         ]
         .padding(10)
         .spacing(20)
