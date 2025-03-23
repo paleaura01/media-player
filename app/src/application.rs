@@ -62,8 +62,14 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                             state.player.seek(pos);
                         },
                         core::PlayerAction::SetVolume(vol) => {
-                            // Handle volume changes
+                            // Handle volume changes with improved feedback
+                            println!("Setting volume to: {:.2}", vol);
                             state.player.set_volume(vol);
+                            
+                            // Immediately update the UI state to reflect the change
+                            state.player_state.volume = vol;
+                            
+                            println!("Volume changed to {:.2}, player and UI state updated", vol);
                         },
                         core::PlayerAction::Shuffle => {
                             // Toggle shuffle mode
@@ -104,8 +110,18 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     println!("After PlayTrack, shuffle is: {}", state.player_state.shuffle_enabled);
                 }
                 PlaylistAction::PlayerControl(player_action) => {
+                    // Special handling for volume control
+                    if let core::PlayerAction::SetVolume(vol) = player_action {
+                        println!("Volume control from playlist action: {:.2}", vol);
+                        state.player.set_volume(vol);
+                        
+                        // Immediately update UI state but preserve shuffle
+                        state.player_state = state.player.get_state();
+                        state.player_state.shuffle_enabled = shuffle_before;
+                        println!("Updated volume in player state: {:.2}", state.player_state.volume);
+                    }
                     // Special handling for shuffle to ensure state is preserved
-                    if let core::PlayerAction::Shuffle = player_action {
+                    else if let core::PlayerAction::Shuffle = player_action {
                         // Toggle shuffle mode directly
                         state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
                         println!("Shuffle toggled to: {}", state.player_state.shuffle_enabled);

@@ -349,14 +349,27 @@ pub fn play_audio_file(
                     sample_buf.copy_interleaved_ref(decoded);
                     let samples = sample_buf.samples();
                     
+                    // Improved volume handling with better feedback
+                    let volume = match volume_arc.lock() {
+                        Ok(v) => {
+                            let vol = *v;
+                            // Only log occasionally to avoid spam
+                            if total_samples_processed == 0 {
+                                debug!("Current volume level: {:.2}", vol);
+                            }
+                            vol
+                        },
+                        Err(e) => {
+                            error!("Failed to get volume lock: {:?}, using default", e);
+                            0.8 // Default volume
+                        }
+                    };
+                    
+                    // Create volume-adjusted samples with proper capacity
                     let capacity = samples.len();
                     let mut volume_adjusted = Vec::with_capacity(capacity);
                     
-                    let volume = match volume_arc.lock() {
-                        Ok(v) => *v,
-                        Err(_) => 0.8
-                    };
-                    
+                    // Apply volume to each sample precisely
                     for &sample in samples {
                         volume_adjusted.push(sample * volume);
                     }

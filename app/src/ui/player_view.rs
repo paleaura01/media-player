@@ -204,37 +204,38 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         // Small spacing (not flexible Fill) to separate volume control slightly
         Space::with_width(20),
         
-        // Volume control
+        // Volume control - FIXED for better interaction
         row![
-            load_icon("ph--speaker-high-fill.svg")
-                .width(16)
-                .height(16),
-            
-            slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
-                .width(Length::Fixed(100.0))
-                .style(|_theme: &Theme, _| slider::Style {
-                    rail: slider::Rail {
-                        backgrounds: (
-                            iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1)),
-                            iced::Background::Color(GREEN_COLOR)
-                        ),
-                        width: 1.0,
-                        border: Border {
-                            color: DARK_GREEN_COLOR,
-                            width: 1.0,
-                            radius: 2.0.into(),
-                        },
-                    },
-                    handle: slider::Handle {
-                        shape: slider::HandleShape::Circle { radius: 7.0 },
-                        background: iced::Background::Color(GREEN_COLOR),
-                        border_width: 1.0,
-                        border_color: GREEN_COLOR,
-                    },
-                })
-        ]
-        .spacing(5)
-        .align_y(Alignment::Center)
+    load_icon("ph--speaker-high-fill.svg")
+        .width(16)
+        .height(16),
+    
+    slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
+        .width(Length::Fixed(100.0))
+        .step(0.05) // Add step size for more precise control
+        .style(|_theme: &Theme, _| slider::Style {
+            rail: slider::Rail {
+                backgrounds: (
+                    iced::Background::Color(GREEN_COLOR),         // SWAPPED: This is now the filled part
+                    iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1)) // This is now the empty part
+                ),
+                width: 6.0, // Increase rail width for easier clicking
+                border: Border {
+                    color: DARK_GREEN_COLOR,
+                    width: 1.0,
+                    radius: 3.0.into(), // Slightly rounded corners
+                },
+            },
+            handle: slider::Handle {
+                shape: slider::HandleShape::Circle { radius: 7.0 }, // Larger handle
+                background: iced::Background::Color(GREEN_COLOR),
+                border_width: 1.0,
+                border_color: GREEN_COLOR,
+            },
+        })
+]
+.spacing(5)
+.align_y(Alignment::Center)
     ]
     .spacing(10)
     .align_y(Alignment::Center);

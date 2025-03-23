@@ -192,15 +192,19 @@ impl Player {
     }
     
     pub fn set_volume(&mut self, volume: f32) {
+        // Ensure volume is properly clamped between 0 and 1
         let volume = volume.max(0.0).min(1.0);
         
-        // Add safer error handling for mutex locks
-        if let Ok(mut vol) = self.volume.lock() {
-            *vol = volume;
-        }
+        info!("Setting volume to: {}", volume);
         
+        // First update UI state to reflect change immediately
         if let Ok(mut state) = self.state.lock() {
             state.volume = volume;
+        }
+        
+        // Now update the playback volume 
+        if let Ok(mut vol) = self.volume.lock() {
+            *vol = volume;
         }
     }
 
