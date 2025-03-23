@@ -16,7 +16,7 @@ pub enum PlayerAction {
     Previous,
     VolumeChange(f32),
     Seek(f32),
-    Shuffle, // Added Shuffle action
+    Shuffle,
 }
 
 // Load SVG icons as svg widgets
@@ -87,14 +87,13 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         format!("{}:{:02}", secs / 60, secs % 60)
     });
     
-    // CRITICAL FIX: Changed the PlayerAction to NOT use nested control mapping
-    // This directly sends the Seek action instead of wrapping it in PlayerControl
+    // CRITICAL FIX: The slider sends a direct Seek action
     let progress_slider = slider(0.0..=1.0, player.progress, |pos| {
         println!("Direct seek slider click at position: {:.4}", pos);
-        PlayerAction::Seek(pos)  // Send this directly as PlayerAction, not nested in PlayerControl
+        PlayerAction::Seek(pos)
     })
     .width(Length::Fill)
-    .height(15) 
+    .height(15)
     .style(|_theme: &Theme, _| slider::Style {
         rail: slider::Rail {
             backgrounds: (
@@ -116,12 +115,10 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         },
     });
     
-    // Create a container with padding to ensure the slider is isolated from other controls
     let progress_container = container(progress_slider)
         .width(Length::Fill)
         .padding([0, 5]);
     
-    // Time display with green text
     let progress = row![
         green_text(current_time).size(12),
         
@@ -132,7 +129,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Playback controls with volume at the right end - no extra spacing
+    // Playback controls with volume at the right end
     let controls = row![
         // Previous track button
         button(
@@ -213,7 +210,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Shuffle button - should change color based on shuffle state
+        // Shuffle button
         button(
             load_icon(if player.shuffle_enabled {
                 "ph--shuffle-bold.svg"
@@ -230,10 +227,9 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             ..Default::default()
         }),
         
-        // Small spacing (not flexible Fill) to separate volume control slightly
         Space::with_width(20),
         
-        // Volume control - FIXED for better interaction
+        // Volume control
         row![
             load_icon("ph--speaker-high-fill.svg")
                 .width(16)
@@ -241,8 +237,8 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
             
             slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
                 .width(Length::Fixed(100.0))
-                .height(6) // Direct integer value
-                .step(0.05) // Keep step size for volume as it doesn't need the same precision
+                .height(6)
+                .step(0.05)
                 .style(|_theme: &Theme, _| slider::Style {
                     rail: slider::Rail {
                         backgrounds: (
@@ -270,21 +266,19 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     .spacing(10)
     .align_y(Alignment::Center);
     
-    // Overall player layout - now with a simpler layout with controls on a single row
-    // Add spacing between sections to prevent overlap
+    // Overall layout
     let content = column![
-        // Main row with track info, progress, and all controls in one row
         row![
             track_info.width(Length::FillPortion(3)),
-            Space::with_width(25), // Increased spacing to avoid accidental overlap
+            Space::with_width(25),
             progress.width(Length::FillPortion(4)),
-            Space::with_width(25), // Increased spacing to avoid accidental overlap
+            Space::with_width(25),
             controls.width(Length::FillPortion(5))
         ]
         .padding(10)
         .spacing(20)
         .align_y(Alignment::Center)
-        .width(Length::Fill)
+        .width(Length::Fill),
     ]
     .spacing(10)
     .width(Length::Fill);

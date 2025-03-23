@@ -5,9 +5,9 @@ use iced::{Element, Subscription, Task, Point};
 use crate::ui;
 use crate::states::window_state;
 use crate::states::app_state::MediaPlayer;
-use iced::keyboard::key::Named;
+// Removed: use std::fs;  <-- unused, so removed to avoid warning
+use iced::keyboard::{Key, key::Named};
 use std::path::PathBuf;
-use std::fs;
 
 // Import message types from UI modules
 use crate::ui::playlist_view::PlaylistAction;
@@ -101,8 +101,8 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             // Save shuffle state before action
             let shuffle_before = state.player_state.shuffle_enabled;
             
-            // CRITICAL FIX: Handle Seek action directly here rather than letting it get mapped to other controls
-            // This avoids having the seek action get confused with next/previous track actions
+            // CRITICAL FIX: Handle Seek action directly here rather than letting it get mapped
+            // to other controls
             match action {
                 PlaylistAction::Seek(pos) => {
                     // Direct seek handling with dedicated code path for progress bar clicks
@@ -171,17 +171,14 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             Task::none()
         },
         Message::Library(LibraryMessage::AddMusicFolder) => {
-            // Ideally you'd use rfd here, but for now we'll manually implement
-            // by using a core library action
+            // For now, manually use a core library action
             state.handle_action(core::Action::Library(
                 core::LibraryAction::StartScan
             ));
             Task::none()
         },
         Message::Library(LibraryMessage::ToggleView) => {
-            // Handle the toggle view action here
-            // For now, we'll just do nothing as the view toggle functionality
-            // isn't fully implemented
+            // Not fully implemented yet
             Task::none()
         },
         Message::FolderSelected(Some(path)) => {
@@ -209,80 +206,71 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             Task::none()
         },
         Message::WindowFocusLost => {
-            // Intentionally do nothing - keep selection state
+            // Do nothing, keep selection
             println!("Window focus lost - maintaining selection state");
             Task::none()
         },
         Message::WindowFocusGained => {
-            // Intentionally do nothing - keep selection state
+            // Do nothing, keep selection
             println!("Window focus gained - maintaining selection state");
             Task::none()
         },
         Message::FileHovered => {
-            // Visual feedback could be added here (like highlighting the drop zone)
+            // Potentially highlight a drop zone
             println!("File is being hovered over the window");
             Task::none()
         },
         Message::FileDropped(path) => {
             println!("File dropped: {:?}", path);
             
-            // Check if there's a selected playlist to add the track to
             if let Some(selected_idx) = state.playlists.selected {
                 if selected_idx < state.playlists.playlists.len() {
                     let playlist_id = state.playlists.playlists[selected_idx].id;
                     
-                    // Convert the path to a string (canonicalize for absolute)
-                    match fs::canonicalize(&path) {
+                    // Convert to absolute path
+                    match std::fs::canonicalize(&path) {
                         Ok(abs_path) => {
                             let path_str = abs_path.to_string_lossy().to_string();
                             
-                            // Extract the filename to use as the track title
                             let filename = abs_path.file_name()
                                 .and_then(|n| n.to_str())
                                 .unwrap_or("Unknown")
                                 .to_string();
                             
-                            // Check if this is an audio file by extension
                             let extension = abs_path.extension()
                                 .and_then(|ext| ext.to_str())
                                 .unwrap_or("")
                                 .to_lowercase();
                             
-                            // List of supported audio formats
+                            // We only support certain audio formats
                             if ["mp3", "wav", "flac", "ogg", "m4a", "aac"].contains(&extension.as_str()) {
-                                // Create a track with the file information
                                 let track = core::Track {
-                                    path: path_str,          // Store the absolute path
+                                    path: path_str,
                                     title: Some(filename.clone()),
                                     artist: None,
                                     album: None,
                                 };
-                                
-                                // Add the track to the selected playlist
+                                // Add to selected playlist
                                 state.handle_action(core::Action::Playlist(
                                     core::PlaylistAction::AddTrack(playlist_id, track)
                                 ));
-                                
-                                // Log success
                                 println!("Added track to playlist {}: {}", playlist_id, filename);
                             } else {
-                                println!("Dropped file is not a supported audio format: {}", extension);
+                                println!("Not a supported audio format: {}", extension);
                             }
                         },
                         Err(err) => {
-                            println!("Could not resolve absolute path for dropped file: {}", err);
+                            println!("Failed to canonicalize dropped file path: {}", err);
                         }
                     }
                 }
             } else {
                 println!("No playlist selected to add the track to");
             }
-            
             Task::none()
         },
         Message::FilesHoveredLeft => {
-            // Clean up any visual feedback 
-            println!("Files no longer being hovered over the window");
+            println!("Files no longer hovered");
             Task::none()
         },
     }
@@ -301,18 +289,19 @@ fn view(state: &MediaPlayer) -> Element<Message> {
 
 // Just listen for events - we'll update the player on each event
 fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
-    // Event listener for keyboard, mouse, etc.
+    // Listen for keyboard, mouse, etc.
     iced::event::listen().map(|event| {
         match event {
             iced::Event::Keyboard(iced::keyboard::Event::KeyPressed { key, .. }) => {
                 match key {
-                    iced::keyboard::Key::Named(Named::Space) => {
+                    // CRITICAL: We must match Key::Named(...) to compare to Named::Space, etc.
+                    Key::Named(Named::Space) => {
                         Message::Action(core::Action::Player(core::PlayerAction::Pause))
                     },
-                    iced::keyboard::Key::Named(Named::Escape) => {
+                    Key::Named(Named::Escape) => {
                         Message::Action(core::Action::Player(core::PlayerAction::Stop))
                     },
-                    _ => Message::Playlist(PlaylistAction::None)
+                    _ => Message::Playlist(PlaylistAction::None),
                 }
             },
             iced::Event::Mouse(iced::mouse::Event::CursorMoved { position }) => {
@@ -343,7 +332,7 @@ fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
                 Message::FilesHoveredLeft
             },
             _ => {
-                // For any other events, send a None action that doesn't change application state
+                // For any other events, send a None action
                 Message::Playlist(PlaylistAction::None)
             }
         }

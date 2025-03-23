@@ -5,7 +5,7 @@ use crate::ui::theme::{
     library_container_style,
     playlist_container_style,
     now_playing_container_style,
-    player_container_style, // Updated import name
+    player_container_style,
     DARK_BG_COLOR,
     GREEN_COLOR,
 };
@@ -18,16 +18,14 @@ use crate::ui::{player_view, playlist_view, library_view};
 use crate::states::playlist_state::PlaylistViewState; 
 use crate::ui::playlist_view::PlaylistAction;
 
-/// Enhanced render with updated layout to match reference design
+/// Enhanced render function with updated layout & action mapping
 pub fn render_with_state<'a>(
     player_state: &'a PlayerState,
     playlists: &'a PlaylistState,
     library: &'a LibraryState,
     playlist_view_state: &'a PlaylistViewState,
 ) -> Element<'a, playlist_view::PlaylistAction> {
-    use crate::ui::playlist_view::PlaylistAction;
-    
-    // Top player section
+    // Player section
     let player_section = player_view::view(player_state);
     
     // Create the three panels for the main content area
@@ -35,13 +33,13 @@ pub fn render_with_state<'a>(
     let library_section = library_view::view_with_search(library);
     let now_playing_section = create_now_playing_section(playlists);
     
-    // Player container at the top with updated action mapping
+    // Map player actions -> playlist actions
     let player_container = Container::new(
         player_section.map(|ui_action| {
             // Debug logging to trace action mapping
             match &ui_action {
                 player_view::PlayerAction::Seek(pos) => {
-                    println!("Mapped UI Seek({:.4}) to Core Seek action - preserving exact position", pos);
+                    println!("Mapping UI Seek({:.4}) to direct Seek action", pos);
                 },
                 _ => {}
             }
@@ -54,24 +52,24 @@ pub fn render_with_state<'a>(
                 player_view::PlayerAction::Stop => 
                     PlaylistAction::PlayerControl(core::PlayerAction::Stop),
                 player_view::PlayerAction::SkipForward => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),  // Skip forward 10%
+                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),
                 player_view::PlayerAction::SkipBackward => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(-0.1)), // Skip backward 10%
+                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(-0.1)),
                 player_view::PlayerAction::Next => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::NextTrack), // Use new NextTrack action
+                    PlaylistAction::PlayerControl(core::PlayerAction::NextTrack),
                 player_view::PlayerAction::Previous => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack), // Use new PreviousTrack action
+                    PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack),
                 player_view::PlayerAction::VolumeChange(v) => 
                     PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
                 player_view::PlayerAction::Seek(pos) => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(pos)), // Pass exact position
+                    PlaylistAction::Seek(pos), // <- MAPS directly to Seek
                 player_view::PlayerAction::Shuffle =>
                     PlaylistAction::PlayerControl(core::PlayerAction::Shuffle),
             }
         })
     )
     .width(Length::Fill)
-    .style(player_container_style()); // Using the function here instead of inline style
+    .style(player_container_style());
 
     // Left panel - Playlists (15%)
     let playlist_container = Container::new(
@@ -83,7 +81,7 @@ pub fn render_with_state<'a>(
 
     // Middle panel - Now Playing (25%)
     let now_playing_container = Container::new(
-        now_playing_section.map(|action| action) // Now we map the PlaylistAction directly
+        now_playing_section.map(|action| action)
     )
     .width(Length::FillPortion(25))
     .height(Length::Fill)
@@ -97,7 +95,7 @@ pub fn render_with_state<'a>(
     .height(Length::Fill)
     .style(library_container_style());
 
-    // Main content area with three panels
+    // Main content area
     let content_row = Row::new()
         .push(playlist_container)
         .push(now_playing_container)
@@ -106,7 +104,7 @@ pub fn render_with_state<'a>(
         .height(Length::Fill)
         .width(Length::Fill);
 
-    // Main layout with player at top and content below
+    // Overall layout with top player container
     let content = Column::new()
         .push(player_container)
         .push(content_row)
@@ -125,24 +123,18 @@ pub fn render_with_state<'a>(
         .into()
 }
 
-// Helper function to create the now playing section with clickable tracks
+// Helper: now playing section
 fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, PlaylistAction> {
     let title = text("Now Playing")
         .size(20)
         .style(|_| text::Style {
-            color: Some(GREEN_COLOR), // Changed from DARK_GREEN_COLOR to GREEN_COLOR for consistency
+            color: Some(GREEN_COLOR),
             ..Default::default()
         });
 
     let content = if let Some(idx) = playlists.selected {
-        // Log the selection state for debugging
-        println!("Selected playlist index: {} (total playlists: {})", idx, playlists.playlists.len());
-        
         if idx < playlists.playlists.len() {
             let playlist = &playlists.playlists[idx];
-            
-            // Debug logging to help troubleshoot
-            println!("Showing playlist: {} with {} tracks", playlist.name, playlist.tracks.len());
             
             let tracks = scrollable(
                 Column::new()
@@ -155,8 +147,6 @@ fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, P
                             Column::new().spacing(4),
                             |column, (track_idx, track)| {
                                 let track_title = track.title.clone().unwrap_or_else(|| track.path.clone());
-                                
-                                // Make each track clickable by wrapping in a button
                                 let track_button = button(
                                     Row::new()
                                         .push(text(format!("{}. ", track_idx + 1)).size(14))
@@ -187,9 +177,6 @@ fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, P
                 .padding(10)
                 .into()
         } else {
-            println!("Selected index {} is out of bounds (playlist count: {})", 
-                     idx, playlists.playlists.len());
-            
             Column::new()
                 .push(title)
                 .push(text("No playlist selected").size(16))
@@ -198,8 +185,6 @@ fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, P
                 .into()
         }
     } else {
-        println!("No playlist selected (selected is None)");
-        
         Column::new()
             .push(title)
             .push(text("No playlist selected").size(16))

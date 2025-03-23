@@ -52,7 +52,7 @@ impl Player {
         self.stop_flag.store(false, Ordering::SeqCst);
         self.pause_flag.store(false, Ordering::SeqCst);
         
-        // Reset playback position - removed unnecessary mut
+        // Reset playback position
         if let Ok(position) = self.playback_position.lock() {
             position.reset();
         }
@@ -72,7 +72,14 @@ impl Player {
         
         info!("Starting playback thread for path: {}", path);
         self.playback_thread = Some(thread::spawn(move || {
-            match crate::audio::decoder::play_audio_file(&path_string, pause_flag, stop_flag, state_arc, playback_position, volume) {
+            match crate::audio::decoder::play_audio_file(
+                &path_string,
+                pause_flag,
+                stop_flag,
+                state_arc,
+                playback_position,
+                volume
+            ) {
                 Ok(_) => info!("Playback finished successfully"),
                 Err(e) => error!("Playback error: {}", e),
             }
@@ -125,7 +132,6 @@ impl Player {
                 
                 info!("Playback stopped");
                 
-                // Reset playback position - removed unnecessary mut
                 if let Ok(position) = self.playback_position.lock() {
                     position.reset();
                 }
@@ -170,6 +176,7 @@ impl Player {
         }
     }
 
+    /// Seeks playback to the specified position (0.0 = start, 1.0 = end)
     pub fn seek(&mut self, position: f32) {
         // Clamp position to valid range 0-1
         let position = position.max(0.0).min(1.0);
@@ -201,7 +208,7 @@ impl Player {
     }
     
     pub fn set_volume(&mut self, volume: f32) {
-        // Ensure volume is properly clamped between 0 and 1
+        // Ensure volume is properly clamped between 0.0 and 1.0
         let volume = volume.max(0.0).min(1.0);
         
         info!("Setting volume to: {:.4}", volume);
@@ -211,7 +218,7 @@ impl Player {
             state.volume = volume;
         }
         
-        // Now update the playback volume 
+        // Now update the playback volume
         if let Ok(mut vol) = self.volume.lock() {
             *vol = volume;
         }
@@ -225,7 +232,7 @@ impl Player {
         }
     }
     
-    // Added method to toggle shuffle state
+    /// Toggles shuffle state on or off
     pub fn toggle_shuffle_state(&mut self) {
         if let Ok(mut state) = self.state.lock() {
             state.shuffle_enabled = !state.shuffle_enabled;
