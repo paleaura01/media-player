@@ -90,7 +90,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
     // Create a stylized progress bar using our theme function
     let progress_bar = green_progress_bar(player.progress)
         .width(Length::Fill)
-        .height(Length::Fixed(8.0));
+        .height(Length::Fixed(15.0));
     
     // Time display with green text
     let progress = row![
