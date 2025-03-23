@@ -45,10 +45,10 @@ pub fn view_with_state<'a>(
     // Add button with an SVG icon - using fill version
     let add_button = button(
         row![
-            load_icon("ph--folder-plus-fill.svg")
-                .width(16)
-                .height(16),
-            Space::with_width(5),
+            load_icon("ph--files-fill.svg")
+                .width(20)
+                .height(20),
+            Space::with_width(6),
             text("Add Playlist").style(|_: &Theme| text::Style {
                 color: Some(GREEN_COLOR),
                 ..Default::default()

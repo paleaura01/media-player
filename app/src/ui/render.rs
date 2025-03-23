@@ -7,7 +7,6 @@ use crate::ui::theme::{
     now_playing_container_style,
     player_container_style, // Updated import name
     DARK_BG_COLOR,
-    DARK_GREEN_COLOR,
     GREEN_COLOR,
 };
 
@@ -119,11 +118,11 @@ pub fn render_with_state<'a>(
 // Helper function to create the now playing section with clickable tracks
 fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, PlaylistAction> {
     let title = text("Now Playing")
-        .size(20)
-        .style(|_| text::Style {
-            color: Some(DARK_GREEN_COLOR),
-            ..Default::default()
-        });
+    .size(20)
+    .style(|_| text::Style {
+        color: Some(GREEN_COLOR), // Now using the same bright green as other titles
+        ..Default::default()
+    });
 
     let content = if let Some(idx) = playlists.selected {
         // Log the selection state for debugging
