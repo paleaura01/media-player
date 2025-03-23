@@ -25,25 +25,25 @@ fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
 pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
     // Search bar at top
     let search_bar = row![
-        // Search input - styled to match player background
+        // Search input - styled to match player background and using GREEN_COLOR for text
         text_input("Search library...", "")
-    .padding(8)
-    .width(Length::Fill)
-    .style(|_theme: &Theme, _status: text_input::Status| {
-        text_input::Style {
-            background: iced::Background::Color(DARK_BG_COLOR),
-            border: iced::Border {
-                color: DARK_GREEN_COLOR,
-                width: 1.0,
-                radius: 4.0.into(),
-            },
-            // Change these color values to GREEN_COLOR
-            placeholder: GREEN_COLOR, // Changed from gray to green
-            value: GREEN_COLOR, // Changed to green for consistency
-            selection: iced::Color::from_rgb(0.3, 0.8, 0.3),
-            icon: Default::default(),
-        }
-    }),
+            .padding(8)
+            .width(Length::Fill)
+            .style(|_theme: &Theme, _status: text_input::Status| {
+                text_input::Style {
+                    background: iced::Background::Color(DARK_BG_COLOR),
+                    border: iced::Border {
+                        color: DARK_GREEN_COLOR,
+                        width: 1.0,
+                        radius: 4.0.into(),
+                    },
+                    // Use GREEN_COLOR for placeholder and value
+                    placeholder: GREEN_COLOR, // Changed to green
+                    value: GREEN_COLOR, // Changed to green
+                    selection: iced::Color::from_rgb(0.3, 0.8, 0.3),
+                    icon: Default::default(),
+                }
+            }),
             
         // View toggle buttons with SVG icons
         button(
@@ -85,9 +85,9 @@ pub fn view_with_search(library: &LibraryState) -> Element<LibraryMessage> {
             button(
                 row![
                     load_icon("ph--folder-plus-fill.svg")
-                        .width(20)
-                        .height(20),
-                    Space::with_width(7),
+                        .width(16)
+                        .height(16),
+                    Space::with_width(5),
                     text("Add Music Folder").style(|_: &Theme| text::Style {
                         color: Some(GREEN_COLOR),
                         ..Default::default()

@@ -1,12 +1,13 @@
+// core/src/audio/position.rs
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
 /// Tracks playback position and provides timing information
 pub struct PlaybackPosition {
-    pub total_samples: u64,  // Made public
+    pub total_samples: u64,
     pub current_sample: Arc<AtomicUsize>,
-    pub sample_rate: u32,    // Made public
+    pub sample_rate: u32,
 }
 
 impl PlaybackPosition {
@@ -63,7 +64,15 @@ impl PlaybackPosition {
         
         // Clamp progress to valid range
         let progress = progress.max(0.0).min(1.0);
+        
+        // Calculate the sample position from progress
         let new_position = (progress as f64 * self.total_samples as f64) as usize;
+        
+        // Log the seek operation
+        println!("Position tracker seeking to sample: {} of {} (progress: {:.4})",
+            new_position, self.total_samples, progress);
+        
+        // Update the atomic position
         self.current_sample.store(new_position, Ordering::Relaxed);
     }
 }

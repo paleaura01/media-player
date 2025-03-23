@@ -42,13 +42,13 @@ pub fn view_with_state<'a>(
             ..Default::default()
         });
     
-    // Add button with an SVG icon - using fill version
+    // Add button with an SVG icon - using file-plus icon instead of folder-plus
     let add_button = button(
         row![
-            load_icon("ph--files-fill.svg")
-                .width(20)
-                .height(20),
-            Space::with_width(6),
+            load_icon("ph--file-plus-fill.svg") // Changed from folder-plus to file-plus
+                .width(16)
+                .height(16),
+            Space::with_width(5),
             text("Add Playlist").style(|_: &Theme| text::Style {
                 color: Some(GREEN_COLOR),
                 ..Default::default()

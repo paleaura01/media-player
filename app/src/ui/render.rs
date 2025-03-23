@@ -37,27 +37,37 @@ pub fn render_with_state<'a>(
     
     // Player container at the top with updated action mapping
     let player_container = Container::new(
-        player_section.map(|ui_action| match ui_action {
-            player_view::PlayerAction::Play => 
-                PlaylistAction::PlayerControl(core::PlayerAction::Resume),
-            player_view::PlayerAction::Pause => 
-                PlaylistAction::PlayerControl(core::PlayerAction::Pause),
-            player_view::PlayerAction::Stop => 
-                PlaylistAction::PlayerControl(core::PlayerAction::Stop),
-            player_view::PlayerAction::SkipForward => 
-                PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),  // Skip forward 10%
-            player_view::PlayerAction::SkipBackward => 
-                PlaylistAction::PlayerControl(core::PlayerAction::Seek(-0.1)), // Skip backward 10%
-            player_view::PlayerAction::Next => 
-                PlaylistAction::PlayerControl(core::PlayerAction::NextTrack), // Use new NextTrack action
-            player_view::PlayerAction::Previous => 
-                PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack), // Use new PreviousTrack action
-            player_view::PlayerAction::VolumeChange(v) => 
-                PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
-            player_view::PlayerAction::Seek(pos) => 
-                PlaylistAction::PlayerControl(core::PlayerAction::Seek(pos)),
-            player_view::PlayerAction::Shuffle =>
-                PlaylistAction::PlayerControl(core::PlayerAction::Shuffle),
+        player_section.map(|ui_action| {
+            // Debug logging to trace action mapping
+            match &ui_action {
+                player_view::PlayerAction::Seek(pos) => {
+                    println!("Mapped UI Seek({:.4}) to Core Seek action - preserving exact position", pos);
+                },
+                _ => {}
+            }
+            
+            match ui_action {
+                player_view::PlayerAction::Play => 
+                    PlaylistAction::PlayerControl(core::PlayerAction::Resume),
+                player_view::PlayerAction::Pause => 
+                    PlaylistAction::PlayerControl(core::PlayerAction::Pause),
+                player_view::PlayerAction::Stop => 
+                    PlaylistAction::PlayerControl(core::PlayerAction::Stop),
+                player_view::PlayerAction::SkipForward => 
+                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),  // Skip forward 10%
+                player_view::PlayerAction::SkipBackward => 
+                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(-0.1)), // Skip backward 10%
+                player_view::PlayerAction::Next => 
+                    PlaylistAction::PlayerControl(core::PlayerAction::NextTrack), // Use new NextTrack action
+                player_view::PlayerAction::Previous => 
+                    PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack), // Use new PreviousTrack action
+                player_view::PlayerAction::VolumeChange(v) => 
+                    PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
+                player_view::PlayerAction::Seek(pos) => 
+                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(pos)), // Pass exact position
+                player_view::PlayerAction::Shuffle =>
+                    PlaylistAction::PlayerControl(core::PlayerAction::Shuffle),
+            }
         })
     )
     .width(Length::Fill)
@@ -118,11 +128,11 @@ pub fn render_with_state<'a>(
 // Helper function to create the now playing section with clickable tracks
 fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, PlaylistAction> {
     let title = text("Now Playing")
-    .size(20)
-    .style(|_| text::Style {
-        color: Some(GREEN_COLOR), // Now using the same bright green as other titles
-        ..Default::default()
-    });
+        .size(20)
+        .style(|_| text::Style {
+            color: Some(GREEN_COLOR), // Changed from DARK_GREEN_COLOR to GREEN_COLOR for consistency
+            ..Default::default()
+        });
 
     let content = if let Some(idx) = playlists.selected {
         // Log the selection state for debugging

@@ -3,7 +3,7 @@ use std::sync::{Arc, atomic::{AtomicBool, Ordering}, Mutex};
 use anyhow::{Result, anyhow};
 use log::{info, error};
 // We need StreamTrait for the stream.play() method
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use cpal::traits::{DeviceTrait, HostTrait};
 
 use crate::audio::buffer::AudioRingBuffer;
 use crate::audio::position::PlaybackPosition;

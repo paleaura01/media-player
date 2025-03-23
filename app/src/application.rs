@@ -36,7 +36,6 @@ pub enum Message {
     FilesHoveredLeft,     // Fired when dragged files exit the window without being dropped
 }
 
-
 // Updated to return Task<Message> instead of void
 fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
     // Save shuffle state before updating
@@ -58,8 +57,13 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 core::Action::Player(player_action) => {
                     match player_action {
                         core::PlayerAction::Seek(pos) => {
-                            // Handle seeking
+                            // Handle seeking with better logging for debugging
+                            println!("Directly handling seek action to position: {:.4}", pos);
+                            // Call seek method directly on the player for immediate response
                             state.player.seek(pos);
+                            // Update the UI state to reflect the change with exact position
+                            state.player_state.progress = pos;
+                            println!("Player position updated to: {:.4}", pos);
                         },
                         core::PlayerAction::SetVolume(vol) => {
                             // Handle volume changes with improved feedback
@@ -97,8 +101,20 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             // Save shuffle state before action
             let shuffle_before = state.player_state.shuffle_enabled;
             
-            // Direct handling of PlayTrack to bypass potential issues
+            // CRITICAL FIX: Handle Seek action directly here rather than letting it get mapped to other controls
+            // This avoids having the seek action get confused with next/previous track actions
             match action {
+                PlaylistAction::Seek(pos) => {
+                    // Direct seek handling with dedicated code path for progress bar clicks
+                    println!("DIRECT SEEK from progress bar: {:.4}", pos);
+                    // Call seek method directly on the player
+                    state.player.seek(pos);
+                    // Force UI update with the exact position
+                    state.player_state.progress = pos;
+                    println!("Progress bar seek: position updated to {:.4}", pos);
+                    // Preserve shuffle state
+                    state.player_state.shuffle_enabled = shuffle_before;
+                },
                 PlaylistAction::PlayTrack(playlist_id, track_idx) => {
                     // Directly handle the PlayTrack action here
                     state.handle_action(core::Action::Playlist(
@@ -108,43 +124,42 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     state.player_state = state.player.get_state();
                     state.player_state.shuffle_enabled = shuffle_before;
                     println!("After PlayTrack, shuffle is: {}", state.player_state.shuffle_enabled);
-                }
+                },
                 PlaylistAction::PlayerControl(player_action) => {
-                    // Special handling for volume control
-                    if let core::PlayerAction::SetVolume(vol) = player_action {
-                        println!("Volume control from playlist action: {:.2}", vol);
-                        state.player.set_volume(vol);
-                        
-                        // Immediately update UI state but preserve shuffle
-                        state.player_state = state.player.get_state();
-                        state.player_state.shuffle_enabled = shuffle_before;
-                        println!("Updated volume in player state: {:.2}", state.player_state.volume);
-                    }
-                    // Special handling for shuffle to ensure state is preserved
-                    else if let core::PlayerAction::Shuffle = player_action {
-                        // Toggle shuffle mode directly
-                        state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
-                        println!("Shuffle toggled to: {}", state.player_state.shuffle_enabled);
-                    } else {
+                    // Handle player control actions, but skip seek handling (handled above)
+                    match player_action {
+                        core::PlayerAction::SetVolume(vol) => {
+                            println!("Volume control from playlist action: {:.2}", vol);
+                            state.player.set_volume(vol);
+                            
+                            // Immediately update UI state but preserve shuffle
+                            state.player_state = state.player.get_state();
+                            state.player_state.shuffle_enabled = shuffle_before;
+                            println!("Updated volume in player state: {:.2}", state.player_state.volume);
+                        },
+                        // Special handling for shuffle to ensure state is preserved
+                        core::PlayerAction::Shuffle => {
+                            // Toggle shuffle mode directly
+                            state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
+                            println!("Shuffle toggled to: {}", state.player_state.shuffle_enabled);
+                        },
                         // For Next/Previous track, we need special handling
-                        match player_action {
-                            core::PlayerAction::NextTrack | core::PlayerAction::PreviousTrack => {
-                                // Handle the action
-                                state.handle_action(core::Action::Player(player_action));
-                                // Ensure shuffle is preserved after track change
-                                state.player_state = state.player.get_state();
-                                state.player_state.shuffle_enabled = shuffle_before;
-                                println!("After Next/Prev, shuffle is: {}", state.player_state.shuffle_enabled);
-                            },
-                            _ => {
-                                // Handle other player control actions
-                                state.handle_action(core::Action::Player(player_action));
-                                // Preserve shuffle state
-                                state.player_state.shuffle_enabled = shuffle_before;
-                            }
+                        core::PlayerAction::NextTrack | core::PlayerAction::PreviousTrack => {
+                            // Handle the action
+                            state.handle_action(core::Action::Player(player_action));
+                            // Ensure shuffle is preserved after track change
+                            state.player_state = state.player.get_state();
+                            state.player_state.shuffle_enabled = shuffle_before;
+                            println!("After Next/Prev, shuffle is: {}", state.player_state.shuffle_enabled);
+                        },
+                        _ => {
+                            // Handle other player control actions
+                            state.handle_action(core::Action::Player(player_action));
+                            // Preserve shuffle state
+                            state.player_state.shuffle_enabled = shuffle_before;
                         }
                     }
-                }
+                },
                 _ => {
                     // Handle other playlist actions
                     let core_action = state.playlist_view_state.handle_action(action);

@@ -7,7 +7,6 @@ use std::time::{Duration, Instant};
 use anyhow::{Result, anyhow};
 use log::{info, warn, error, debug};
 
-// IMPORTANT: Import ALL required traits - this was the issue
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 
 use symphonia::core::audio::{SampleBuffer, SignalSpec};
@@ -16,6 +15,8 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
+use symphonia::core::formats::SeekMode;
+use symphonia::core::units::Time;
 
 use crate::audio::buffer::AudioRingBuffer;
 use crate::audio::position::PlaybackPosition;
@@ -80,20 +81,31 @@ pub fn play_audio_file(
     
     info!("Playing: {}", format_name);
     
-    let track = match format.tracks()
-        .iter()
-        .find(|t| t.codec_params.codec != CODEC_TYPE_NULL) {
-            Some(t) => t,
-            None => {
-                error!("No supported audio track found in file");
-                return Err(anyhow!("No supported audio track found"));
-            }
-        };
-    
-    info!("Found audio track: {}", track.codec_params.codec);
+    // Get track information and store what we need
+    let (track_id, codec_params, channels, channel_count, file_sample_rate) = {
+        let track = match format.tracks()
+            .iter()
+            .find(|t| t.codec_params.codec != CODEC_TYPE_NULL) {
+                Some(t) => t,
+                None => {
+                    error!("No supported audio track found in file");
+                    return Err(anyhow!("No supported audio track found"));
+                }
+            };
+        
+        info!("Found audio track: {}", track.codec_params.codec);
+        
+        let track_id = track.id;
+        let codec_params = track.codec_params.clone(); // Clone the codec parameters
+        let channels = track.codec_params.channels.unwrap_or(symphonia::core::audio::Channels::FRONT_LEFT);
+        let channel_count = channels.count();
+        let file_sample_rate = track.codec_params.sample_rate.unwrap_or(44100);
+        
+        (track_id, codec_params, channels, channel_count, file_sample_rate)
+    };
     
     let mut decoder = match symphonia::default::get_codecs()
-        .make(&track.codec_params, &decoder_opts) {
+        .make(&codec_params, &decoder_opts) {
             Ok(d) => d,
             Err(e) => {
                 error!("Error creating decoder: {}", e);
@@ -101,14 +113,9 @@ pub fn play_audio_file(
             }
         };
     
-    let track_id = track.id;
-    let channels = track.codec_params.channels.unwrap_or(symphonia::core::audio::Channels::FRONT_LEFT);
-    let channel_count = channels.count();
-    let file_sample_rate = track.codec_params.sample_rate.unwrap_or(44100);
-    
     info!("Audio track parameters: {} Hz, {} channels", file_sample_rate, channel_count);
     
-    let total_samples = if let Some(n_frames) = track.codec_params.n_frames {
+    let total_samples = if let Some(n_frames) = codec_params.n_frames {
         match n_frames.checked_mul(channel_count as u64) {
             Some(samples) => samples,
             None => {
@@ -217,6 +224,10 @@ pub fn play_audio_file(
     let needs_data = Arc::new(AtomicBool::new(true));
     let needs_data_stream = Arc::clone(&needs_data);
     
+    // Create a flag for seek detection - remove unused clones
+    let _seek_requested = Arc::new(AtomicBool::new(false));
+    let last_position = Arc::new(Mutex::new(0.0));
+    
     info!("Building audio output stream...");
     let stream = match device.build_output_stream(
         &config,
@@ -296,6 +307,91 @@ pub fn play_audio_file(
             continue;
         }
         
+        // Check for seek requests
+        let mut should_seek = false;
+        let mut target_progress = 0.0;
+        
+        // Get the current progress from the position tracker
+        let current_progress = if let Ok(position) = playback_position.lock() {
+            position.progress()
+        } else {
+            0.0
+        };
+        
+        // Check if we need to update the last position
+        if let Ok(mut last_pos) = last_position.lock() {
+            // If position changed significantly and not by regular playback
+            if (current_progress - *last_pos).abs() > 0.01 {
+                // This is likely a seek
+                target_progress = current_progress;
+                should_seek = true;
+                *last_pos = current_progress;
+                info!("Detected seek request to position: {:.4}", target_progress);
+            } else if last_progress_update.elapsed() >= Duration::from_millis(250) {
+                // Regular update
+                *last_pos = current_progress;
+            }
+        }
+        
+        // Handle seeking if requested
+        if should_seek {
+            info!("Performing seek to position: {:.4}", target_progress);
+            
+            // Convert progress to time position
+            let time_target = duration.mul_f64(target_progress as f64);
+            let time_nanos = time_target.as_nanos() as u64;
+            
+            // Clear the ring buffer
+            if let Ok(mut buffer) = ring_buffer.lock() {
+                // Reset buffer by creating a new one
+                *buffer = AudioRingBuffer::new(buffer_size * 4);
+            }
+            
+            // Create a Time instance for Symphonia
+            let time = Time::from(time_nanos);
+            
+            // Perform the actual seek in the format reader
+            match format.seek(
+                SeekMode::Accurate,
+                symphonia::core::formats::SeekTo::Time { 
+                    time,
+                    track_id: Some(track_id),
+                },
+            ) {
+                Ok(seeked_to) => {
+                    info!("Successfully seeked to: {:?}", seeked_to);
+                    
+                    // Reset decoder to handle the new position
+                    decoder = match symphonia::default::get_codecs()
+                        .make(&codec_params, &decoder_opts) {
+                            Ok(d) => d,
+                            Err(e) => {
+                                error!("Error recreating decoder after seek: {}", e);
+                                continue;
+                            }
+                        };
+                        
+                    // Calculate the new sample position
+                    let sample_pos = (target_progress * total_samples as f32) as usize;
+                    
+                    // Update position tracker with the new position
+                    if let Ok(position) = playback_position.lock() {
+                        position.update_current_sample(sample_pos);
+                        info!("Updated position tracker to sample: {}", sample_pos);
+                    }
+                    
+                    // Set total_samples_processed to the new position
+                    total_samples_processed = sample_pos;
+                    
+                    // Force buffer refill
+                    needs_data.store(true, Ordering::Release);
+                },
+                Err(e) => {
+                    error!("Failed to seek: {}", e);
+                }
+            }
+        }
+        
         if last_progress_update.elapsed() >= Duration::from_millis(50) {
             if let Ok(position) = playback_position.lock() {
                 position.update_current_sample(total_samples_processed);
@@ -312,12 +408,13 @@ pub fn play_audio_file(
         
         needs_data.store(false, Ordering::Release);
         
-        let packet_result: Result<symphonia::core::formats::Packet, symphonia::core::errors::Error> = match format.next_packet() {
+        // Get the next packet
+        let packet_result = match format.next_packet() {
             Ok(packet) => {
                 if packet.track_id() != track_id {
                     continue;
                 }
-                Ok(packet)
+                Some(packet)
             },
             Err(e) => {
                 if let symphonia::core::errors::Error::IoError(ref err) = e {
@@ -332,7 +429,7 @@ pub fn play_audio_file(
             }
         };
         
-        if let Ok(packet) = packet_result {
+        if let Some(packet) = packet_result {
             match decoder.decode(&packet) {
                 Ok(decoded) => {
                     let decoded_frames = decoded.frames();
@@ -349,11 +446,10 @@ pub fn play_audio_file(
                     sample_buf.copy_interleaved_ref(decoded);
                     let samples = sample_buf.samples();
                     
-                    // Improved volume handling with better feedback
+                    // Volume handling
                     let volume = match volume_arc.lock() {
                         Ok(v) => {
                             let vol = *v;
-                            // Only log occasionally to avoid spam
                             if total_samples_processed == 0 {
                                 debug!("Current volume level: {:.2}", vol);
                             }
@@ -365,11 +461,10 @@ pub fn play_audio_file(
                         }
                     };
                     
-                    // Create volume-adjusted samples with proper capacity
+                    // Create volume-adjusted samples
                     let capacity = samples.len();
                     let mut volume_adjusted = Vec::with_capacity(capacity);
                     
-                    // Apply volume to each sample precisely
                     for &sample in samples {
                         volume_adjusted.push(sample * volume);
                     }

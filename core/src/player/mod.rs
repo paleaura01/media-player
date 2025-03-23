@@ -52,14 +52,12 @@ impl Player {
         self.stop_flag.store(false, Ordering::SeqCst);
         self.pause_flag.store(false, Ordering::SeqCst);
         
-        // Reset playback position
-        {
-            let position = self.playback_position.lock().unwrap();
+        // Reset playback position - removed unnecessary mut
+        if let Ok(position) = self.playback_position.lock() {
             position.reset();
         }
         
-        {
-            let mut state = self.state.lock().unwrap();
+        if let Ok(mut state) = self.state.lock() {
             state.status = PlaybackStatus::Playing;
             state.current_track = Some(path.to_string());
             state.progress = 0.0;
@@ -91,7 +89,6 @@ impl Player {
                 self.pause_flag.store(true, Ordering::SeqCst);
                 
                 // Wait a tiny bit to make sure the audio thread acknowledges the pause
-                // This makes the pause response feel more immediate
                 thread::sleep(Duration::from_millis(5));
                 
                 state.status = PlaybackStatus::Paused;
@@ -128,9 +125,8 @@ impl Player {
                 
                 info!("Playback stopped");
                 
-                // Reset playback position
-                {
-                    let position = self.playback_position.lock().unwrap();
+                // Reset playback position - removed unnecessary mut
+                if let Ok(position) = self.playback_position.lock() {
                     position.reset();
                 }
                 
@@ -142,34 +138,32 @@ impl Player {
     }
     
     pub fn update_progress(&mut self) {
-        // Added try-catch style handling for the mutex locks
-        let progress_info = match self.playback_position.try_lock() {
-            Ok(position_guard) => {
-                // Get the current progress based on actual audio sample position
-                let progress = position_guard.progress();
-                let position = position_guard.position();
-                let duration = if position_guard.total_samples > 0 {
-                    Some(position_guard.duration())
-                } else {
-                    None
-                };
-                
-                // Determine if we've reached the end
-                let should_stop = progress >= 1.0;
-                
-                Some((should_stop, progress, position, duration))
-            },
-            Err(_) => None
+        // Get current progress from position tracker
+        let progress_info = if let Ok(position) = self.playback_position.lock() {
+            let progress = position.progress();
+            let position_time = position.position();
+            let duration_time = if position.total_samples > 0 {
+                Some(position.duration())
+            } else {
+                None
+            };
+            
+            let should_stop = progress >= 0.999; // Consider it complete at 99.9%
+            
+            Some((progress, position_time, duration_time, should_stop))
+        } else {
+            None
         };
         
-        if let Some((should_stop, progress, position, duration)) = progress_info {
-            // Update the player state with accurate timing information
+        if let Some((progress, position_time, duration_time, should_stop)) = progress_info {
+            // Update the player state with the current progress
             if let Ok(mut state) = self.state.lock() {
                 state.progress = progress;
-                state.position = Some(position);
-                state.duration = duration;
+                state.position = Some(position_time);
+                state.duration = duration_time;
             }
-
+            
+            // If playback has reached the end, stop
             if should_stop {
                 self.stop();
             }
@@ -177,25 +171,40 @@ impl Player {
     }
 
     pub fn seek(&mut self, position: f32) {
-        // Seek to a specific position in the track (0.0 to 1.0)
+        // Clamp position to valid range 0-1
         let position = position.max(0.0).min(1.0);
         
-        // Add safer error handling for mutex lock
-        if let Ok(position_guard) = self.playback_position.lock() {
-            position_guard.seek(position);
+        info!("Player.seek() called with position: {:.4}", position);
+        
+        // Update position tracker first so the decoder can detect the change
+        if let Ok(position_tracker) = self.playback_position.lock() {
+            // Log the current and target positions for debugging
+            let old_progress = position_tracker.progress();
+            info!("Seeking from {:.4} to {:.4}", old_progress, position);
             
-            // Update the player state
-            if let Ok(mut state) = self.state.lock() {
-                state.progress = position;
-            }
+            // Set the new position
+            position_tracker.seek(position);
+            
+            // Log successful update
+            info!("Position tracker updated successfully");
         }
+        
+        // Also update the UI state immediately for better responsiveness
+        if let Ok(mut state) = self.state.lock() {
+            let old_progress = state.progress;
+            state.progress = position;
+            info!("UI state progress updated from {:.4} to {:.4}", old_progress, position);
+        }
+        
+        // Give time for the decoder thread to detect and respond to the seek
+        thread::sleep(Duration::from_millis(5));
     }
     
     pub fn set_volume(&mut self, volume: f32) {
         // Ensure volume is properly clamped between 0 and 1
         let volume = volume.max(0.0).min(1.0);
         
-        info!("Setting volume to: {}", volume);
+        info!("Setting volume to: {:.4}", volume);
         
         // First update UI state to reflect change immediately
         if let Ok(mut state) = self.state.lock() {

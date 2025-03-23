@@ -3,7 +3,7 @@ use iced::widget::{column, row, container, Space, slider, button};
 use iced::widget::svg; // Import svg module
 use iced::{Element, Length, Alignment, Theme, Border};
 use core::player::PlayerState;
-use crate::ui::theme::{green_text, green_progress_bar, GREEN_COLOR, DARK_GREEN_COLOR}; // Import theme helpers
+use crate::ui::theme::{green_text, GREEN_COLOR, DARK_GREEN_COLOR}; // Import theme helpers
 
 #[derive(Debug, Clone)]
 pub enum PlayerAction {
@@ -87,16 +87,45 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         format!("{}:{:02}", secs / 60, secs % 60)
     });
     
-    // Create a stylized progress bar using our theme function
-    let progress_bar = green_progress_bar(player.progress)
+    // CRITICAL FIX: Changed the PlayerAction to NOT use nested control mapping
+    // This directly sends the Seek action instead of wrapping it in PlayerControl
+    let progress_slider = slider(0.0..=1.0, player.progress, |pos| {
+        println!("Direct seek slider click at position: {:.4}", pos);
+        PlayerAction::Seek(pos)  // Send this directly as PlayerAction, not nested in PlayerControl
+    })
+    .width(Length::Fill)
+    .height(15) 
+    .style(|_theme: &Theme, _| slider::Style {
+        rail: slider::Rail {
+            backgrounds: (
+                iced::Background::Color(GREEN_COLOR),
+                iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1))
+            ),
+            width: 15.0,
+            border: Border {
+                color: DARK_GREEN_COLOR,
+                width: 1.0,
+                radius: 3.0.into(),
+            },
+        },
+        handle: slider::Handle {
+            shape: slider::HandleShape::Circle { radius: 8.0 },
+            background: iced::Background::Color(GREEN_COLOR),
+            border_width: 1.0,
+            border_color: GREEN_COLOR,
+        },
+    });
+    
+    // Create a container with padding to ensure the slider is isolated from other controls
+    let progress_container = container(progress_slider)
         .width(Length::Fill)
-        .height(Length::Fixed(15.0));
+        .padding([0, 5]);
     
     // Time display with green text
     let progress = row![
         green_text(current_time).size(12),
         
-        progress_bar,
+        progress_container,
             
         green_text(total_time).size(12)
     ]
@@ -206,48 +235,50 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         
         // Volume control - FIXED for better interaction
         row![
-    load_icon("ph--speaker-high-fill.svg")
-        .width(16)
-        .height(16),
-    
-    slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
-        .width(Length::Fixed(100.0))
-        .step(0.05) // Add step size for more precise control
-        .style(|_theme: &Theme, _| slider::Style {
-            rail: slider::Rail {
-                backgrounds: (
-                    iced::Background::Color(GREEN_COLOR),         // SWAPPED: This is now the filled part
-                    iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1)) // This is now the empty part
-                ),
-                width: 6.0, // Increase rail width for easier clicking
-                border: Border {
-                    color: DARK_GREEN_COLOR,
-                    width: 1.0,
-                    radius: 3.0.into(), // Slightly rounded corners
-                },
-            },
-            handle: slider::Handle {
-                shape: slider::HandleShape::Circle { radius: 7.0 }, // Larger handle
-                background: iced::Background::Color(GREEN_COLOR),
-                border_width: 1.0,
-                border_color: GREEN_COLOR,
-            },
-        })
-]
-.spacing(5)
-.align_y(Alignment::Center)
+            load_icon("ph--speaker-high-fill.svg")
+                .width(16)
+                .height(16),
+            
+            slider(0.0..=1.0, player.volume, PlayerAction::VolumeChange)
+                .width(Length::Fixed(100.0))
+                .height(6) // Direct integer value
+                .step(0.05) // Keep step size for volume as it doesn't need the same precision
+                .style(|_theme: &Theme, _| slider::Style {
+                    rail: slider::Rail {
+                        backgrounds: (
+                            iced::Background::Color(GREEN_COLOR),
+                            iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1))
+                        ),
+                        width: 6.0,
+                        border: Border {
+                            color: DARK_GREEN_COLOR,
+                            width: 1.0,
+                            radius: 3.0.into(),
+                        },
+                    },
+                    handle: slider::Handle {
+                        shape: slider::HandleShape::Circle { radius: 7.0 },
+                        background: iced::Background::Color(GREEN_COLOR),
+                        border_width: 1.0,
+                        border_color: GREEN_COLOR,
+                    },
+                })
+        ]
+        .spacing(5)
+        .align_y(Alignment::Center)
     ]
     .spacing(10)
     .align_y(Alignment::Center);
     
     // Overall player layout - now with a simpler layout with controls on a single row
+    // Add spacing between sections to prevent overlap
     let content = column![
         // Main row with track info, progress, and all controls in one row
         row![
             track_info.width(Length::FillPortion(3)),
-            Space::with_width(20),
+            Space::with_width(25), // Increased spacing to avoid accidental overlap
             progress.width(Length::FillPortion(4)),
-            Space::with_width(20),
+            Space::with_width(25), // Increased spacing to avoid accidental overlap
             controls.width(Length::FillPortion(5))
         ]
         .padding(10)
