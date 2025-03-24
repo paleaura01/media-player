@@ -335,6 +335,9 @@ impl MediaPlayer {
                 if let Err(e) = self.save_playlists() {
                     error!("Failed to save play count: {}", e);
                 }
+                
+                // Auto-play the next track
+                self.handle_action(core::Action::Player(core::PlayerAction::NextTrack));
             }
         }
     }
