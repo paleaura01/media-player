@@ -5,7 +5,6 @@ use iced::{Element, Subscription, Task, Point};
 use crate::ui;
 use crate::states::window_state;
 use crate::states::app_state::MediaPlayer;
-// Removed: use std::fs;  <-- unused, so removed to avoid warning
 use iced::keyboard::{Key, key::Named};
 use std::path::PathBuf;
 
@@ -57,28 +56,27 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 core::Action::Player(player_action) => {
                     match player_action {
                         core::PlayerAction::Seek(pos) => {
-                            // Handle seeking with better logging for debugging
-                            println!("Directly handling seek action to position: {:.4}", pos);
-                            // Call seek method directly on the player for immediate response
+                            // DEBUG OUTPUT for direct seek action
+                            println!("██ DEBUG: Direct Seek action received: {:.4}", pos);
+                            
+                            // Call seek method directly on the player
+                            println!("██ DEBUG: Calling state.player.seek({:.4})", pos);
                             state.player.seek(pos);
-                            // Update the UI state to reflect the change with exact position
+                            
+                            // Force immediate UI update for better responsiveness
                             state.player_state.progress = pos;
-                            println!("Player position updated to: {:.4}", pos);
+                            
+                            println!("██ DEBUG: Seek completed, state.player_state.progress = {:.4}", 
+                                    state.player_state.progress);
                         },
                         core::PlayerAction::SetVolume(vol) => {
-                            // Handle volume changes with improved feedback
-                            println!("Setting volume to: {:.2}", vol);
+                            // Handle volume changes
                             state.player.set_volume(vol);
-                            
-                            // Immediately update the UI state to reflect the change
                             state.player_state.volume = vol;
-                            
-                            println!("Volume changed to {:.2}, player and UI state updated", vol);
                         },
                         core::PlayerAction::Shuffle => {
                             // Toggle shuffle mode
                             state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
-                            println!("Shuffle toggled to: {}", state.player_state.shuffle_enabled);
                         },
                         _ => {
                             // Handle other player actions
@@ -101,61 +99,49 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             // Save shuffle state before action
             let shuffle_before = state.player_state.shuffle_enabled;
             
-            // CRITICAL FIX: Handle Seek action directly here rather than letting it get mapped
-            // to other controls
+            // CRITICAL FIX: Directly handle Seek action here
             match action {
                 PlaylistAction::Seek(pos) => {
-                    // Direct seek handling with dedicated code path for progress bar clicks
-                    println!("DIRECT SEEK from progress bar: {:.4}", pos);
-                    // Call seek method directly on the player
+                    // Debug output to trace the seek action flow
+                    println!("██ DEBUG: PlaylistAction::Seek({:.4}) received in application.rs", pos);
+                    
+                    // Use direct player API call for seeking - this bypasses the normal action flow
+                    println!("██ DEBUG: Directly calling state.player.seek({:.4})", pos);
                     state.player.seek(pos);
-                    // Force UI update with the exact position
+                    
+                    // Update UI state immediately
+                    println!("██ DEBUG: Setting state.player_state.progress = {:.4}", pos);
                     state.player_state.progress = pos;
-                    println!("Progress bar seek: position updated to {:.4}", pos);
+                    
                     // Preserve shuffle state
                     state.player_state.shuffle_enabled = shuffle_before;
+                    
+                    println!("██ DEBUG: Seek processing complete in application.rs");
                 },
                 PlaylistAction::PlayTrack(playlist_id, track_idx) => {
-                    // Directly handle the PlayTrack action here
+                    // Handle the PlayTrack action directly
                     state.handle_action(core::Action::Playlist(
                         core::PlaylistAction::PlayTrack(playlist_id, track_idx)
                     ));
-                    // Update the player state immediately BUT preserve shuffle
+                    
+                    // Update player state but preserve shuffle
                     state.player_state = state.player.get_state();
                     state.player_state.shuffle_enabled = shuffle_before;
-                    println!("After PlayTrack, shuffle is: {}", state.player_state.shuffle_enabled);
                 },
                 PlaylistAction::PlayerControl(player_action) => {
-                    // Handle player control actions, but skip seek handling (handled above)
+                    // Handle volume separately
                     match player_action {
                         core::PlayerAction::SetVolume(vol) => {
-                            println!("Volume control from playlist action: {:.2}", vol);
                             state.player.set_volume(vol);
-                            
-                            // Immediately update UI state but preserve shuffle
-                            state.player_state = state.player.get_state();
-                            state.player_state.shuffle_enabled = shuffle_before;
-                            println!("Updated volume in player state: {:.2}", state.player_state.volume);
+                            state.player_state.volume = vol;
                         },
-                        // Special handling for shuffle to ensure state is preserved
                         core::PlayerAction::Shuffle => {
                             // Toggle shuffle mode directly
                             state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
-                            println!("Shuffle toggled to: {}", state.player_state.shuffle_enabled);
-                        },
-                        // For Next/Previous track, we need special handling
-                        core::PlayerAction::NextTrack | core::PlayerAction::PreviousTrack => {
-                            // Handle the action
-                            state.handle_action(core::Action::Player(player_action));
-                            // Ensure shuffle is preserved after track change
-                            state.player_state = state.player.get_state();
-                            state.player_state.shuffle_enabled = shuffle_before;
-                            println!("After Next/Prev, shuffle is: {}", state.player_state.shuffle_enabled);
                         },
                         _ => {
-                            // Handle other player control actions
+                            // Handle other player actions
                             state.handle_action(core::Action::Player(player_action));
-                            // Preserve shuffle state
                             state.player_state.shuffle_enabled = shuffle_before;
                         }
                     }
@@ -164,21 +150,21 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     // Handle other playlist actions
                     let core_action = state.playlist_view_state.handle_action(action);
                     state.handle_action(core_action);
+                    
                     // Preserve shuffle state
                     state.player_state.shuffle_enabled = shuffle_before;
                 }
             }
             Task::none()
         },
+        // Other message handlers remain the same
         Message::Library(LibraryMessage::AddMusicFolder) => {
-            // For now, manually use a core library action
             state.handle_action(core::Action::Library(
                 core::LibraryAction::StartScan
             ));
             Task::none()
         },
         Message::Library(LibraryMessage::ToggleView) => {
-            // Not fully implemented yet
             Task::none()
         },
         Message::FolderSelected(Some(path)) => {
@@ -202,22 +188,15 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             Task::none()
         },
         Message::MousePosition(_position) => {
-            // We don't change selection state based on mouse position
             Task::none()
         },
         Message::WindowFocusLost => {
-            // Do nothing, keep selection
-            println!("Window focus lost - maintaining selection state");
             Task::none()
         },
         Message::WindowFocusGained => {
-            // Do nothing, keep selection
-            println!("Window focus gained - maintaining selection state");
             Task::none()
         },
         Message::FileHovered => {
-            // Potentially highlight a drop zone
-            println!("File is being hovered over the window");
             Task::none()
         },
         Message::FileDropped(path) => {
@@ -242,7 +221,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                                 .unwrap_or("")
                                 .to_lowercase();
                             
-                            // We only support certain audio formats
+                            // Check for supported formats
                             if ["mp3", "wav", "flac", "ogg", "m4a", "aac"].contains(&extension.as_str()) {
                                 let track = core::Track {
                                     path: path_str,
@@ -254,7 +233,6 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                                 state.handle_action(core::Action::Playlist(
                                     core::PlaylistAction::AddTrack(playlist_id, track)
                                 ));
-                                println!("Added track to playlist {}: {}", playlist_id, filename);
                             } else {
                                 println!("Not a supported audio format: {}", extension);
                             }
@@ -270,12 +248,12 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             Task::none()
         },
         Message::FilesHoveredLeft => {
-            println!("Files no longer hovered");
             Task::none()
         },
     }
 }
 
+// The rest remains the same
 fn view(state: &MediaPlayer) -> Element<Message> {
     let rendered = ui::render::render_with_state(
         &state.player_state,
@@ -287,14 +265,11 @@ fn view(state: &MediaPlayer) -> Element<Message> {
     rendered.map(Message::Playlist)
 }
 
-// Just listen for events - we'll update the player on each event
 fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
-    // Listen for keyboard, mouse, etc.
     iced::event::listen().map(|event| {
         match event {
             iced::Event::Keyboard(iced::keyboard::Event::KeyPressed { key, .. }) => {
                 match key {
-                    // CRITICAL: We must match Key::Named(...) to compare to Named::Space, etc.
                     Key::Named(Named::Space) => {
                         Message::Action(core::Action::Player(core::PlayerAction::Pause))
                     },
@@ -321,7 +296,6 @@ fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
             iced::Event::Window(iced::window::Event::Focused) => {
                 Message::WindowFocusGained
             },
-            // Handle file drag and drop events
             iced::Event::Window(iced::window::Event::FileHovered(_)) => {
                 Message::FileHovered
             },
@@ -332,7 +306,6 @@ fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
                 Message::FilesHoveredLeft
             },
             _ => {
-                // For any other events, send a None action
                 Message::Playlist(PlaylistAction::None)
             }
         }

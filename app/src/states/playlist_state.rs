@@ -76,7 +76,8 @@ impl PlaylistViewState {
             
             // ===== NEW: The critical Seek variant =====
             PlaylistAction::Seek(position) => {
-                println!("Seek request from UI to position: {:.4}", position);
+                println!("██ DEBUG: PlaylistAction::Seek({:.4}) in playlist_view_state.rs", position);
+                println!("██ DEBUG: Converting to Action::Player(PlayerAction::Seek)");
                 Action::Player(core::PlayerAction::Seek(position))
             },
             

@@ -87,11 +87,11 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         format!("{}:{:02}", secs / 60, secs % 60)
     });
     
-    // CRITICAL FIX: The slider sends a direct Seek action
     let progress_slider = slider(0.0..=1.0, player.progress, |pos| {
-        println!("Direct seek slider click at position: {:.4}", pos);
+        println!("██ DEBUG: Progress slider clicked at position: {:.4}", pos);
         PlayerAction::Seek(pos)
     })
+    .step(0.001) // <-- ADD THIS LINE to get 1000 possible positions instead of just 2
     .width(Length::Fill)
     .height(15)
     .style(|_theme: &Theme, _| slider::Style {

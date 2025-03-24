@@ -39,7 +39,7 @@ pub fn render_with_state<'a>(
             // Debug logging to trace action mapping
             match &ui_action {
                 player_view::PlayerAction::Seek(pos) => {
-                    println!("Mapping UI Seek({:.4}) to direct Seek action", pos);
+                    println!("██ DEBUG: Mapping UI Seek({:.4}) to PlaylistAction::Seek in render.rs", pos);
                 },
                 _ => {}
             }
@@ -61,8 +61,10 @@ pub fn render_with_state<'a>(
                     PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack),
                 player_view::PlayerAction::VolumeChange(v) => 
                     PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
-                player_view::PlayerAction::Seek(pos) => 
-                    PlaylistAction::Seek(pos), // <- MAPS directly to Seek
+                player_view::PlayerAction::Seek(pos) => {
+                    println!("██ DEBUG: Creating PlaylistAction::Seek({:.4}) in render.rs", pos);
+                    PlaylistAction::Seek(pos) // <- CRITICAL: direct Seek action mapping
+                },
                 player_view::PlayerAction::Shuffle =>
                     PlaylistAction::PlayerControl(core::PlayerAction::Shuffle),
             }

@@ -9,7 +9,7 @@ use std::sync::{Arc, atomic::{AtomicBool, Ordering}, Mutex};
 use std::thread;
 use std::time::Duration;
 use anyhow::{Result, anyhow};
-use log::{info, error};
+use log::{info, error, debug};
 
 use crate::audio::position::PlaybackPosition;
 use std::path::Path;
@@ -162,86 +162,94 @@ impl Player {
         };
         
         if let Some((progress, position_time, duration_time, should_stop)) = progress_info {
-            // Update the player state with the current progress
-            if let Ok(mut state) = self.state.lock() {
-                state.progress = progress;
-                state.position = Some(position_time);
-                state.duration = duration_time;
-            }
-            
-            // If playback has reached the end, stop
-            if should_stop {
-                self.stop();
-            }
-        }
-    }
-
-    /// Seeks playback to the specified position (0.0 = start, 1.0 = end)
-    pub fn seek(&mut self, position: f32) {
-        // Clamp position to valid range 0-1
-        let position = position.max(0.0).min(1.0);
-        
-        info!("Player.seek() called with position: {:.4}", position);
-        
-        // Update position tracker first so the decoder can detect the change
-        if let Ok(position_tracker) = self.playback_position.lock() {
-            // Log the current and target positions for debugging
-            let old_progress = position_tracker.progress();
-            info!("Seeking from {:.4} to {:.4}", old_progress, position);
-            
-            // Set the new position
-            position_tracker.seek(position);
-            
-            // Log successful update
-            info!("Position tracker updated successfully");
+           // Update the player state with the current progress
+           if let Ok(mut state) = self.state.lock() {
+            state.progress = progress;
+            state.position = Some(position_time);
+            state.duration = duration_time;
         }
         
-        // Also update the UI state immediately for better responsiveness
-        if let Ok(mut state) = self.state.lock() {
-            let old_progress = state.progress;
-            state.progress = position;
-            info!("UI state progress updated from {:.4} to {:.4}", old_progress, position);
-        }
-        
-        // Give time for the decoder thread to detect and respond to the seek
-        thread::sleep(Duration::from_millis(5));
-    }
-    
-    pub fn set_volume(&mut self, volume: f32) {
-        // Ensure volume is properly clamped between 0.0 and 1.0
-        let volume = volume.max(0.0).min(1.0);
-        
-        info!("Setting volume to: {:.4}", volume);
-        
-        // First update UI state to reflect change immediately
-        if let Ok(mut state) = self.state.lock() {
-            state.volume = volume;
-        }
-        
-        // Now update the playback volume
-        if let Ok(mut vol) = self.volume.lock() {
-            *vol = volume;
-        }
-    }
-
-    pub fn get_state(&self) -> PlayerState {
-        // Add safer error handling
-        match self.state.lock() {
-            Ok(state) => state.clone(),
-            Err(_) => PlayerState::new() // Return default state if lock fails
-        }
-    }
-    
-    /// Toggles shuffle state on or off
-    pub fn toggle_shuffle_state(&mut self) {
-        if let Ok(mut state) = self.state.lock() {
-            state.shuffle_enabled = !state.shuffle_enabled;
+        // If playback has reached the end, stop
+        if should_stop {
+            self.stop();
         }
     }
 }
 
-impl Drop for Player {
-    fn drop(&mut self) {
-        self.stop();
+/// Seeks playback to the specified position (0.0 = start, 1.0 = end)
+/// UPDATED: Now uses explicit seek request mechanism
+pub fn seek(&mut self, position: f32) {
+    // Clamp position to valid range 0-1
+    let position = position.max(0.0).min(1.0);
+    
+    println!("██ DEBUG: Player.seek({:.4}) called directly", position);
+    
+    // Update position tracker
+    if let Ok(position_tracker) = self.playback_position.lock() {
+        // Get current position for debugging
+        let old_progress = position_tracker.progress();
+        println!("██ DEBUG: Seeking from {:.4} to {:.4}", old_progress, position);
+        
+        // Set the new position
+        position_tracker.seek(position);
+        
+        println!("██ DEBUG: Position tracker updated");
+    } else {
+        println!("██ DEBUG: Failed to get lock on position tracker");
     }
+    
+    // Update the UI state immediately for better responsiveness
+    if let Ok(mut state) = self.state.lock() {
+        let old_progress = state.progress;
+        state.progress = position;
+        println!("██ DEBUG: UI state progress updated from {:.4} to {:.4}", old_progress, position);
+    } else {
+        println!("██ DEBUG: Failed to get lock on player state");
+    }
+    
+    println!("██ DEBUG: Seek operation completed in Player.seek()");
+}
+
+pub fn set_volume(&mut self, volume: f32) {
+    // Ensure volume is properly clamped between 0.0 and 1.0
+    let volume = volume.max(0.0).min(1.0);
+    
+    info!("Setting volume to: {:.4}", volume);
+    
+    // First update UI state to reflect change immediately
+    if let Ok(mut state) = self.state.lock() {
+        state.volume = volume;
+    }
+    
+    // Now update the playback volume
+    if let Ok(mut vol) = self.volume.lock() {
+        *vol = volume;
+    }
+}
+
+pub fn get_state(&self) -> PlayerState {
+    // Add safer error handling
+    match self.state.lock() {
+        Ok(state) => state.clone(),
+        Err(e) => {
+            error!("Failed to get player state: {}", e);
+            PlayerState::new() // Return default state if lock fails
+        }
+    }
+}
+
+/// Toggles shuffle state on or off
+pub fn toggle_shuffle_state(&mut self) {
+    if let Ok(mut state) = self.state.lock() {
+        state.shuffle_enabled = !state.shuffle_enabled;
+        info!("Shuffle mode toggled to: {}", state.shuffle_enabled);
+    }
+}
+}
+
+impl Drop for Player {
+fn drop(&mut self) {
+    info!("Player being dropped, stopping playback");
+    self.stop();
+}
 }
