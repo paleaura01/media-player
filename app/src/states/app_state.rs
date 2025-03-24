@@ -79,6 +79,37 @@ impl MediaPlayer {
         self.player_state = self.player.get_state();
     }
     
+    // Helper method to get a smart-shuffled track index
+    fn get_smart_shuffled_track_index(&self, playlist_id: u32) -> Option<usize> {
+        if let Some(playlist) = self.playlists.get_playlist(playlist_id) {
+            if playlist.tracks.is_empty() {
+                return None;
+            }
+            
+            // Find the minimum play count in the playlist
+            let min_play_count = playlist.tracks
+                .iter()
+                .map(|track| track.play_count)
+                .min()
+                .unwrap_or(0);
+            
+            // Filter tracks that have this minimum play count
+            let candidate_tracks: Vec<usize> = playlist.tracks
+                .iter()
+                .enumerate()
+                .filter(|(_, track)| track.play_count == min_play_count)
+                .map(|(i, _)| i)
+                .collect();
+            
+            if !candidate_tracks.is_empty() {
+                // Pick a random track from the filtered list
+                let random_idx = rand::thread_rng().gen_range(0..candidate_tracks.len());
+                return Some(candidate_tracks[random_idx]);
+            }
+        }
+        None
+    }
+    
     fn handle_player_action(&mut self, action: PlayerAction) {
         match action {
             PlayerAction::Play(path) => {
@@ -91,7 +122,46 @@ impl MediaPlayer {
                 }
             }
             PlayerAction::Pause => self.player.pause(),
-            PlayerAction::Resume => self.player.resume(),
+            PlayerAction::Resume => {
+                // Check if we're already playing or paused
+                if self.player_state.status == core::player::PlaybackStatus::Paused {
+                    // Original resume logic for a paused track
+                    info!("Resuming playback");
+                    self.player.resume();
+                } else if self.player_state.status == core::player::PlaybackStatus::Stopped {
+                    // New logic to start playing a track when nothing is playing
+                    info!("Starting playback from Now Playing list");
+                    
+                    // Check if we have a selected playlist
+                    if let Some(idx) = self.playlists.selected {
+                        if idx < self.playlists.playlists.len() {
+                            let playlist = &self.playlists.playlists[idx];
+                            
+                            if !playlist.tracks.is_empty() {
+                                let track_idx = if self.player_state.shuffle_enabled {
+                                    // Get a smart-shuffled track index
+                                    if let Some(idx) = self.get_smart_shuffled_track_index(playlist.id) {
+                                        idx
+                                    } else {
+                                        0 // Fallback to first track
+                                    }
+                                } else {
+                                    // No shuffle, just start with the first track
+                                    0
+                                };
+                                
+                                let track = &playlist.tracks[track_idx];
+                                info!("Auto-playing track: {}", track.title.as_ref().unwrap_or(&track.path));
+                                
+                                // Play the selected track
+                                self.handle_action(core::Action::Playlist(
+                                    core::PlaylistAction::PlayTrack(playlist.id, track_idx)
+                                ));
+                            }
+                        }
+                    }
+                }
+            },
             PlayerAction::Stop => self.player.stop(),
             PlayerAction::SetVolume(v) => self.player.set_volume(v),
             PlayerAction::Seek(pos) => self.player.seek(pos),
@@ -141,26 +211,7 @@ impl MediaPlayer {
                         if self.player_state.shuffle_enabled {
                             // If shuffle is enabled, use smart shuffle logic
                             if !playlist.tracks.is_empty() {
-                                // Find the minimum play count in the playlist
-                                let min_play_count = playlist.tracks
-                                    .iter()
-                                    .map(|track| track.play_count)
-                                    .min()
-                                    .unwrap_or(0);
-                                
-                                // Filter tracks that have this minimum play count
-                                let candidate_tracks: Vec<usize> = playlist.tracks
-                                    .iter()
-                                    .enumerate()
-                                    .filter(|(_, track)| track.play_count == min_play_count)
-                                    .map(|(i, _)| i)
-                                    .collect();
-                                
-                                if !candidate_tracks.is_empty() {
-                                    // Pick a random track from the filtered list
-                                    let random_idx = rand::thread_rng().gen_range(0..candidate_tracks.len());
-                                    let track_idx = candidate_tracks[random_idx];
-                                    
+                                if let Some(track_idx) = self.get_smart_shuffled_track_index(playlist.id) {
                                     let track = &playlist.tracks[track_idx];
                                     info!("Playing least-played track: {} (play count: {})", 
                                           track.title.as_deref().unwrap_or(&track.path), track.play_count);
@@ -208,35 +259,51 @@ impl MediaPlayer {
                     if idx < self.playlists.playlists.len() {
                         let playlist = &self.playlists.playlists[idx];
                         
-                        if let Some(current_track_path) = &self.player_state.current_track {
-                            let current_idx = playlist.tracks.iter()
-                                .position(|track| &track.path == current_track_path);
-                                
-                            if let Some(idx) = current_idx {
-                                let prev_idx = if idx == 0 {
-                                    playlist.tracks.len() - 1 // Wrap around to the end
-                                } else {
-                                    idx - 1
-                                };
-                                
-                                let track = &playlist.tracks[prev_idx];
-                                info!("Playing previous track: {}", track.path);
-                                self.handle_action(core::Action::Playlist(
-                                    core::PlaylistAction::PlayTrack(playlist.id, prev_idx)
-                                ));
+                        if self.player_state.shuffle_enabled {
+                            // Use smart shuffle for previous as well
+                            if !playlist.tracks.is_empty() {
+                                if let Some(track_idx) = self.get_smart_shuffled_track_index(playlist.id) {
+                                    let track = &playlist.tracks[track_idx];
+                                    info!("Playing least-played track: {} (play count: {})", 
+                                          track.title.as_deref().unwrap_or(&track.path), track.play_count);
+                                    
+                                    self.handle_action(core::Action::Playlist(
+                                        core::PlaylistAction::PlayTrack(playlist.id, track_idx)
+                                    ));
+                                }
+                            }
+                        } else {
+                            // Original sequential previous track logic
+                            if let Some(current_track_path) = &self.player_state.current_track {
+                                let current_idx = playlist.tracks.iter()
+                                    .position(|track| &track.path == current_track_path);
+                                    
+                                if let Some(idx) = current_idx {
+                                    let prev_idx = if idx == 0 {
+                                        playlist.tracks.len() - 1 // Wrap around to the end
+                                    } else {
+                                        idx - 1
+                                    };
+                                    
+                                    let track = &playlist.tracks[prev_idx];
+                                    info!("Playing previous track: {}", track.path);
+                                    self.handle_action(core::Action::Playlist(
+                                        core::PlaylistAction::PlayTrack(playlist.id, prev_idx)
+                                    ));
+                                } else if !playlist.tracks.is_empty() {
+                                    // Current track not in playlist, start with last
+                                    let last_idx = playlist.tracks.len() - 1;
+                                    self.handle_action(core::Action::Playlist(
+                                        core::PlaylistAction::PlayTrack(playlist.id, last_idx)
+                                    ));
+                                }
                             } else if !playlist.tracks.is_empty() {
-                                // Current track not in playlist, start with last
+                                // No track playing, start with last
                                 let last_idx = playlist.tracks.len() - 1;
                                 self.handle_action(core::Action::Playlist(
                                     core::PlaylistAction::PlayTrack(playlist.id, last_idx)
                                 ));
                             }
-                        } else if !playlist.tracks.is_empty() {
-                            // No track playing, start with last
-                            let last_idx = playlist.tracks.len() - 1;
-                            self.handle_action(core::Action::Playlist(
-                                core::PlaylistAction::PlayTrack(playlist.id, last_idx)
-                            ));
                         }
                     }
                 }
