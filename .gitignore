@@ -10,3 +10,4 @@ data/window_position.json
 data/playlists.json
 logs
 app/assets
+Cargo.lock
