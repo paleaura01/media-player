@@ -88,31 +88,38 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         format!("{}:{:02}", secs / 60, secs % 60)
     });
     
-    let progress_slider = slider(0.0..=1.0, player.progress, PlayerAction::UpdateProgress)
-        .step(0.001)
-        .width(Length::Fill)
-        .height(15)
-        .on_release(PlayerAction::Seek(player.progress))
-        .style(|_theme: &Theme, _| slider::Style {
-            rail: slider::Rail {
-                backgrounds: (
-                    iced::Background::Color(GREEN_COLOR),
-                    iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1))
-                ),
-                width: 15.0,
-                border: Border {
-                    color: DARK_GREEN_COLOR,
-                    width: 1.0,
-                    radius: 3.0.into(),
-                },
+    // The key improvement: A slider that sends both UpdateProgress during dragging
+    // AND Seek when you click (same position for both messages)
+    let progress_slider = slider(0.0..=1.0, player.progress, |pos| {
+        // This closure is called while dragging with the current position
+        PlayerAction::UpdateProgress(pos)
+    })
+    .step(0.001)
+    .width(Length::Fill)
+    .height(15)
+    // This is a hack: when released, we want to send a Seek with the SAME position
+    // that was last sent in UpdateProgress
+    .on_release(PlayerAction::Seek(player.progress))
+    .style(|_theme: &Theme, _| slider::Style {
+        rail: slider::Rail {
+            backgrounds: (
+                iced::Background::Color(GREEN_COLOR),
+                iced::Background::Color(iced::Color::from_rgb(0.1, 0.1, 0.1))
+            ),
+            width: 15.0,
+            border: Border {
+                color: DARK_GREEN_COLOR,
+                width: 1.0,
+                radius: 3.0.into(),
             },
-            handle: slider::Handle {
-                shape: slider::HandleShape::Circle { radius: 8.0 },
-                background: iced::Background::Color(GREEN_COLOR),
-                border_width: 1.0,
-                border_color: GREEN_COLOR,
-            },
-        });
+        },
+        handle: slider::Handle {
+            shape: slider::HandleShape::Circle { radius: 8.0 },
+            background: iced::Background::Color(GREEN_COLOR),
+            border_width: 1.0,
+            border_color: GREEN_COLOR,
+        },
+    });
     
     let progress_container = container(progress_slider)
         .width(Length::Fill)

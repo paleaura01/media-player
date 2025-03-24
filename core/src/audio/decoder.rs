@@ -84,10 +84,8 @@ pub fn play_audio_file(
     let channel_count = channels.count();
     let file_sample_rate = track_codec_params.sample_rate.unwrap_or(44100);
 
-    info!(
-        "Found audio track: {:?}, {} ch, {} Hz",
-        track_codec_params.codec, channel_count, file_sample_rate
-    );
+    info!("Found audio track: {:?}, {} ch, {} Hz",
+          track_codec_params.codec, channel_count, file_sample_rate);
 
     let mut decoder = symphonia::default::get_codecs()
         .make(&track_codec_params, &decoder_opts)
@@ -177,6 +175,7 @@ pub fn play_audio_file(
     {
         let mut pos = playback_position.lock().unwrap();
         pos.set_total_samples(total_samples);
+        pos.set_channel_count(channel_count); // Set the channel count correctly
         pos.sample_rate = file_sample_rate;
     }
 
@@ -226,49 +225,99 @@ pub fn play_audio_file(
         }
 
         if do_seek {
-            info!("Seek requested -> fraction = {:.4}", target_fraction);
-
-            // Clear the ring buffer first
+            info!("Seek requested -> fraction = {:.4} ({:.2}%)", 
+                 target_fraction, target_fraction * 100.0);
+            
+            // Clear the ring buffer first to prevent old audio from playing
             if let Ok(mut rb) = ring_buffer.lock() {
                 *rb = AudioRingBuffer::new(rb.capacity());
             }
-
-            // Convert fraction to proper Time struct
-            let whole_secs = (target_fraction * track_duration_seconds as f32) as u64;
-            let frac = target_fraction * track_duration_seconds as f32 - whole_secs as f32;
+            
+            // For better debugging: calculate frames vs samples
+            let frame_count = total_samples / channel_count as u64;
+            
+            // For very precise seek calculation
+            let target_time_seconds = target_fraction * track_duration_seconds as f32;
+            info!("Target time in seconds: {:.4} of total {:.4}s", 
+                 target_time_seconds, track_duration_seconds);
+            
+            // Convert to Symphonia Time format
+            let whole_secs = target_time_seconds as u64;
+            let frac = target_time_seconds - whole_secs as f32;
             let seek_time = Time { seconds: whole_secs, frac: frac as f64 };
-
+            
+            info!("Seeking to time: {}s + {:.6}s", seek_time.seconds, seek_time.frac);
+            
+            // Perform the actual seek with more debugging
             match format.seek(
-                SeekMode::Accurate,
+                SeekMode::Accurate,  // Use accurate mode for better precision
                 symphonia::core::formats::SeekTo::Time {
                     track_id: Some(track_id),
                     time: seek_time,
                 },
             ) {
                 Ok(seeked_to) => {
-                    info!("Format seek succeeded to actual position: {} samples", seeked_to.actual_ts);
+                    info!("Format seek succeeded to actual position: {} samples",
+                         seeked_to.actual_ts);
                     
-                    // Simply reset the decoder instead of recreating it
+                    // More detailed logging about the actual frame calculation 
+                    info!("Seek details: actual_ts={}, total_samples={}, frame_count={}, channel_count={}",
+                         seeked_to.actual_ts, total_samples, frame_count, channel_count);
+                    
+                    // Reset the decoder to ensure clean state
                     decoder.reset();
-
-                    // Update our local frames to match the actual seek position
+                    
+                    // Calculate the actual frame position
+                    let new_frames;
                     if let Some(tb) = track_info.codec_params.time_base {
                         let time = tb.calc_time(seeked_to.actual_ts);
-                        current_frames = (time.seconds as f64 * file_sample_rate as f64 +
-                                          time.frac * file_sample_rate as f64) as u64 * channel_count as u64;
+                        // Calculate the frame position
+                        let sample_pos = ((time.seconds as f64 + time.frac) * 
+                                         file_sample_rate as f64) as u64;
+                                         
+                        // Convert to frame position (sample position * channel count)
+                        new_frames = sample_pos * channel_count as u64;
+                        
+                        info!("Time-based calculation: time={}s+{:.6}s, sample_pos={}, new_frames={}",
+                             time.seconds, time.frac, sample_pos, new_frames);
                     } else {
-                        let new_sample_index = (target_fraction * total_samples as f32).round() as u64;
-                        current_frames = new_sample_index;
+                        // Fallback calculation directly from target fraction
+                        new_frames = (target_fraction * total_samples as f32).round() as u64;
+                        info!("Using fallback frame calculation: {}", new_frames);
                     }
                     
+                    // Update frames counter 
+                    current_frames = new_frames;
+                    
+                    // Update the playback position atomically with better synchronization
                     if let Ok(pos) = playback_position.lock() {
-                        pos.current_sample.store((current_frames / channel_count as u64) as usize, Ordering::Relaxed);
+                        // IMPORTANT: Store the frame index, not the sample index
+                        let frame_pos = (current_frames / channel_count as u64) as usize;
+                        pos.set_current_frame(frame_pos);
+                        
+                        // Calculate actual progress for logging
+                        let progress = if frame_count > 0 {
+                            frame_pos as f64 / frame_count as f64
+                        } else {
+                            0.0
+                        };
+                        
+                        info!("Updated frame position to {} of {} ({:.4}% of total)",
+                             frame_pos, frame_count, progress * 100.0);
                     }
                     
+                    // Ensure we fetch new data immediately
                     needs_data.store(true, Ordering::Release);
                 }
                 Err(e) => {
                     warn!("Seeking failed: {}", e);
+                    // Even if format seeking fails, try to update the position
+                    let new_frame_index = (target_fraction * frame_count as f32).round() as usize;
+                    if let Ok(pos) = playback_position.lock() {
+                        pos.set_current_frame(new_frame_index);
+                        info!("Updated frame position to {} (fallback after seek error)", 
+                             new_frame_index);
+                    }
                 }
             }
             continue;
@@ -326,6 +375,7 @@ pub fn play_audio_file(
                         current_frames = current_frames.saturating_add(frames_decoded as u64);
 
                         if let Ok(pos) = playback_position.lock() {
+                            // Update with per-frame count, not per-sample count
                             pos.update_current_sample(raw_samples.len());
                         }
                     }
@@ -347,7 +397,7 @@ pub fn play_audio_file(
         }
 
         if last_debug_log.elapsed() >= Duration::from_millis(200) {
-            let cur_seconds = current_frames as f64 / (file_sample_rate.max(1) as f64);
+            let cur_seconds = current_frames as f64 / (file_sample_rate.max(1) as f64 * channel_count as f64);
             debug!(
                 "Current decoded frames: {} => time ~ {:.3}s / track len {:.3}s",
                 current_frames,

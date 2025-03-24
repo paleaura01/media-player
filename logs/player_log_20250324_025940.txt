@@ -1,0 +1,239 @@
+[2025-03-24 02:59:40.376] INFO [app\src\main.rs:45] Logging initialized to file: logs/player_log_20250324_025940.txt
+[2025-03-24 02:59:40.379] INFO [app\src\main.rs:65] Application starting...
+[2025-03-24 02:59:40.409] INFO [core\src\player\mod.rs:32] Initializing Media Player...
+[2025-03-24 02:59:40.409] INFO [app\src\states\app_state.rs:56] MediaPlayer default state created
+[2025-03-24 02:59:40.584] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:696] InstanceFlags::VALIDATION requested, but unable to find layer: VK_LAYER_KHRONOS_validation
+[2025-03-24 02:59:40.621] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:341] Debug utils not enabled: debug_utils_user_data not passed to Instance::from_raw
+[2025-03-24 02:59:40.624] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\dx12\instance.rs:31] Unable to enable D3D12 debug interface: 0x887A002D
+[2025-03-24 02:59:40.625] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\auxil\dxgi\factory.rs:160] Unable to enable DXGI debug interface: 0x887A002D
+[2025-03-24 02:59:40.717] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:62] Settings {
+    present_mode: AutoVsync,
+    backends: Backends(
+        VULKAN | GL | METAL | DX12 | BROWSER_WEBGPU,
+    ),
+    default_font: Font {
+        family: SansSerif,
+        weight: Normal,
+        stretch: Normal,
+        style: Normal,
+    },
+    default_text_size: Pixels(
+        16.0,
+    ),
+    antialiasing: None,
+}
+[2025-03-24 02:59:40.720] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:724] Adapter Vulkan AdapterInfo { name: "NVIDIA GeForce RTX 2080 SUPER", vendor: 4318, device: 7809, device_type: DiscreteGpu, driver: "NVIDIA", driver_info: "572.60", backend: Vulkan }
+[2025-03-24 02:59:41.028] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:724] Adapter Dx12 AdapterInfo { name: "NVIDIA GeForce RTX 2080 SUPER", vendor: 4318, device: 7809, device_type: DiscreteGpu, driver: "", driver_info: "", backend: Dx12 }
+[2025-03-24 02:59:41.028] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:724] Adapter Dx12 AdapterInfo { name: "Microsoft Basic Render Driver", vendor: 5140, device: 140, device_type: Cpu, driver: "", driver_info: "", backend: Dx12 }
+[2025-03-24 02:59:41.029] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:724] Adapter Gl AdapterInfo { name: "NVIDIA GeForce RTX 2080 SUPER/PCIe/SSE2", vendor: 4318, device: 0, device_type: Other, driver: "", driver_info: "", backend: Gl }
+[2025-03-24 02:59:43.300] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:71] Available adapters: [
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "NVIDIA",
+        driver_info: "572.60",
+        backend: Vulkan,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "Microsoft Basic Render Driver",
+        vendor: 5140,
+        device: 140,
+        device_type: Cpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER/PCIe/SSE2",
+        vendor: 4318,
+        device: 0,
+        device_type: Other,
+        driver: "",
+        driver_info: "",
+        backend: Gl,
+    },
+]
+[2025-03-24 02:59:45.580] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:771] Adapter Vulkan AdapterInfo { name: "NVIDIA GeForce RTX 2080 SUPER", vendor: 4318, device: 7809, device_type: DiscreteGpu, driver: "NVIDIA", driver_info: "572.60", backend: Vulkan }
+[2025-03-24 02:59:45.581] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:94] Selected: AdapterInfo {
+    name: "NVIDIA GeForce RTX 2080 SUPER",
+    vendor: 4318,
+    device: 7809,
+    device_type: DiscreteGpu,
+    driver: "NVIDIA",
+    driver_info: "572.60",
+    backend: Vulkan,
+}
+[2025-03-24 02:59:45.583] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:103] Available formats: Copied {
+    it: Iter(
+        [
+            Bgra8UnormSrgb,
+            Rgba8UnormSrgb,
+            Bgra8Unorm,
+            Rgba8Unorm,
+        ],
+    ),
+}
+[2025-03-24 02:59:45.583] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:119] Available alpha modes: [
+    Opaque,
+]
+[2025-03-24 02:59:45.584] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:137] Selected format: Bgra8UnormSrgb with alpha mode: Auto
+[2025-03-24 02:59:45.760] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_winit-0.13.0\src\program.rs:522] Window attributes for id `Id(
+    1,
+)`: WindowAttributes {
+    inner_size: Some(
+        Logical(
+            LogicalSize {
+                width: 1200.0,
+                height: 800.0,
+            },
+        ),
+    ),
+    min_inner_size: None,
+    max_inner_size: None,
+    position: Some(
+        Logical(
+            LogicalPosition {
+                x: 2123.0,
+                y: 69.0,
+            },
+        ),
+    ),
+    resizable: true,
+    enabled_buttons: WindowButtons(
+        CLOSE | MINIMIZE | MAXIMIZE,
+    ),
+    title: "Media Player",
+    maximized: false,
+    visible: false,
+    transparent: false,
+    blur: false,
+    decorations: true,
+    window_icon: Some(
+        RaiiIcon {
+            handle: 32834787,
+        },
+    ),
+    preferred_theme: None,
+    resize_increments: None,
+    content_protected: false,
+    window_level: Normal,
+    active: true,
+    cursor: Icon(
+        Default,
+    ),
+    parent_window: None,
+    fullscreen: None,
+    platform_specific: PlatformSpecificWindowAttributes {
+        owner: None,
+        menu: None,
+        taskbar_icon: None,
+        no_redirection_bitmap: false,
+        drag_and_drop: true,
+        skip_taskbar: false,
+        class_name: "Window Class",
+        decoration_shadow: false,
+        backdrop_type: Auto,
+        clip_children: true,
+        border_color: None,
+        title_background_color: None,
+        title_text_color: None,
+        corner_preference: None,
+    },
+}
+[2025-03-24 03:00:01.530] INFO [app\src\application.rs:114] Playing track 1 from playlist 21
+[2025-03-24 03:00:01.530] INFO [app\src\states\app_state.rs:85] Attempting to play file: Z:\Music\Lidarr\Metal-Rock\Alternative\TOOL\TOOL - 1992 - Opiate\02. Hush.flac
+[2025-03-24 03:00:01.530] INFO [core\src\player\mod.rs:47] Player::play called with path: Z:\Music\Lidarr\Metal-Rock\Alternative\TOOL\TOOL - 1992 - Opiate\02. Hush.flac
+[2025-03-24 03:00:01.532] INFO [app\src\states\app_state.rs:89] Started playback successfully
+[2025-03-24 03:00:01.533] INFO [core\src\audio\decoder.rs:41] Opening file: Z:\Music\Lidarr\Metal-Rock\Alternative\TOOL\TOOL - 1992 - Opiate\02. Hush.flac
+[2025-03-24 03:00:01.559] INFO [core\src\audio\decoder.rs:63] Probing media...
+[2025-03-24 03:00:01.560] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\symphonia-core-0.5.4\src\probe.rs:279] found the format marker [66, 4c, 61, 43] @ 0+2 bytes.
+[2025-03-24 03:00:01.560] INFO [core\src\audio\decoder.rs:87] Found audio track: CodecType(8192), 2 ch, 48000 Hz
+[2025-03-24 03:00:01.800] INFO [core\src\audio\decoder.rs:196] Starting decode loop for track: Z:\Music\Lidarr\Metal-Rock\Alternative\TOOL\TOOL - 1992 - Opiate\02. Hush.flac
+[2025-03-24 03:00:04.653] INFO [app\src\application.rs:91] (Playlist) Received Seek(0.2160) -> Requesting seek in playback_position
+[2025-03-24 03:00:04.653] INFO [core\src\player\mod.rs:180] Preparing audio buffers for seeking operation
+[2025-03-24 03:00:04.653] INFO [core\src\audio\position.rs:106] Seek requested to 0.2160 (21.60%)
+[2025-03-24 03:00:04.653] INFO [core\src\audio\position.rs:113] Current frame: 139264/8077681 (1.72%), Target frame: 1744779/8077681 (21.60%)
+[2025-03-24 03:00:04.654] INFO [core\src\audio\decoder.rs:228] Seek requested -> fraction = 0.2160 (21.60%)
+[2025-03-24 03:00:04.654] INFO [core\src\audio\decoder.rs:241] Target time in seconds: 36.3496 of total 168.2850s
+[2025-03-24 03:00:04.654] INFO [core\src\audio\decoder.rs:249] Seeking to time: 36s + 0.349564s
+[2025-03-24 03:00:04.817] INFO [core\src\audio\decoder.rs:260] Format seek succeeded to actual position: 1740800 samples
+[2025-03-24 03:00:04.817] INFO [core\src\audio\decoder.rs:264] Seek details: actual_ts=1740800, total_samples=16155362, frame_count=8077681, channel_count=2
+[2025-03-24 03:00:04.817] INFO [core\src\audio\decoder.rs:281] Time-based calculation: time=36s+0.266667s, sample_pos=1740800, new_frames=3481600
+[2025-03-24 03:00:04.817] INFO [core\src\audio\decoder.rs:305] Updated frame position to 1740800 of 8077681 (21.5507% of total)
+[2025-03-24 03:00:06.509] INFO [app\src\application.rs:91] (Playlist) Received Seek(0.6760) -> Requesting seek in playback_position
+[2025-03-24 03:00:06.510] INFO [core\src\player\mod.rs:180] Preparing audio buffers for seeking operation
+[2025-03-24 03:00:06.510] INFO [core\src\audio\position.rs:106] Seek requested to 0.6760 (67.60%)
+[2025-03-24 03:00:06.510] INFO [core\src\audio\position.rs:113] Current frame: 1826816/8077681 (22.62%), Target frame: 5460513/8077681 (67.60%)
+[2025-03-24 03:00:06.510] INFO [core\src\audio\decoder.rs:228] Seek requested -> fraction = 0.6760 (67.60%)
+[2025-03-24 03:00:06.510] INFO [core\src\audio\decoder.rs:241] Target time in seconds: 113.7607 of total 168.2850s
+[2025-03-24 03:00:06.510] INFO [core\src\audio\decoder.rs:249] Seeking to time: 113s + 0.760681s
+[2025-03-24 03:00:06.703] INFO [core\src\audio\decoder.rs:260] Format seek succeeded to actual position: 5459968 samples
+[2025-03-24 03:00:06.703] INFO [core\src\audio\decoder.rs:264] Seek details: actual_ts=5459968, total_samples=16155362, frame_count=8077681, channel_count=2
+[2025-03-24 03:00:06.703] INFO [core\src\audio\decoder.rs:281] Time-based calculation: time=113s+0.749333s, sample_pos=5459968, new_frames=10919936
+[2025-03-24 03:00:06.704] INFO [core\src\audio\decoder.rs:305] Updated frame position to 5459968 of 8077681 (67.5933% of total)
+[2025-03-24 03:00:09.721] INFO [app\src\application.rs:91] (Playlist) Received Seek(0.8680) -> Requesting seek in playback_position
+[2025-03-24 03:00:09.721] INFO [core\src\player\mod.rs:180] Preparing audio buffers for seeking operation
+[2025-03-24 03:00:09.721] INFO [core\src\audio\position.rs:106] Seek requested to 0.8680 (86.80%)
+[2025-03-24 03:00:09.721] INFO [core\src\audio\position.rs:113] Current frame: 5607424/8077681 (69.42%), Target frame: 7011427/8077681 (86.80%)
+[2025-03-24 03:00:09.722] INFO [core\src\audio\decoder.rs:228] Seek requested -> fraction = 0.8680 (86.80%)
+[2025-03-24 03:00:09.723] INFO [core\src\audio\decoder.rs:241] Target time in seconds: 146.0714 of total 168.2850s
+[2025-03-24 03:00:09.723] INFO [core\src\audio\decoder.rs:249] Seeking to time: 146s + 0.071396s
+[2025-03-24 03:00:09.885] INFO [core\src\audio\decoder.rs:260] Format seek succeeded to actual position: 7008256 samples
+[2025-03-24 03:00:09.885] INFO [core\src\audio\decoder.rs:264] Seek details: actual_ts=7008256, total_samples=16155362, frame_count=8077681, channel_count=2
+[2025-03-24 03:00:09.885] INFO [core\src\audio\decoder.rs:281] Time-based calculation: time=146s+0.005333s, sample_pos=7008256, new_frames=14016512
+[2025-03-24 03:00:09.885] INFO [core\src\audio\decoder.rs:305] Updated frame position to 7008256 of 8077681 (86.7607% of total)
+[2025-03-24 03:00:12.182] INFO [app\src\application.rs:91] (Playlist) Received Seek(0.2740) -> Requesting seek in playback_position
+[2025-03-24 03:00:12.182] INFO [core\src\player\mod.rs:180] Preparing audio buffers for seeking operation
+[2025-03-24 03:00:12.182] INFO [core\src\audio\position.rs:106] Seek requested to 0.2740 (27.40%)
+[2025-03-24 03:00:12.182] INFO [core\src\audio\position.rs:113] Current frame: 7122944/8077681 (88.18%), Target frame: 2213284/8077681 (27.40%)
+[2025-03-24 03:00:12.183] INFO [core\src\audio\decoder.rs:228] Seek requested -> fraction = 0.2740 (27.40%)
+[2025-03-24 03:00:12.183] INFO [core\src\audio\decoder.rs:241] Target time in seconds: 46.1101 of total 168.2850s
+[2025-03-24 03:00:12.183] INFO [core\src\audio\decoder.rs:249] Seeking to time: 46s + 0.110100s
+[2025-03-24 03:00:12.296] INFO [core\src\audio\decoder.rs:260] Format seek succeeded to actual position: 2211840 samples
+[2025-03-24 03:00:12.296] INFO [core\src\audio\decoder.rs:264] Seek details: actual_ts=2211840, total_samples=16155362, frame_count=8077681, channel_count=2
+[2025-03-24 03:00:12.296] INFO [core\src\audio\decoder.rs:281] Time-based calculation: time=46s+0.080000s, sample_pos=2211840, new_frames=4423680
+[2025-03-24 03:00:12.296] INFO [core\src\audio\decoder.rs:305] Updated frame position to 2211840 of 8077681 (27.3821% of total)
+[2025-03-24 03:00:17.891] INFO [app\src\application.rs:91] (Playlist) Received Seek(0.6790) -> Requesting seek in playback_position
+[2025-03-24 03:00:17.891] INFO [core\src\player\mod.rs:180] Preparing audio buffers for seeking operation
+[2025-03-24 03:00:17.891] INFO [core\src\audio\position.rs:106] Seek requested to 0.6790 (67.90%)
+[2025-03-24 03:00:17.891] INFO [core\src\audio\position.rs:113] Current frame: 2482176/8077681 (30.73%), Target frame: 5484745/8077681 (67.90%)
+[2025-03-24 03:00:17.892] INFO [core\src\audio\decoder.rs:228] Seek requested -> fraction = 0.6790 (67.90%)
+[2025-03-24 03:00:17.892] INFO [core\src\audio\decoder.rs:241] Target time in seconds: 114.2655 of total 168.2850s
+[2025-03-24 03:00:17.892] INFO [core\src\audio\decoder.rs:249] Seeking to time: 114s + 0.265533s
+[2025-03-24 03:00:17.895] INFO [core\src\audio\decoder.rs:260] Format seek succeeded to actual position: 5484544 samples
+[2025-03-24 03:00:17.895] INFO [core\src\audio\decoder.rs:264] Seek details: actual_ts=5484544, total_samples=16155362, frame_count=8077681, channel_count=2
+[2025-03-24 03:00:17.895] INFO [core\src\audio\decoder.rs:281] Time-based calculation: time=114s+0.261333s, sample_pos=5484544, new_frames=10969088
+[2025-03-24 03:00:17.895] INFO [core\src\audio\decoder.rs:305] Updated frame position to 5484544 of 8077681 (67.8975% of total)
+[2025-03-24 03:00:19.205] INFO [app\src\application.rs:91] (Playlist) Received Seek(0.8640) -> Requesting seek in playback_position
+[2025-03-24 03:00:19.205] INFO [core\src\player\mod.rs:180] Preparing audio buffers for seeking operation
+[2025-03-24 03:00:19.205] INFO [core\src\audio\position.rs:106] Seek requested to 0.8640 (86.40%)
+[2025-03-24 03:00:19.205] INFO [core\src\audio\position.rs:113] Current frame: 5550080/8077681 (68.71%), Target frame: 6979116/8077681 (86.40%)
+[2025-03-24 03:00:19.205] INFO [core\src\audio\decoder.rs:228] Seek requested -> fraction = 0.8640 (86.40%)
+[2025-03-24 03:00:19.205] INFO [core\src\audio\decoder.rs:241] Target time in seconds: 145.3983 of total 168.2850s
+[2025-03-24 03:00:19.205] INFO [core\src\audio\decoder.rs:249] Seeking to time: 145s + 0.398254s
+[2025-03-24 03:00:19.208] INFO [core\src\audio\decoder.rs:260] Format seek succeeded to actual position: 6975488 samples
+[2025-03-24 03:00:19.208] INFO [core\src\audio\decoder.rs:264] Seek details: actual_ts=6975488, total_samples=16155362, frame_count=8077681, channel_count=2
+[2025-03-24 03:00:19.208] INFO [core\src\audio\decoder.rs:281] Time-based calculation: time=145s+0.322667s, sample_pos=6975488, new_frames=13950976
+[2025-03-24 03:00:19.208] INFO [core\src\audio\decoder.rs:305] Updated frame position to 6975488 of 8077681 (86.3551% of total)
+[2025-03-24 03:00:20.201] INFO [app\src\application.rs:91] (Playlist) Received Seek(0.1500) -> Requesting seek in playback_position
+[2025-03-24 03:00:20.201] INFO [core\src\player\mod.rs:180] Preparing audio buffers for seeking operation
+[2025-03-24 03:00:20.201] INFO [core\src\audio\position.rs:106] Seek requested to 0.1500 (15.00%)
+[2025-03-24 03:00:20.201] INFO [core\src\audio\position.rs:113] Current frame: 7028736/8077681 (87.01%), Target frame: 1211652/8077681 (15.00%)
+[2025-03-24 03:00:20.202] INFO [core\src\audio\decoder.rs:228] Seek requested -> fraction = 0.1500 (15.00%)
+[2025-03-24 03:00:20.202] INFO [core\src\audio\decoder.rs:241] Target time in seconds: 25.2428 of total 168.2850s
+[2025-03-24 03:00:20.202] INFO [core\src\audio\decoder.rs:249] Seeking to time: 25s + 0.242754s
+[2025-03-24 03:00:20.204] INFO [core\src\audio\decoder.rs:260] Format seek succeeded to actual position: 1208320 samples
+[2025-03-24 03:00:20.204] INFO [core\src\audio\decoder.rs:264] Seek details: actual_ts=1208320, total_samples=16155362, frame_count=8077681, channel_count=2
+[2025-03-24 03:00:20.204] INFO [core\src\audio\decoder.rs:281] Time-based calculation: time=25s+0.173333s, sample_pos=1208320, new_frames=2416640
+[2025-03-24 03:00:20.204] INFO [core\src\audio\decoder.rs:305] Updated frame position to 1208320 of 8077681 (14.9587% of total)

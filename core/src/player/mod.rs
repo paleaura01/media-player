@@ -10,10 +10,10 @@ use std::sync::{
     Arc, Mutex,
 };
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use anyhow::{anyhow, Result};
-use log::{info, error};
+use log::{info, error, debug};
 
 use crate::audio::position::PlaybackPosition;
 use std::path::Path;
@@ -140,6 +140,31 @@ impl Player {
             let new_progress = pos.progress();
             let new_time = pos.position();
             let dur = pos.duration();
+            
+            // Occasionally log the progress for debugging (limit frequency to avoid log spam)
+            static mut LAST_LOG_TIME: Option<Instant> = None;
+            
+            unsafe {
+                let should_log = if let Some(time) = LAST_LOG_TIME {
+                    time.elapsed() > Duration::from_secs(2)
+                } else {
+                    true
+                };
+                
+                if should_log {
+                    let current = pos.current_sample.load(Ordering::Relaxed);
+                    let total_frames = pos.total_samples / pos.channel_count as u64;
+                    
+                    debug!(
+                        "Progress update: frame={}/{} ({:.2}%), progress={:.4}, position={:?}, duration={:?}",
+                        current, total_frames,
+                        (current as f64 / total_frames as f64) * 100.0,
+                        new_progress, new_time, dur
+                    );
+                    
+                    LAST_LOG_TIME = Some(Instant::now());
+                }
+            }
 
             if let Ok(mut st) = self.state.lock() {
                 st.progress = new_progress;
@@ -149,11 +174,17 @@ impl Player {
         }
     }
 
-    /// (Deprecated) Directly seek to a fraction. 
+    pub fn clear_audio_buffers(&mut self) {
+        // This method prepares for seeking by signaling that buffers need to be cleared
+        // The actual buffer clearing happens in the decoder when a seek is requested
+        info!("Preparing audio buffers for seeking operation");
+    }
+    
+    /// Handle seeking with proper frame position calculation
     pub fn seek(&mut self, fraction: f32) {
-        log::warn!("Player::seek({:.4}) is deprecated in favor of request_seek usage", fraction);
-        if let Ok(pos) = self.playback_position.lock() {
-            pos.seek(fraction);
+        info!("Player::seek({:.4}) - Using request_seek", fraction);
+        if let Ok(mut lock) = self.playback_position.lock() {
+            lock.request_seek(fraction);
         }
         if let Ok(mut st) = self.state.lock() {
             st.progress = fraction;

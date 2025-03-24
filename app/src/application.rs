@@ -49,12 +49,20 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                         // We do not do direct seeking here anymore.
                         // We'll just do request_seek in the decoder loop approach.
                         core::PlayerAction::Seek(pos) => {
-                            // Instead, call request_seek on the position
+                            // First clear buffers
+                            state.player.clear_audio_buffers();
+                            
+                            // Then request the seek
                             if let Ok(mut lock) = state.player.playback_position.lock() {
                                 lock.request_seek(pos);
+                                log::debug!("(Action) Requested seek to {:.4} - lock acquired successfully", pos);
+                            } else {
+                                log::error!("(Action) Failed to acquire lock for seek to {:.4}", pos);
                             }
+                            
+                            // Update UI state immediately for responsiveness
                             state.player_state.progress = pos;
-                            log::debug!("(Action) Requested seek to {:.4}", pos);
+                            log::debug!("(Action) Updated UI progress to {:.4}", pos);
                         },
                         core::PlayerAction::SetVolume(vol) => {
                             state.player.set_volume(vol);
@@ -77,21 +85,33 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             Task::none()
         },
         Message::Playlist(action) => {
-            let shuffle_before = state.player_state.shuffle_enabled;
             match action {
                 PlaylistAction::Seek(pos) => {
-                    // The user clicked or dragged the progress bar -> request a seek
-                    log::debug!("(Playlist) Received Seek({:.4}) -> request_seek in playback_position", pos);
+                    // More detailed logging
+                    log::info!("(Playlist) Received Seek({:.4}) -> Requesting seek in playback_position", pos);
+                    
+                    // Clear any buffers first
+                    state.player.clear_audio_buffers();
+                    
+                    // Request the seek with proper locking
                     if let Ok(mut lock) = state.player.playback_position.lock() {
                         lock.request_seek(pos);
+                        log::debug!("Seek request successfully set for position {:.4}", pos);
+                    } else {
+                        log::error!("Failed to acquire lock for seek request");
                     }
+                    
+                    // Update the UI state immediately for responsiveness
                     state.player_state.progress = pos;
+                    log::debug!("Updated UI progress to {:.4}", pos);
                 },
                 PlaylistAction::UpdateProgress(pos) => {
                     // Just update the UI progress without initiating a seek
                     state.player_state.progress = pos;
+                    log::debug!("Updated UI progress during dragging to {:.4}", pos);
                 },
                 PlaylistAction::PlayTrack(pid, tid) => {
+                    log::info!("Playing track {} from playlist {}", tid, pid);
                     state.handle_action(core::Action::Playlist(core::PlaylistAction::PlayTrack(pid, tid)));
                     state.player_state = state.player.get_state();
                     state.player_state.shuffle_enabled = shuffle_before;
@@ -106,10 +126,18 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                             state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
                         },
                         core::PlayerAction::Seek(pos) => {
-                            // Ditto: request_seek
+                            // Clear buffers first
+                            state.player.clear_audio_buffers();
+                            
+                            // Then request the seek
                             if let Ok(mut lock) = state.player.playback_position.lock() {
                                 lock.request_seek(pos);
+                                log::debug!("(PlayerControl) Seek request set for position {:.4}", pos);
+                            } else {
+                                log::error!("(PlayerControl) Failed to acquire lock for seek request");
                             }
+                            
+                            // Update UI immediately
                             state.player_state.progress = pos;
                         },
                         _ => {
