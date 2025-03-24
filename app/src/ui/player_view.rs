@@ -157,7 +157,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
                 .height(20)
         )
         .padding(5)
-        .on_press(PlayerAction::SkipBackward)
+        .on_press(PlayerAction::SkipBackward) // This should match your PlayerAction enum
         .style(|_theme, _| button::Style {
             background: None,
             ..Default::default()
@@ -197,7 +197,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
                 .height(20)
         )
         .padding(5)
-        .on_press(PlayerAction::SkipForward)
+        .on_press(PlayerAction::SkipForward) // This should match your PlayerAction enum
         .style(|_theme, _| button::Style {
             background: None,
             ..Default::default()

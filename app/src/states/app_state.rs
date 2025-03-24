@@ -94,6 +94,32 @@ impl MediaPlayer {
             PlayerAction::Stop => self.player.stop(),
             PlayerAction::SetVolume(v) => self.player.set_volume(v),
             PlayerAction::Seek(pos) => self.player.seek(pos),
+            PlayerAction::SkipForward(seconds) => {
+                if let Some(current) = self.player_state.position {
+                    if let Some(duration) = self.player_state.duration {
+                        // Calculate relative position
+                        let total_secs = duration.as_secs_f32();
+                        let current_secs = current.as_secs_f32();
+                        let new_secs = (current_secs + seconds).min(total_secs);
+                        let new_pos = new_secs / total_secs;
+                        info!("Skipping forward {} seconds to position {:.2}", seconds, new_pos);
+                        self.player.seek(new_pos);
+                    }
+                }
+            },
+            PlayerAction::SkipBackward(seconds) => {
+                if let Some(current) = self.player_state.position {
+                    if let Some(duration) = self.player_state.duration {
+                        // Calculate relative position
+                        let total_secs = duration.as_secs_f32();
+                        let current_secs = current.as_secs_f32();
+                        let new_secs = (current_secs - seconds).max(0.0);
+                        let new_pos = new_secs / total_secs;
+                        info!("Skipping backward {} seconds to position {:.2}", seconds, new_pos);
+                        self.player.seek(new_pos);
+                    }
+                }
+            },
             PlayerAction::Shuffle => {
                 // Toggle shuffle mode
                 self.player_state.shuffle_enabled = !self.player_state.shuffle_enabled;
