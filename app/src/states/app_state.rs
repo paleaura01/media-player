@@ -131,7 +131,7 @@ impl MediaPlayer {
                 }
             },
             PlayerAction::NextTrack => {
-                // Code for next track with shuffle consideration
+                // Code for next track with smart shuffle consideration
                 info!("Next track button pressed");
                 
                 if let Some(idx) = self.playlists.selected {
@@ -139,18 +139,39 @@ impl MediaPlayer {
                         let playlist = &self.playlists.playlists[idx];
                         
                         if self.player_state.shuffle_enabled {
-                            // If shuffle is enabled, select a random track
+                            // If shuffle is enabled, use smart shuffle logic
                             if !playlist.tracks.is_empty() {
-                                let random_idx = rand::thread_rng().gen_range(0..playlist.tracks.len());
+                                // Find the minimum play count in the playlist
+                                let min_play_count = playlist.tracks
+                                    .iter()
+                                    .map(|track| track.play_count)
+                                    .min()
+                                    .unwrap_or(0);
                                 
-                                let track = &playlist.tracks[random_idx];
-                                info!("Playing random track: {}", track.path);
-                                self.handle_action(core::Action::Playlist(
-                                    core::PlaylistAction::PlayTrack(playlist.id, random_idx)
-                                ));
+                                // Filter tracks that have this minimum play count
+                                let candidate_tracks: Vec<usize> = playlist.tracks
+                                    .iter()
+                                    .enumerate()
+                                    .filter(|(_, track)| track.play_count == min_play_count)
+                                    .map(|(i, _)| i)
+                                    .collect();
+                                
+                                if !candidate_tracks.is_empty() {
+                                    // Pick a random track from the filtered list
+                                    let random_idx = rand::thread_rng().gen_range(0..candidate_tracks.len());
+                                    let track_idx = candidate_tracks[random_idx];
+                                    
+                                    let track = &playlist.tracks[track_idx];
+                                    info!("Playing least-played track: {} (play count: {})", 
+                                          track.title.as_deref().unwrap_or(&track.path), track.play_count);
+                                    
+                                    self.handle_action(core::Action::Playlist(
+                                        core::PlaylistAction::PlayTrack(playlist.id, track_idx)
+                                    ));
+                                }
                             }
                         } else {
-                            // Sequential next track logic
+                            // Original sequential next track logic (unchanged)
                             if let Some(current_track_path) = &self.player_state.current_track {
                                 let current_idx = playlist.tracks.iter()
                                     .position(|track| &track.path == current_track_path);
