@@ -1,6 +1,6 @@
 // app/src/ui/render.rs
 use iced::widget::{Column, Container, Row, container, text, scrollable, Space, horizontal_rule, button};
-use iced::{Element, Length, Background};
+use iced::{Element, Length, Background, Alignment, Theme, widget::svg};
 use crate::ui::theme::{
     library_container_style,
     playlist_container_style,
@@ -13,10 +13,20 @@ use crate::ui::theme::{
 use core::player::PlayerState;
 use core::playlist::PlaylistState;
 use core::library::LibraryState;
+use core::Action;
+use core::playlist::PlaylistAction as CorePlaylistAction;
 
 use crate::ui::{player_view, playlist_view, library_view};
 use crate::states::playlist_state::PlaylistViewState; 
 use crate::ui::playlist_view::PlaylistAction;
+
+fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
+    let base_path = std::env::current_dir().unwrap_or_default();
+    let icon_path = base_path.join("app").join("assets").join("icons").join(name);
+    println!("Loading icon from: {}", icon_path.display());
+
+    svg::Svg::new(svg::Handle::from_path(icon_path))
+}
 
 /// Enhanced render function with updated layout & action mapping
 pub fn render_with_state<'a>(
@@ -31,7 +41,8 @@ pub fn render_with_state<'a>(
     // Create the three panels for the main content area
     let playlist_section = playlist_view::view_with_state(playlists, playlist_view_state);
     let library_section = library_view::view_with_search(library);
-    let now_playing_section = create_now_playing_section(playlists);
+    let now_playing_section = create_now_playing_section(playlists, player_state);
+    
     
     // Map player actions -> playlist actions
     let player_container = Container::new(
@@ -130,7 +141,10 @@ pub fn render_with_state<'a>(
 }
 
 // Helper: now playing section
-fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, PlaylistAction> {
+fn create_now_playing_section<'a>(
+    playlists: &'a PlaylistState, 
+    player_state: &'a PlayerState
+) -> Element<'a, PlaylistAction> {
     let title = text("Now Playing")
         .size(20)
         .style(|_| text::Style {
@@ -153,24 +167,67 @@ fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, P
                             Column::new().spacing(4),
                             |column, (track_idx, track)| {
                                 let track_title = track.title.clone().unwrap_or_else(|| track.path.clone());
-                                let track_button = button(
-                                    Row::new()
-                                        .push(text(format!("{}. ", track_idx + 1)).size(14))
-                                        .push(text(format!("{} (played {})", 
-                                                 track_title, 
-                                                 track.play_count)).size(14))  // Add play count here
-                                        .spacing(5)
-                                )
-                                .padding(5)
-                                .width(Length::Fill)
-                                .style(|_theme, _| button::Style {
-                                    background: None,
-                                    text_color: GREEN_COLOR,
-                                    ..Default::default()
-                                })
-                                .on_press(PlaylistAction::PlayTrack(playlist.id, track_idx));
                                 
-                                column.push(track_button)
+                                // Check if this track is the currently playing track
+                                let is_current_track = if let Some(current_path) = &player_state.current_track {
+                                    current_path == &track.path
+                                } else {
+                                    false
+                                };
+                                
+                                // Create track row with play button and delete button
+                                let track_row = Row::new()
+                                    .push(
+                                        button(
+                                            Row::new()
+                                                .push(text(format!("{}. ", track_idx + 1)).size(14))
+                                                .push(
+                                                    text(format!("{} (played {})", 
+                                                        track_title, 
+                                                        track.play_count))
+                                                    .size(14)
+                                                )
+                                                .spacing(5)
+                                        )
+                                        .padding(5)
+                                        .width(Length::Fill)
+                                        .style(|_theme, _| button::Style {
+                                            background: None,
+                                            text_color: GREEN_COLOR,
+                                            ..Default::default()
+                                        })
+                                        .on_press(PlaylistAction::PlayTrack(playlist.id, track_idx))
+                                    )
+                                    .push(
+                                        button(
+                                            load_icon("ph--x-square-bold.svg")
+                                                .width(16)
+                                                .height(16)
+                                        )
+                                        .padding(5)
+                                        .on_press(PlaylistAction::RemoveTrack(playlist.id, track_idx))
+                                        .style(|_theme, _| button::Style {
+                                            background: None,
+                                            ..Default::default()
+                                        })
+                                    )
+                                    .spacing(5)
+                                    .align_y(Alignment::Center);
+                                
+                                // Wrap in a container that can be highlighted
+                                let track_container = container(track_row)
+                                    .width(Length::Fill)
+                                    .padding(2)
+                                    .style(move |_: &Theme| container::Style {
+                                        background: if is_current_track {
+                                            Some(Background::Color(iced::Color::from_rgb(0.15, 0.15, 0.15)))
+                                        } else {
+                                            None
+                                        },
+                                        ..Default::default()
+                                    });
+                                
+                                column.push(track_container)
                             }
                         )
                     )

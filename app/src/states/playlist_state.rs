@@ -94,6 +94,12 @@ impl PlaylistViewState {
             PlaylistAction::None => {
                 Action::Playlist(CorePlaylistAction::None)
             },
+            
+            // New handler for RemoveTrack
+            PlaylistAction::RemoveTrack(playlist_id, track_idx) => {
+                println!("Requesting to remove track {} from playlist {}", track_idx, playlist_id);
+                Action::Playlist(CorePlaylistAction::RemoveTrack(playlist_id, track_idx))
+            },
         }
     }
     

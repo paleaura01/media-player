@@ -21,6 +21,7 @@ pub enum PlaylistAction {
     PlayerControl(core::PlayerAction),  // New variant to handle player controls
     Seek(f32),
     UpdateProgress(f32),
+    RemoveTrack(u32, usize), 
 }
 
 // SVG loading function

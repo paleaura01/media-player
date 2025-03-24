@@ -5,13 +5,6 @@
       "name": "New Playlist",
       "tracks": [
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\01 Colossal.flac",
-          "title": "01 Colossal.flac",
-          "artist": null,
-          "album": null,
-          "play_count": 2
-        },
-        {
           "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\02 Whales.flac",
           "title": "02 Whales.flac",
           "artist": null,
@@ -30,7 +23,7 @@
           "title": "04 The Levitated.flac",
           "artist": null,
           "album": null,
-          "play_count": 0
+          "play_count": 1
         },
         {
           "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\05 Secret Earth.flac",
