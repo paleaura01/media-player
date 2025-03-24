@@ -8,4 +8,5 @@ Cargo.lock
 sample.*
 data/window_position.json
 data/playlists.json
-
+logs
+app/assets
