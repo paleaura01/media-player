@@ -1,35 +1,89 @@
 {
   "playlists": [
     {
-      "id": 20,
-      "name": "Fucboi's Dream",
-      "tracks": []
-    },
-    {
-      "id": 21,
+      "id": 1,
       "name": "New Playlist",
       "tracks": [
         {
-          "path": "Z:\\Music\\Lidarr\\Metal-Rock\\Alternative\\TOOL\\TOOL - 1992 - Opiate\\06. Opiate.flac",
-          "title": "06. Opiate.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\01 Colossal.flac",
+          "title": "01 Colossal.flac",
           "artist": null,
-          "album": null
+          "album": null,
+          "play_count": 1
         },
         {
-          "path": "Z:\\Music\\Lidarr\\Metal-Rock\\Alternative\\TOOL\\TOOL - 1992 - Opiate\\02. Hush.flac",
-          "title": "02. Hush.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\02 Whales.flac",
+          "title": "02 Whales.flac",
           "artist": null,
-          "album": null
+          "album": null,
+          "play_count": 0
         },
         {
-          "path": "Z:\\Music\\Lidarr\\Metal-Rock\\Alternative\\TOOL\\TOOL - 1993 - Undertow\\07. Undertow.flac",
-          "title": "07. Undertow.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\03 Emersion.flac",
+          "title": "03 Emersion.flac",
           "artist": null,
-          "album": null
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\04 The Levitated.flac",
+          "title": "04 The Levitated.flac",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\05 Secret Earth.flac",
+          "title": "05 Secret Earth.flac",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\06 Gallows.flac",
+          "title": "06 Gallows.flac",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\07 Origin of Species.flac",
+          "title": "07 Origin of Species.flac",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\08 Alpenglow.flac",
+          "title": "08 Alpenglow.flac",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\09 Black Hills.flac",
+          "title": "09 Black Hills.flac",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\10 Balkan.flac",
+          "title": "10 Balkan.flac",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\11 Drifting Figures.flac",
+          "title": "11 Drifting Figures.flac",
+          "artist": null,
+          "album": null,
+          "play_count": 0
         }
       ]
     }
   ],
-  "selected": 1,
-  "next_id": 22
+  "selected": 0,
+  "next_id": 2
 }

@@ -6,6 +6,7 @@ use log::{debug, error, info};
 use core::{Action, PlayerAction, PlaylistAction, LibraryAction, Track, Player, PlayerState, PlaylistState, LibraryState};
 use crate::states::playlist_state::PlaylistViewState;
 use rand::Rng; // For picking random track if shuffle is on
+use anyhow::Result;
 
 pub struct MediaPlayer {
     pub player: Player,
@@ -279,12 +280,14 @@ impl MediaPlayer {
                     title: Some("Sample Track 1".to_string()),
                     artist: Some("Artist 1".to_string()),
                     album: Some("Album 1".to_string()),
+                    play_count: 0, // Initialize play count to 0
                 });
                 self.library.tracks.push(Track {
                     path: "sample2.mp3".to_string(),
                     title: Some("Sample Track 2".to_string()),
                     artist: Some("Artist 2".to_string()),
                     album: Some("Album 2".to_string()),
+                    play_count: 0, // Initialize play count to 0
                 });
                 self.library.scanning = false;
             }
@@ -299,9 +302,46 @@ impl MediaPlayer {
                     title: Some(filename),
                     artist: None,
                     album: None,
+                    play_count: 0, // Initialize play count to 0
                 });
             }
             LibraryAction::Search(_q) => {}
         }
+    }
+    
+    // Add track completion handling
+    pub fn check_for_completed_tracks(&mut self) {
+        // If the player signals that a track was completed
+        if self.player.track_completed_signal {
+            // Reset the signal
+            self.player.track_completed_signal = false;
+            
+            // Get the currently playing track path
+            if let Some(track_path) = &self.player_state.current_track {
+                // Find and update the track's play count in the playlists
+                for playlist in &mut self.playlists.playlists {
+                    for track in &mut playlist.tracks {
+                        if &track.path == track_path {
+                            track.play_count += 1;
+                            info!("Updated play count for '{}' to {}", 
+                                  track.title.as_ref().unwrap_or(&track.path), 
+                                  track.play_count);
+                            break;
+                        }
+                    }
+                }
+                
+                // Save updated play counts to disk
+                if let Err(e) = self.save_playlists() {
+                    error!("Failed to save play count: {}", e);
+                }
+            }
+        }
+    }
+
+    fn save_playlists(&self) -> Result<(), anyhow::Error> {
+        let path = self.data_dir.join("playlists.json");
+        self.playlists.save_to_file(&path)?;
+        Ok(())
     }
 }

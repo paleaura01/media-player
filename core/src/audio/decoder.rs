@@ -389,6 +389,13 @@ pub fn play_audio_file(
                     if io_err.kind() == std::io::ErrorKind::UnexpectedEof {
                         info!("End of file reached (EOF)");
                         is_eof = true;
+                        
+                        // Track was played completely, increment the play count
+                        // We need to pass this information back to update the track
+                        if let Ok(mut st) = state_arc.lock() {
+                            st.track_completed = true;  // Set the flag to indicate track completion
+                        }
+                        
                         continue;
                     }
                 }

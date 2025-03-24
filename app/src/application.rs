@@ -1,3 +1,4 @@
+// app/src/application.rs
 use iced::{Element, Subscription, Task, Point};
 use crate::ui;
 use crate::states::window_state;
@@ -39,6 +40,9 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
     state.player.update_progress();
     state.player_state = state.player.get_state();
     state.player_state.shuffle_enabled = shuffle_before;
+
+    // Check for completed tracks (add this line)
+    state.check_for_completed_tracks();
 
     match message {
         Message::Action(action) => {
@@ -218,6 +222,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                                     title: Some(filename),
                                     artist: None,
                                     album: None,
+                                    play_count: 0, // Initialize play count to 0
                                 };
                                 state.handle_action(core::Action::Playlist(core::PlaylistAction::AddTrack(playlist_id, track)));
                             } else {

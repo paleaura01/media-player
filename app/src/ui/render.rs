@@ -156,7 +156,9 @@ fn create_now_playing_section<'a>(playlists: &'a PlaylistState) -> Element<'a, P
                                 let track_button = button(
                                     Row::new()
                                         .push(text(format!("{}. ", track_idx + 1)).size(14))
-                                        .push(text(track_title).size(14))
+                                        .push(text(format!("{} (played {})", 
+                                                 track_title, 
+                                                 track.play_count)).size(14))  // Add play count here
                                         .spacing(5)
                                 )
                                 .padding(5)

@@ -13,6 +13,7 @@ pub struct PlayerState {
     #[serde(skip)]
     pub position: Option<Duration>,
     pub shuffle_enabled: bool,
+    pub track_completed: bool,  // Added track completion flag
 }
 
 impl PlayerState {
@@ -25,6 +26,7 @@ impl PlayerState {
             duration: None,
             position: None,
             shuffle_enabled: false,
+            track_completed: false,  // Initialize to false
         }
     }
 }

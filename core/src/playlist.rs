@@ -9,6 +9,7 @@ pub struct Track {
     pub title: Option<String>,
     pub artist: Option<String>,
     pub album: Option<String>,
+    pub play_count: u32,  // Added play count field
 }
 
 #[derive(Clone, Debug)]

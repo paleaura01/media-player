@@ -25,6 +25,7 @@ pub struct Player {
     pub playback_position: Arc<Mutex<PlaybackPosition>>,
     volume: Arc<Mutex<f32>>,
     playback_thread: Option<thread::JoinHandle<()>>,
+    pub track_completed_signal: bool, // Added track completion signal
 }
 
 impl Player {
@@ -40,6 +41,7 @@ impl Player {
             playback_position: Arc::new(Mutex::new(PlaybackPosition::new(44100))),
             volume: Arc::new(Mutex::new(0.8)),
             playback_thread: None,
+            track_completed_signal: false, // Initialize to false
         }
     }
 
@@ -170,6 +172,15 @@ impl Player {
                 st.progress = new_progress;
                 st.position = Some(new_time);
                 st.duration = Some(dur);
+                
+                // Check if the track has completed
+                if st.track_completed {
+                    // Reset the flag
+                    st.track_completed = false;
+                    
+                    // Signal that a track was completed
+                    self.track_completed_signal = true;
+                }
             }
         }
     }
