@@ -1,21 +1,29 @@
 // core/src/audio/decoder.rs
+
 use std::fs::File;
 use std::path::Path;
-use std::sync::{Arc, atomic::{AtomicBool, Ordering}, Mutex};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc, Mutex,
+};
 use std::thread;
 use std::time::{Duration, Instant};
-use anyhow::{Result, anyhow};
-use log::{info, warn, error, debug};
+
+use anyhow::{anyhow, Result};
+use log::{debug, error, info, warn};
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 
-use symphonia::core::audio::{SampleBuffer, SignalSpec};
-use symphonia::core::codecs::{DecoderOptions, CODEC_TYPE_NULL};
-use symphonia::core::formats::FormatOptions;
-use symphonia::core::io::MediaSourceStream;
-use symphonia::core::meta::MetadataOptions;
-use symphonia::core::probe::Hint;
-use symphonia::core::formats::SeekMode;
+use symphonia::core::{
+    audio::{SampleBuffer, SignalSpec},
+    codecs::{DecoderOptions, CODEC_TYPE_NULL},
+    errors::Error as SymphError,
+    formats::{FormatOptions, SeekMode},
+    io::MediaSourceStream,
+    meta::MetadataOptions,
+    probe::Hint,
+    units::Time,
+};
 
 use crate::audio::buffer::AudioRingBuffer;
 use crate::audio::position::PlaybackPosition;
@@ -23,29 +31,23 @@ use crate::audio::resampler::resample;
 use crate::PlayerState;
 
 pub fn play_audio_file(
-    path: &str, 
-    pause_flag: Arc<AtomicBool>, 
+    path: &str,
+    pause_flag: Arc<AtomicBool>,
     stop_flag: Arc<AtomicBool>,
     state_arc: Arc<Mutex<PlayerState>>,
     playback_position: Arc<Mutex<PlaybackPosition>>,
     volume_arc: Arc<Mutex<f32>>,
 ) -> Result<()> {
     info!("Opening file: {}", path);
-    
+
     if !Path::new(path).exists() {
         error!("File does not exist: {}", path);
         return Err(anyhow!("File does not exist: {}", path));
     }
-    
-    let file = match File::open(path) {
-        Ok(f) => Box::new(f),
-        Err(e) => {
-            error!("Failed to open file {}: {}", path, e);
-            return Err(anyhow!("Error opening file: {}", e));
-        }
-    };
-    
-    let mss = MediaSourceStream::new(file, Default::default());
+
+    let file = File::open(path).map_err(|e| anyhow!("Error opening file: {}", e))?;
+    let mss = MediaSourceStream::new(Box::new(file), Default::default());
+
     let mut hint = Hint::new();
     if let Some(ext) = Path::new(path).extension() {
         if let Some(ext_str) = ext.to_str() {
@@ -53,460 +55,325 @@ pub fn play_audio_file(
             debug!("Detected file extension: {}", ext_str);
         }
     }
-    
+
     let format_opts = FormatOptions::default();
     let metadata_opts = MetadataOptions::default();
     let decoder_opts = DecoderOptions::default();
-    
+
     info!("Probing media...");
-    let probed = match symphonia::default::get_probe()
-        .format(&hint, mss, &format_opts, &metadata_opts) {
-            Ok(p) => p,
-            Err(e) => {
-                error!("Error probing media: {}", e);
-                return Err(anyhow!("Error probing media format: {}", e));
-            }
-        };
-    
+    let probed = symphonia::default::get_probe()
+        .format(&hint, mss, &format_opts, &metadata_opts)
+        .map_err(|e| anyhow!("Error probing media format: {}", e))?;
+
     let mut format = probed.format;
-    let format_name = if let Some(md) = format.metadata().current() {
-        md.tags().iter()
-            .find(|tag| tag.key.eq_ignore_ascii_case("title"))
-            .map(|tag| tag.value.to_string())
-            .unwrap_or_else(|| Path::new(path).file_name().and_then(|n| n.to_str()).unwrap_or("Unknown").to_string())
-    } else {
-        Path::new(path).file_name().and_then(|n| n.to_str()).unwrap_or("Unknown").to_string()
+    // Clone the track info to release the immutable borrow of format
+    let track_info = {
+        let t = format
+            .tracks()
+            .iter()
+            .find(|t| t.codec_params.codec != CODEC_TYPE_NULL)
+            .ok_or_else(|| anyhow!("No supported audio track found"))?;
+        t.clone()
     };
-    
-    info!("Playing: {}", format_name);
-    
-    // First get all track information
-    let track_info = format.tracks()
-        .iter()
-        .find(|t| t.codec_params.codec != CODEC_TYPE_NULL)
-        .ok_or_else(|| anyhow!("No supported audio track found"))?;
-    
-    // Store all needed information from the track before any mutable operations
-    let track_id = track_info.id;
+
     let track_codec_params = track_info.codec_params.clone();
-    let channels = track_codec_params.channels.unwrap_or(symphonia::core::audio::Channels::FRONT_LEFT);
+    let track_id = track_info.id;
+    let channels = track_codec_params
+        .channels
+        .unwrap_or(symphonia::core::audio::Channels::FRONT_LEFT);
     let channel_count = channels.count();
     let file_sample_rate = track_codec_params.sample_rate.unwrap_or(44100);
-    
-    info!("Found audio track: {}", track_codec_params.codec);
-    
-    let mut decoder = match symphonia::default::get_codecs()
-        .make(&track_codec_params, &decoder_opts) {
-            Ok(d) => d,
-            Err(e) => {
-                error!("Error creating decoder: {}", e);
-                return Err(anyhow!("Error creating audio decoder: {}", e));
-            }
-        };
-    
-    info!("Audio track parameters: {} Hz, {} channels", file_sample_rate, channel_count);
-    
-    let total_samples = if let Some(n_frames) = track_codec_params.n_frames {
-        match n_frames.checked_mul(channel_count as u64) {
-            Some(samples) => samples,
-            None => {
-                warn!("Sample count calculation overflow, using fallback");
-                file_sample_rate as u64 * channel_count as u64 * 300 
-            }
-        }
-    } else {
-        file_sample_rate as u64 * channel_count as u64 * 300
-    };
-    
-    // Update the playback position with total samples and initialize seek controls
-    if let Ok(mut position) = playback_position.lock() {
-        position.set_total_samples(total_samples);
-        position.sample_rate = file_sample_rate;
-        
-        // Initialize the seek flags if they don't exist
-        if position.seek_requested.is_none() {
-            position.seek_requested = Some(Arc::new(AtomicBool::new(false)));
-        }
-        if position.seek_target.is_none() {
-            position.seek_target = Some(Arc::new(Mutex::new(0.0)));
-        }
-    }
-    
-    let duration = {
-        let sr = file_sample_rate.max(1) as f64;
-        let cc = channel_count.max(1) as f64;
-        Duration::from_secs_f64(total_samples as f64 / (sr * cc))
-    };
-    
-    info!("Track duration: {:?}", duration);
-    
-    if let Ok(mut state) = state_arc.lock() {
-        state.duration = Some(duration);
-    }
-    
+
+    info!(
+        "Found audio track: {:?}, {} ch, {} Hz",
+        track_codec_params.codec, channel_count, file_sample_rate
+    );
+
+    let mut decoder = symphonia::default::get_codecs()
+        .make(&track_codec_params, &decoder_opts)
+        .map_err(|e| anyhow!("Error creating audio decoder: {}", e))?;
+
     let host = cpal::default_host();
-    info!("Using audio host: {}", host.id().name());
-    
-    let device = match host.default_output_device() {
-        Some(d) => d,
-        None => {
-            error!("No output audio device available");
-            return Err(anyhow!("No output audio device available"));
-        }
-    };
-    
-    info!("Using output device: {}", device.name().unwrap_or_else(|_| "Unknown".to_string()));
-    
-    let config_range = match device.supported_output_configs() {
-        Ok(configs) => configs.filter(|c| c.channels() >= channel_count as u16).collect::<Vec<_>>(),
-        Err(e) => {
-            error!("Failed to get device configs: {}", e);
-            return Err(anyhow!("Failed to get audio device configurations"));
-        }
-    };
-    
+    let device = host
+        .default_output_device()
+        .ok_or_else(|| anyhow!("No output audio device available"))?;
+
+    let mut config_range = device
+        .supported_output_configs()
+        .map_err(|e| anyhow!("Failed to get device configs: {}", e))?
+        .filter(|c| c.channels() >= channel_count as u16)
+        .collect::<Vec<_>>();
+
     if config_range.is_empty() {
-        return Err(anyhow!("No suitable output configuration found for device"));
+        return Err(anyhow!("No suitable output config found for device"));
     }
-    
-    let desired_sample_rates = [44100, 48000, 96000, 192000];
+
+    config_range.sort_by_key(|c| c.min_sample_rate().0);
+    let desired_sample_rates = [file_sample_rate, 48000, 44100, 96000, 192000];
     let mut selected_config = None;
-    
+
     for &rate in &desired_sample_rates {
-        if rate == file_sample_rate {
-            for config in &config_range {
-                if rate >= config.min_sample_rate().0 && rate <= config.max_sample_rate().0 {
-                    selected_config = Some(config.with_sample_rate(cpal::SampleRate(rate)));
-                    info!("Selected output sample rate: {} Hz (exact match with file)", rate);
-                    break;
-                }
+        for c in &config_range {
+            if rate >= c.min_sample_rate().0 && rate <= c.max_sample_rate().0 {
+                selected_config = Some(c.with_sample_rate(cpal::SampleRate(rate)));
+                break;
             }
         }
-        
         if selected_config.is_some() {
             break;
         }
     }
-    
-    if selected_config.is_none() {
-        for config in &config_range {
-            if 44100 >= config.min_sample_rate().0 && 44100 <= config.max_sample_rate().0 {
-                selected_config = Some(config.with_sample_rate(cpal::SampleRate(44100)));
-                info!("Selected output sample rate: 44100 Hz (preferred rate for music)");
-                break;
-            }
-        }
-    }
-    
+
     let device_config = selected_config.unwrap_or_else(|| {
-        let config = &config_range[0];
-        let sample_rate = if file_sample_rate <= config.min_sample_rate().0 {
-            config.min_sample_rate().0
-        } else if file_sample_rate >= config.max_sample_rate().0 {
-            config.max_sample_rate().0
-        } else {
-            file_sample_rate
-        };
-        
-        info!("Using fallback output sample rate: {} Hz", sample_rate);
-        config.with_sample_rate(cpal::SampleRate(sample_rate))
+        config_range[0].clone().with_sample_rate(config_range[0].min_sample_rate())
     });
-    
-    let output_sample_rate = device_config.sample_rate().0;
     let config = device_config.config();
-    
-    info!("Output device config: {:?}", config);
-    
-    let buffer_size = ((output_sample_rate as usize * channel_count as usize) / 10).max(1024);
-    let ring_buffer = Arc::new(Mutex::new(AudioRingBuffer::new(buffer_size * 4)));
+    let output_sample_rate = config.sample_rate.0;
+
+    let buffer_size_frames = (output_sample_rate as usize * channel_count as usize) / 10;
+    let ring_buffer = Arc::new(Mutex::new(AudioRingBuffer::new(buffer_size_frames * 4)));
     let ring_buffer_stream = Arc::clone(&ring_buffer);
-    
+
     let needs_data = Arc::new(AtomicBool::new(true));
     let needs_data_stream = Arc::clone(&needs_data);
-    
-    info!("Building audio output stream...");
-    let stream = match device.build_output_stream(
+
+    let stream = device.build_output_stream(
         &config,
-        move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
-            let get_samples = || -> (Vec<f32>, usize) {
-                if let Ok(mut buffer) = ring_buffer_stream.lock() {
-                    if buffer.available() < buffer_size / 2 {
-                        needs_data_stream.store(true, Ordering::Release);
+        move |data: &mut [f32], _info| {
+            let needed = data.len();
+            let mut samples = vec![0.0; needed];
+            if let Ok(mut rb) = ring_buffer_stream.lock() {
+                let read_count = rb.read(&mut samples);
+                if read_count < needed {
+                    for s in &mut data[read_count..] {
+                        *s = 0.0;
                     }
-                    
-                    let mut samples = vec![0.0; data.len()];
-                    let count = buffer.read(&mut samples);
-                    
-                    (samples, count)
-                } else {
-                    (Vec::new(), 0)
                 }
-            };
-            
-            let result = std::panic::catch_unwind(|| {
-                get_samples()
-            });
-            
-            match result {
-                Ok((samples, count)) => {
-                    if count > 0 && count <= data.len() && count <= samples.len() {
-                        data[..count].copy_from_slice(&samples[..count]);
-                    }
-                    
-                    if count < data.len() {
-                        for sample in &mut data[count..] {
-                            *sample = 0.0;
-                        }
-                    }
-                },
-                Err(_) => {
-                    for sample in data.iter_mut() {
-                        *sample = 0.0;
-                    }
+                data[..read_count].copy_from_slice(&samples[..read_count]);
+
+                if rb.available() < buffer_size_frames / 2 {
+                    needs_data_stream.store(true, Ordering::Release);
+                }
+            } else {
+                for s in data.iter_mut() {
+                    *s = 0.0;
                 }
             }
         },
-        |err| { error!("Audio output error: {}", err); },
+        |err| {
+            error!("Audio output error: {}", err);
+        },
         None,
-    ) {
-        Ok(s) => s,
-        Err(e) => {
-            error!("Failed to build audio stream: {}", e);
-            return Err(anyhow!("Failed to build audio stream: {}", e));
-        }
+    )?;
+
+    stream.play().map_err(|e| anyhow!("Failed to start audio: {}", e))?;
+
+    let total_samples = if let Some(n_frames) = track_codec_params.n_frames {
+        n_frames.saturating_mul(channel_count as u64)
+    } else {
+        (file_sample_rate as u64) * channel_count as u64 * 300
     };
-    
-    info!("Starting audio playback stream");
-    if let Err(e) = stream.play() {
-        error!("Failed to start audio stream: {}", e);
-        return Err(anyhow!("Failed to start audio playback: {}", e));
+
+    {
+        let mut pos = playback_position.lock().unwrap();
+        pos.set_total_samples(total_samples);
+        pos.sample_rate = file_sample_rate;
     }
-    
-    info!("Audio stream started");
+
+    let track_duration_seconds =
+        (total_samples as f64) / (file_sample_rate.max(1) as f64 * channel_count as f64);
+    let duration = Duration::from_secs_f64(track_duration_seconds);
+
+    if let Ok(mut st) = state_arc.lock() {
+        st.duration = Some(duration);
+    }
+
     let spec = SignalSpec::new(file_sample_rate, channels);
-    let buffer_frames: usize = 2048; 
+    let buffer_frames: usize = 2048;
     let mut sample_buf = SampleBuffer::<f32>::new(buffer_frames as u64, spec);
-    
-    info!("Starting decode loop");
+
+    let mut current_frames: u64 = 0;
+
+    info!("Starting decode loop for track: {}", path);
     let mut is_eof = false;
-    let mut total_samples_processed: usize = 0;
-    let mut last_progress_update = Instant::now();
-    
+    let mut last_debug_log = Instant::now();
+
     while !is_eof {
-        // First check for stop flag - highest priority
         if stop_flag.load(Ordering::SeqCst) {
-            info!("Stop signal received; exiting decode loop");
+            info!("Stop signal received; breaking decode loop");
             break;
         }
-        
-        // Check for seek requests BEFORE pause handling
-        let mut should_seek = false;
-        let mut target_progress = 0.0;
-        
-        if let Ok(position) = playback_position.lock() {
-            // Check if seek is requested
-            if let Some(seek_req) = &position.seek_requested {
-                // Use swap to get and clear the flag atomically
-                should_seek = seek_req.swap(false, Ordering::SeqCst);
-                
-                if should_seek {
-                    // Get the target position from the mutex
-                    if let Some(target) = &position.seek_target {
-                        if let Ok(progress) = target.lock() {
-                            target_progress = *progress;
-                            info!("Detected explicit seek request to position: {:.4}", target_progress);
-                        }
-                    }
-                }
-            }
-        }
-        
-        // If seek was requested, perform it immediately
-        if should_seek {
-            info!("Performing seek to position: {:.4}", target_progress);
-            
-            // Convert progress to time position
-            let time_target = duration.mul_f64(target_progress as f64);
-            let time_nanos = time_target.as_nanos() as u64;
-            
-            // Clear the ring buffer
-            if let Ok(mut buffer) = ring_buffer.lock() {
-                // Reset buffer by creating a new one
-                *buffer = AudioRingBuffer::new(buffer_size * 4);
-            }
-            
-            // Perform the actual seek in the format reader
-            match format.seek(
-                SeekMode::Accurate,
-                symphonia::core::formats::SeekTo::Time { 
-                    track_id: Some(track_id),  // Use stored track_id
-                    time: symphonia::core::units::Time::from(time_nanos),
-                },
-            ) {
-                Ok(seeked_to) => {
-                    info!("Successfully seeked to: {:?}", seeked_to);
-                    
-                    // Reset decoder to handle the new position - use stored codec_params
-                    decoder = match symphonia::default::get_codecs()
-                        .make(&track_codec_params, &decoder_opts) {
-                            Ok(d) => d,
-                            Err(e) => {
-                                error!("Error recreating decoder after seek: {}", e);
-                                continue;
-                            }
-                        };
-                        
-                    // Calculate the new sample position
-                    let sample_pos = (target_progress * total_samples as f32) as usize;
-                    
-                    // Update position tracker with the new position
-                    if let Ok(position) = playback_position.lock() {
-                        position.update_current_sample(sample_pos);
-                        info!("Updated position tracker to sample: {}", sample_pos);
-                    }
-                    
-                    // Update total_samples_processed to match the new position
-                    total_samples_processed = sample_pos;
-                    
-                    // Force buffer refill
-                    needs_data.store(true, Ordering::Release);
-                },
-                Err(e) => {
-                    error!("Failed to seek: {}", e);
-                }
-            }
-            
-            // Continue to next iteration after handling seek
-            continue;
-        }
-        
-        // Check for pause AFTER seek handling
         if pause_flag.load(Ordering::SeqCst) {
             thread::sleep(Duration::from_millis(10));
             continue;
         }
-        
-        // Position update
-        if last_progress_update.elapsed() >= Duration::from_millis(50) {
-            if let Ok(position) = playback_position.lock() {
-                position.update_current_sample(total_samples_processed);
+
+        let mut do_seek = false;
+        let mut target_fraction = 0.0;
+        {
+            if let Ok(pos_lock) = playback_position.lock() {
+                if let Some(req_flag) = &pos_lock.seek_requested {
+                    if req_flag.swap(false, Ordering::SeqCst) {
+                        do_seek = true;
+                        if let Some(tgt) = &pos_lock.seek_target {
+                            if let Ok(tgt_val) = tgt.lock() {
+                                target_fraction = *tgt_val;
+                            }
+                        }
+                    }
+                }
             }
-            
-            total_samples_processed = 0;
-            last_progress_update = Instant::now();
         }
-        
-        // Only get more data if needed
+
+        if do_seek {
+            info!("Seek requested -> fraction = {:.4}", target_fraction);
+
+            // Clear the ring buffer first
+            if let Ok(mut rb) = ring_buffer.lock() {
+                *rb = AudioRingBuffer::new(rb.capacity());
+            }
+
+            // Convert fraction to proper Time struct
+            let whole_secs = (target_fraction * track_duration_seconds as f32) as u64;
+            let frac = target_fraction * track_duration_seconds as f32 - whole_secs as f32;
+            let seek_time = Time { seconds: whole_secs, frac: frac as f64 };
+
+            match format.seek(
+                SeekMode::Accurate,
+                symphonia::core::formats::SeekTo::Time {
+                    track_id: Some(track_id),
+                    time: seek_time,
+                },
+            ) {
+                Ok(seeked_to) => {
+                    info!("Format seek succeeded to actual position: {} samples", seeked_to.actual_ts);
+                    
+                    // Simply reset the decoder instead of recreating it
+                    decoder.reset();
+
+                    // Update our local frames to match the actual seek position
+                    if let Some(tb) = track_info.codec_params.time_base {
+                        let time = tb.calc_time(seeked_to.actual_ts);
+                        current_frames = (time.seconds as f64 * file_sample_rate as f64 +
+                                          time.frac * file_sample_rate as f64) as u64 * channel_count as u64;
+                    } else {
+                        let new_sample_index = (target_fraction * total_samples as f32).round() as u64;
+                        current_frames = new_sample_index;
+                    }
+                    
+                    if let Ok(pos) = playback_position.lock() {
+                        pos.current_sample.store((current_frames / channel_count as u64) as usize, Ordering::Relaxed);
+                    }
+                    
+                    needs_data.store(true, Ordering::Release);
+                }
+                Err(e) => {
+                    warn!("Seeking failed: {}", e);
+                }
+            }
+            continue;
+        }
+
         if !needs_data.load(Ordering::Acquire) {
             thread::sleep(Duration::from_millis(1));
             continue;
         }
-        
         needs_data.store(false, Ordering::Release);
-        
-        // Process next packet
+
         match format.next_packet() {
             Ok(packet) => {
                 if packet.track_id() != track_id {
                     continue;
                 }
-                
-                // Process valid packet
+
                 match decoder.decode(&packet) {
                     Ok(decoded) => {
-                        let decoded_frames = decoded.frames();
-                        if sample_buf.capacity() < (decoded_frames * channel_count) as usize {
-                            let needed_capacity = (decoded_frames * channel_count) as usize;
-                            let new_capacity = needed_capacity.max(buffer_frames);
-                            
-                            sample_buf = SampleBuffer::<f32>::new(
-                                new_capacity as u64,
-                                spec
-                            );
+                        let frames_decoded = decoded.frames();
+                        let needed_capacity = frames_decoded * channel_count;
+                        if sample_buf.capacity() < needed_capacity as usize {
+                            sample_buf = SampleBuffer::<f32>::new(needed_capacity as u64, spec);
                         }
-                        
                         sample_buf.copy_interleaved_ref(decoded);
-                        let samples = sample_buf.samples();
-                        
-                        // Apply volume
-                        let volume = match volume_arc.lock() {
-                            Ok(v) => {
-                                let vol = *v;
-                                if total_samples_processed == 0 {
-                                    debug!("Current volume level: {:.2}", vol);
-                                }
-                                vol
-                            },
-                            Err(e) => {
-                                error!("Failed to get volume lock: {:?}, using default", e);
-                                0.8 // Default volume
+
+                        let volume = {
+                            if let Ok(v) = volume_arc.lock() {
+                                *v
+                            } else {
+                                1.0
                             }
                         };
-                        
-                        // Create volume-adjusted samples
-                        let capacity = samples.len();
-                        let mut volume_adjusted = Vec::with_capacity(capacity);
-                        
-                        for &sample in samples {
-                            volume_adjusted.push(sample * volume);
+                        let raw_samples = sample_buf.samples();
+                        let mut volume_applied = Vec::with_capacity(raw_samples.len());
+                        for &smp in raw_samples {
+                            volume_applied.push(smp * volume);
                         }
-                        
-                        let sample_count = volume_adjusted.len();
-                        if sample_count > 0 {
-                            total_samples_processed = total_samples_processed.saturating_add(sample_count);
-                        }
-                        
-                        let output_samples = if file_sample_rate != output_sample_rate && !volume_adjusted.is_empty() {
-                            resample(&volume_adjusted, file_sample_rate, output_sample_rate, channel_count)
+
+                        let final_samples = if file_sample_rate != output_sample_rate {
+                            resample(
+                                &volume_applied,
+                                file_sample_rate,
+                                output_sample_rate,
+                                channel_count,
+                            )
                         } else {
-                            volume_adjusted
+                            volume_applied
                         };
-                        
-                        if !output_samples.is_empty() {
-                            if let Ok(mut buffer) = ring_buffer.lock() {
-                                let _ = buffer.write(&output_samples);
-                            }
+
+                        if let Ok(mut rb) = ring_buffer.lock() {
+                            let _ = rb.write(&final_samples);
                         }
-                    },
-                    Err(e) => { 
-                        warn!("Error decoding packet: {}", e); 
+
+                        current_frames = current_frames.saturating_add(frames_decoded as u64);
+
+                        if let Ok(pos) = playback_position.lock() {
+                            pos.update_current_sample(raw_samples.len());
+                        }
+                    }
+                    Err(e) => {
+                        warn!("Decode error: {}", e);
                     }
                 }
-            },
-            Err(e) => {
-                if let symphonia::core::errors::Error::IoError(ref err) = e {
-                    if err.kind() == std::io::ErrorKind::UnexpectedEof {
+            }
+            Err(err) => {
+                if let SymphError::IoError(io_err) = &err {
+                    if io_err.kind() == std::io::ErrorKind::UnexpectedEof {
+                        info!("End of file reached (EOF)");
                         is_eof = true;
-                        info!("End of file reached");
                         continue;
                     }
                 }
-                warn!("Error reading packet: {}", e);
-                continue;
+                warn!("Error reading packet: {}", err);
             }
         }
+
+        if last_debug_log.elapsed() >= Duration::from_millis(200) {
+            let cur_seconds = current_frames as f64 / (file_sample_rate.max(1) as f64);
+            debug!(
+                "Current decoded frames: {} => time ~ {:.3}s / track len {:.3}s",
+                current_frames,
+                cur_seconds,
+                track_duration_seconds
+            );
+            last_debug_log = Instant::now();
+        }
     }
-    
-    info!("Decoding complete");
-    
-    let wait_start = Instant::now();
-    while wait_start.elapsed() < Duration::from_secs(1) {
+
+    info!("Decode loop exited. Draining buffer...");
+    let drain_start = Instant::now();
+    while drain_start.elapsed() < Duration::from_secs(1) {
         if stop_flag.load(Ordering::SeqCst) {
             break;
         }
-        
-        let buffer_empty = match ring_buffer.lock() {
-            Ok(buffer) => buffer.available() == 0,
-            Err(_) => true
+        let empty = match ring_buffer.lock() {
+            Ok(rb) => rb.available() == 0,
+            Err(_) => true,
         };
-        
-        if buffer_empty {
+        if empty {
             break;
         }
-        
         thread::sleep(Duration::from_millis(10));
     }
-    
-    info!("Playback finished");
+
+    info!("Playback finished or stopped.");
     Ok(())
 }

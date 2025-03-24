@@ -1,9 +1,7 @@
-// core/src/audio/position.rs
 use std::sync::atomic::{AtomicUsize, AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-/// Tracks playback position and provides timing information
 pub struct PlaybackPosition {
     pub total_samples: u64,
     pub current_sample: Arc<AtomicUsize>,
@@ -19,7 +17,6 @@ impl PlaybackPosition {
             total_samples: 0,
             current_sample: Arc::new(AtomicUsize::new(0)),
             sample_rate,
-            // Initialize the seek control fields
             seek_requested: Some(Arc::new(AtomicBool::new(false))),
             seek_target: Some(Arc::new(Mutex::new(0.0))),
         }
@@ -50,81 +47,42 @@ impl PlaybackPosition {
 
     pub fn position(&self) -> Duration {
         let current = self.current_sample.load(Ordering::Relaxed);
-        // Prevent division by zero
         let sample_rate = self.sample_rate.max(1) as f64;
-        let seconds = current as f64 / (sample_rate * 2.0); // Stereo
+        let seconds = current as f64 / (sample_rate * 2.0); // stereo assumption
         Duration::from_secs_f64(seconds)
     }
 
     pub fn duration(&self) -> Duration {
-        // Prevent division by zero
         let sample_rate = self.sample_rate.max(1) as f64;
-        let seconds = self.total_samples as f64 / (sample_rate * 2.0); // Stereo
+        let seconds = self.total_samples as f64 / (sample_rate * 2.0);
         Duration::from_secs_f64(seconds)
     }
 
     pub fn seek(&self, progress: f32) {
         if self.total_samples == 0 {
-            println!("██ DEBUG: Cannot seek - total_samples is 0");
+            log::debug!("Cannot seek - total_samples is 0");
             return;
         }
-        
-        // Clamp progress to valid range
-        let progress = progress.max(0.0).min(1.0);
-        
-        // Calculate the sample position from progress
-        let new_position = (progress as f64 * self.total_samples as f64) as usize;
-        
-        // Log the seek operation
-        println!("██ DEBUG: Position tracker seeking to sample: {} of {} (progress: {:.4})",
-            new_position, self.total_samples, progress);
-        
-        // Update the atomic position
+        let prog = progress.clamp(0.0, 1.0);
+        let new_position = (prog as f64 * self.total_samples as f64) as usize;
         self.current_sample.store(new_position, Ordering::Relaxed);
-        
-        println!("██ DEBUG: Position tracker updated current_sample to {}", new_position);
-        
-        // Also trigger explicit seek request if the functionality exists
-        if let Some(req) = &self.seek_requested {
-            req.store(true, Ordering::SeqCst);
-            
-            // Set target position
-            if let Some(target) = &self.seek_target {
-                if let Ok(mut target_lock) = target.lock() {
-                    *target_lock = progress;
-                    println!("██ DEBUG: Set seek target to {:.4}", progress);
-                }
-            }
-            
-            println!("██ DEBUG: Set seek_requested flag to true");
-        }
     }
-    
-    // Helper method to request a seek operation
-    pub fn request_seek(&self, progress: f32) {
-        // Clamp progress to valid range
-        let progress = progress.max(0.0).min(1.0);
-        
-        println!("██ DEBUG: PlaybackPosition.request_seek({:.4}) called", progress);
-        
-        // Set the target position
+
+    pub fn request_seek(&self, fraction: f32) {
+        let frac = fraction.clamp(0.0, 1.0);
+        if let Some(flag) = &self.seek_requested {
+            flag.store(true, Ordering::SeqCst);
+        }
         if let Some(target) = &self.seek_target {
-            if let Ok(mut target_lock) = target.lock() {
-                *target_lock = progress;
-                println!("██ DEBUG: Set seek target to {:.4}", progress);
-            } else {
-                println!("██ DEBUG: Failed to lock seek target");
+            if let Ok(mut tgt_lock) = target.lock() {
+                *tgt_lock = frac;
             }
-        } else {
-            println!("██ DEBUG: No seek target available");
         }
-        
-        // Set the request flag
-        if let Some(req) = &self.seek_requested {
-            req.store(true, Ordering::SeqCst);
-            println!("██ DEBUG: Set seek_requested flag to true");
-        } else {
-            println!("██ DEBUG: No seek request flag available");
-        }
+        log::debug!("request_seek called -> fraction: {:.4}", frac);
+    }
+
+    // (Optional) If we want a dedicated setter:
+    pub fn set_current_sample(&self, sample_index: usize) {
+        self.current_sample.store(sample_index, Ordering::Relaxed);
     }
 }

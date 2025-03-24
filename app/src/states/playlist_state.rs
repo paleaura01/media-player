@@ -74,14 +74,19 @@ impl PlaylistViewState {
                 Action::Playlist(CorePlaylistAction::PlayTrack(playlist_id, track_idx))
             },
             
-            // ===== NEW: The critical Seek variant =====
+            // ===== Fix for the Seek variant =====
             PlaylistAction::Seek(position) => {
                 println!("██ DEBUG: PlaylistAction::Seek({:.4}) in playlist_view_state.rs", position);
                 println!("██ DEBUG: Converting to Action::Player(PlayerAction::Seek)");
                 Action::Player(core::PlayerAction::Seek(position))
             },
             
-            // For other direct player controls
+            // Add the UpdateProgress variant
+            PlaylistAction::UpdateProgress(_pos) => {
+                // Just for UI updates during dragging, no actual seeking
+                Action::Playlist(CorePlaylistAction::None)
+            },
+            
             PlaylistAction::PlayerControl(player_action) => {
                 println!("Player control action: {:?}", player_action);
                 Action::Player(player_action)

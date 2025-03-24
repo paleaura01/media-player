@@ -20,6 +20,7 @@ pub enum PlaylistAction {
     PlayTrack(u32, usize),  // New action: playlist_id, track_index
     PlayerControl(core::PlayerAction),  // New variant to handle player controls
     Seek(f32),
+    UpdateProgress(f32),
 }
 
 // SVG loading function

@@ -44,30 +44,35 @@ pub fn render_with_state<'a>(
                 _ => {}
             }
             
-            match ui_action {
-                player_view::PlayerAction::Play => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::Resume),
-                player_view::PlayerAction::Pause => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::Pause),
-                player_view::PlayerAction::Stop => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::Stop),
-                player_view::PlayerAction::SkipForward => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),
-                player_view::PlayerAction::SkipBackward => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::Seek(-0.1)),
-                player_view::PlayerAction::Next => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::NextTrack),
-                player_view::PlayerAction::Previous => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack),
-                player_view::PlayerAction::VolumeChange(v) => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
-                player_view::PlayerAction::Seek(pos) => {
-                    println!("██ DEBUG: Creating PlaylistAction::Seek({:.4}) in render.rs", pos);
-                    PlaylistAction::Seek(pos) // <- CRITICAL: direct Seek action mapping
-                },
-                player_view::PlayerAction::Shuffle =>
-                    PlaylistAction::PlayerControl(core::PlayerAction::Shuffle),
-            }
+          // Inside the match ui_action block in render.rs, add this new case
+match ui_action {
+    player_view::PlayerAction::Play => 
+        PlaylistAction::PlayerControl(core::PlayerAction::Resume),
+    player_view::PlayerAction::Pause => 
+        PlaylistAction::PlayerControl(core::PlayerAction::Pause),
+    player_view::PlayerAction::Stop => 
+        PlaylistAction::PlayerControl(core::PlayerAction::Stop),
+    player_view::PlayerAction::SkipForward => 
+        PlaylistAction::PlayerControl(core::PlayerAction::Seek(0.1)),
+    player_view::PlayerAction::SkipBackward => 
+        PlaylistAction::PlayerControl(core::PlayerAction::Seek(-0.1)),
+    player_view::PlayerAction::Next => 
+        PlaylistAction::PlayerControl(core::PlayerAction::NextTrack),
+    player_view::PlayerAction::Previous => 
+        PlaylistAction::PlayerControl(core::PlayerAction::PreviousTrack),
+    player_view::PlayerAction::VolumeChange(v) => 
+        PlaylistAction::PlayerControl(core::PlayerAction::SetVolume(v)),
+    player_view::PlayerAction::Seek(pos) => {
+        println!("██ DEBUG: Creating PlaylistAction::Seek({:.4}) in render.rs", pos);
+        PlaylistAction::Seek(pos) // <- CRITICAL: direct Seek action mapping
+    },
+    player_view::PlayerAction::Shuffle =>
+        PlaylistAction::PlayerControl(core::PlayerAction::Shuffle),
+    player_view::PlayerAction::UpdateProgress(pos) => {
+        // For continuous updates during slider dragging
+        PlaylistAction::UpdateProgress(pos)
+    },
+}
         })
     )
     .width(Length::Fill)
