@@ -19,7 +19,7 @@ A media player built in Rust using Symphonia for audio decoding and hot-lib-relo
      ```
    - For production build:
      ```
-     cargo build --release --workspace
+    cargo run --release --bin dev    
      ```
 
 ## Supported Formats
