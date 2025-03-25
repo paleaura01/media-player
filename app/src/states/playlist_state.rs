@@ -8,7 +8,6 @@ pub struct PlaylistViewState {
     pub editing_playlist: Option<u32>,
     pub edit_value: String,
     pub last_click: Option<(u32, Instant)>,
-    pub hovered_playlist_id: Option<u32>,
     pub is_seeking: bool, // Added new field for seek tracking
 }
 
@@ -18,7 +17,6 @@ impl PlaylistViewState {
             editing_playlist: None,
             edit_value: String::new(),
             last_click: None,
-            hovered_playlist_id: None,
             is_seeking: false, // Initialize to false
         }
     }
@@ -68,10 +66,7 @@ impl PlaylistViewState {
                 println!("Sending delete action for playlist ID: {}", id);
                 Action::Playlist(CorePlaylistAction::Delete(id))
             },
-            PlaylistAction::HoverPlaylist(id) => {
-                self.hovered_playlist_id = id;
-                Action::Playlist(CorePlaylistAction::None)
-            },
+            
             PlaylistAction::PlayTrack(playlist_id, track_idx) => {
                 println!("Request to play track {} from playlist {}", track_idx, playlist_id);
                 Action::Playlist(CorePlaylistAction::PlayTrack(playlist_id, track_idx))

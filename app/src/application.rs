@@ -393,13 +393,25 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
 }
 
 fn view(state: &MediaPlayer) -> Element<Message> {
+    // Get our PlaylistAction element from render_with_state
     let rendered = ui::render::render_with_state(
         &state.player_state,
         &state.playlists,
         &state.library,
         &state.playlist_view_state,
     );
-    rendered.map(Message::Playlist)
+    
+    // Check if it's a Library action and map accordingly
+    match rendered {
+        playlist_element => {
+            playlist_element.map(|action| {
+                match action {
+                    PlaylistAction::Library(lib_msg) => Message::Library(lib_msg),
+                    other => Message::Playlist(other),
+                }
+            })
+        }
+    }
 }
 
 fn subscription(_state: &MediaPlayer) -> Subscription<Message> {

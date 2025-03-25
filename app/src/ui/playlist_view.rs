@@ -15,7 +15,6 @@ pub enum PlaylistAction {
     EditingName(String),
     FinishEditing,
     None,
-    HoverPlaylist(Option<u32>),
     PlayTrack(u32, usize),
     PlayerControl(core::PlayerAction),
     Seek(f32),

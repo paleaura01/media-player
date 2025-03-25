@@ -41,7 +41,6 @@ pub fn render_with_state<'a>(
     let library_section = library_view::view_with_search(library);
     let now_playing_section = create_now_playing_section(playlists, player_state);
     
-    
     // Map player actions -> playlist actions
     let player_container = Container::new(
         player_section.map(|ui_action| {
@@ -86,7 +85,7 @@ pub fn render_with_state<'a>(
 
     // Left panel - Playlists (15%)
     let playlist_container = Container::new(
-        playlist_section.map(|action| action)
+        playlist_section // Use directly without mapping
     )
     .width(Length::FillPortion(15))
     .height(Length::Fill)
@@ -94,15 +93,15 @@ pub fn render_with_state<'a>(
 
     // Middle panel - Now Playing (25%)
     let now_playing_container = Container::new(
-        now_playing_section.map(|action| action)
+        now_playing_section // Use directly without mapping
     )
     .width(Length::FillPortion(25))
     .height(Length::Fill)
     .style(now_playing_container_style());
 
-    // Right panel - Library (60%)
+    // Right panel - Library - Map to Library PlaylistAction
     let library_container = Container::new(
-        library_section.map(|action| PlaylistAction::Library(action))
+        library_section.map(PlaylistAction::Library) // Map to PlaylistAction::Library
     )
     .width(Length::FillPortion(60))
     .height(Length::Fill)
