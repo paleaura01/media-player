@@ -9,7 +9,6 @@ use crate::ui::theme::{green_text, GREEN_COLOR, DARK_GREEN_COLOR}; // Import the
 pub enum PlayerAction {
     Play,
     Pause,
-    Stop,
     SkipForward,
     SkipBackward,
     Next,

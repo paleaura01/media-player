@@ -13,8 +13,6 @@ use crate::ui::theme::{
 use core::player::PlayerState;
 use core::playlist::PlaylistState;
 use core::library::LibraryState;
-use core::Action;
-use core::playlist::PlaylistAction as CorePlaylistAction;
 
 use crate::ui::{player_view, playlist_view, library_view};
 use crate::states::playlist_state::PlaylistViewState; 
@@ -60,8 +58,6 @@ pub fn render_with_state<'a>(
                     PlaylistAction::PlayerControl(core::PlayerAction::Resume),
                 player_view::PlayerAction::Pause => 
                     PlaylistAction::PlayerControl(core::PlayerAction::Pause),
-                player_view::PlayerAction::Stop => 
-                    PlaylistAction::PlayerControl(core::PlayerAction::Stop),
                 player_view::PlayerAction::SkipForward => 
                     PlaylistAction::PlayerControl(core::PlayerAction::SkipForward(10.0)),
                 player_view::PlayerAction::SkipBackward => 
