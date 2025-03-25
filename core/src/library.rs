@@ -25,4 +25,5 @@ pub enum LibraryAction {
     StartScan,
     ImportFile(String),
     Search(String),
+    None,
 }

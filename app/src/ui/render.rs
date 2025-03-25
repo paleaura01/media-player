@@ -102,7 +102,7 @@ pub fn render_with_state<'a>(
 
     // Right panel - Library (60%)
     let library_container = Container::new(
-        library_section.map(|_| PlaylistAction::None)
+        library_section.map(|action| PlaylistAction::Library(action))
     )
     .width(Length::FillPortion(60))
     .height(Length::Fill)

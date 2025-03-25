@@ -368,14 +368,14 @@ impl MediaPlayer {
                     title: Some("Sample Track 1".to_string()),
                     artist: Some("Artist 1".to_string()),
                     album: Some("Album 1".to_string()),
-                    play_count: 0, // Initialize play count to 0
+                    play_count: 0,
                 });
                 self.library.tracks.push(Track {
                     path: "sample2.mp3".to_string(),
                     title: Some("Sample Track 2".to_string()),
                     artist: Some("Artist 2".to_string()),
                     album: Some("Album 2".to_string()),
-                    play_count: 0, // Initialize play count to 0
+                    play_count: 0,
                 });
                 self.library.scanning = false;
             }
@@ -390,10 +390,11 @@ impl MediaPlayer {
                     title: Some(filename),
                     artist: None,
                     album: None,
-                    play_count: 0, // Initialize play count to 0
+                    play_count: 0,
                 });
             }
             LibraryAction::Search(_q) => {}
+            LibraryAction::None => {} // Add this new case
         }
     }
     

@@ -2,6 +2,7 @@
 use std::time::{Instant, Duration};
 use crate::ui::playlist_view::PlaylistAction;
 use core::{Action, PlaylistAction as CorePlaylistAction};
+use crate::ui::library_view::LibraryMessage; 
 
 pub struct PlaylistViewState {
     pub editing_playlist: Option<u32>,
@@ -101,6 +102,19 @@ impl PlaylistViewState {
             PlaylistAction::RemoveTrack(playlist_id, track_idx) => {
                 println!("Requesting to remove track {} from playlist {}", track_idx, playlist_id);
                 Action::Playlist(CorePlaylistAction::RemoveTrack(playlist_id, track_idx))
+            },
+
+            PlaylistAction::Library(library_action) => {
+                // Convert library messages to core library actions
+                match library_action {
+                    LibraryMessage::AddMusicFolder => {
+                        Action::Library(core::LibraryAction::StartScan)
+                    },
+                    LibraryMessage::ToggleView => {
+                        // For view toggle, we can just return a no-op action
+                        Action::Library(core::LibraryAction::None)
+                    }
+                }
             },
         }
     }

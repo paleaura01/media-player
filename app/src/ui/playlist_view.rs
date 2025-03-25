@@ -7,7 +7,6 @@ use crate::ui::theme::GREEN_COLOR;
 use crate::states::playlist_state::PlaylistViewState;
 
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub enum PlaylistAction {
     Create(String),
     Delete(u32),
@@ -17,11 +16,12 @@ pub enum PlaylistAction {
     FinishEditing,
     None,
     HoverPlaylist(Option<u32>),
-    PlayTrack(u32, usize),  // New action: playlist_id, track_index
-    PlayerControl(core::PlayerAction),  // New variant to handle player controls
+    PlayTrack(u32, usize),
+    PlayerControl(core::PlayerAction),
     Seek(f32),
     UpdateProgress(f32),
-    RemoveTrack(u32, usize), 
+    RemoveTrack(u32, usize),
+    Library(crate::ui::library_view::LibraryMessage), // Add this new variant
 }
 
 // SVG loading function

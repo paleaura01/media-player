@@ -243,6 +243,31 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                         Task::none()
                     }
                 },
+                PlaylistAction::Library(library_action) => {
+                    // Handle library messages forwarded through PlaylistAction
+                    match library_action {
+                        LibraryMessage::AddMusicFolder => {
+                            // Open a folder selection dialog asynchronously
+                            return Task::perform(
+                                async {
+                                    rfd::AsyncFileDialog::new().pick_folder().await.map(|f| f.path().to_owned())
+                                },
+                                Message::FolderSelected
+                            );
+                        },
+                        LibraryMessage::ToggleView => {
+                            // Handle toggle view if needed
+                        }
+                    }
+                    
+                    // Continue background ticks
+                    Task::perform(
+                        async {
+                            async_std::task::sleep(Duration::from_millis(100)).await;
+                        },
+                        |_| Message::Tick
+                    )
+                },
                 _ => {
                     // other playlist actions
                     let core_action = state.playlist_view_state.handle_action(action);
@@ -260,23 +285,47 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 }
             }
         },
+        Message::Library(library_message) => {
+            // Direct library messages
+            match library_message {
+                LibraryMessage::AddMusicFolder => {
+                    // Open a folder selection dialog asynchronously
+                    return Task::perform(
+                        async {
+                            rfd::AsyncFileDialog::new().pick_folder().await.map(|f| f.path().to_owned())
+                        },
+                        Message::FolderSelected
+                    );
+                },
+                LibraryMessage::ToggleView => {
+                    // Handle toggle view if needed
+                }
+            }
+            
+            // Continue background ticks
+            Task::perform(
+                async {
+                    async_std::task::sleep(Duration::from_millis(100)).await;
+                },
+                |_| Message::Tick
+            )
+        },
         // All other message variants should return a background tick unless in a seek operation
         _ => {
             // Process the message as before...
             match message {
-                Message::Library(LibraryMessage::AddMusicFolder) => {
-                    state.handle_action(core::Action::Library(core::LibraryAction::StartScan));
-                },
-                Message::Library(LibraryMessage::ToggleView) => {},
                 Message::FolderSelected(Some(path)) => {
                     if let Some(path_str) = path.to_str() {
+                        log::info!("Selected music folder: {}", path_str);
                         state.handle_action(core::Action::Library(
                             core::LibraryAction::AddScanDirectory(path_str.to_string()),
                         ));
                         state.handle_action(core::Action::Library(core::LibraryAction::StartScan));
                     }
                 },
-                Message::FolderSelected(None) => {},
+                Message::FolderSelected(None) => {
+                    log::info!("Folder selection cancelled");
+                },
                 Message::WindowClosed { x, y } => {
                     if let Err(e) = window_state::save_window_position(x, y) {
                         log::error!("Failed to save window position: {}", e);
