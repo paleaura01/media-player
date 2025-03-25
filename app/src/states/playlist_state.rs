@@ -8,6 +8,7 @@ pub struct PlaylistViewState {
     pub edit_value: String,
     pub last_click: Option<(u32, Instant)>,
     pub hovered_playlist_id: Option<u32>,
+    pub is_seeking: bool, // Added new field for seek tracking
 }
 
 impl PlaylistViewState {
@@ -17,6 +18,7 @@ impl PlaylistViewState {
             edit_value: String::new(),
             last_click: None,
             hovered_playlist_id: None,
+            is_seeking: false, // Initialize to false
         }
     }
     

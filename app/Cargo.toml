@@ -24,3 +24,4 @@ rfd = "0.12"
 rand = "0.8"
 chrono = "0.4"
 anyhow = "1.0"  # Added this line to resolve the error
+async-std = "1.12.0"
