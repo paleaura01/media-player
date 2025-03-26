@@ -31,13 +31,9 @@ pub struct Player {
 impl Player {
     pub fn new() -> Self {
         info!("Initializing Media Player...");
-        
-        // Register all audio codecs and formats
-        crate::audio::register_all_codecs();
-        
         let pause_flag = Arc::new(AtomicBool::new(false));
         let stop_flag = Arc::new(AtomicBool::new(false));
-    
+
         Self {
             state: Arc::new(Mutex::new(PlayerState::new())),
             pause_flag,
@@ -45,7 +41,7 @@ impl Player {
             playback_position: Arc::new(Mutex::new(PlaybackPosition::new(44100))),
             volume: Arc::new(Mutex::new(0.8)),
             playback_thread: None,
-            track_completed_signal: false,
+            track_completed_signal: false, // Initialize to false
         }
     }
 
