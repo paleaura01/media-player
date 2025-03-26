@@ -21,6 +21,8 @@ A media player built in Rust using Symphonia for audio decoding and hot-lib-relo
      ```
     cargo run --release --bin dev    
      ```
+     For distribution build:
+     cargo build --release
 
 ## Supported Formats
 
@@ -30,6 +32,8 @@ A media player built in Rust using Symphonia for audio decoding and hot-lib-relo
 - FLAC
 - WAV
 - OGG/Vorbis
+- OGG/Opus
+- M4A (AAC in MP4 container)
 
 ## Features
 

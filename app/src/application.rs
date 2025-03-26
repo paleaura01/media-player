@@ -353,7 +353,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                                         .and_then(|ext| ext.to_str())
                                         .unwrap_or("")
                                         .to_lowercase();
-                                    if ["mp3", "wav", "flac", "ogg", "m4a", "aac"].contains(&extension.as_str()) {
+                                    if ["mp3", "wav", "flac", "ogg", "m4a", "aac", "opus"].contains(&extension.as_str()) {
                                         let track = core::Track {
                                             path: path_str,
                                             title: Some(filename),

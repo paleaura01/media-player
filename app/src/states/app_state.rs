@@ -49,6 +49,7 @@ impl Default for MediaPlayer {
             PlaylistState::new()
         };
 
+        // Initialize the player and register codecs including Opus
         let player = Player::new();
         let mut player_state = player.get_state();
         // Make sure shuffle starts off
@@ -108,6 +109,12 @@ impl MediaPlayer {
             }
         }
         None
+    }
+    
+    // Helper function to check if a file extension is a supported audio format
+    fn is_supported_audio_format(&self, extension: &str) -> bool {
+        // Added "opus" to the list of supported formats
+        ["mp3", "wav", "flac", "ogg", "m4a", "aac", "opus"].contains(&extension)
     }
     
     fn handle_player_action(&mut self, action: PlayerAction) {
@@ -363,6 +370,8 @@ impl MediaPlayer {
             }
             LibraryAction::StartScan => {
                 self.library.scanning = true;
+                // Scan logic would go here
+                // For demonstration, just add sample tracks
                 self.library.tracks.push(Track {
                     path: "sample1.mp3".to_string(),
                     title: Some("Sample Track 1".to_string()),
@@ -377,25 +386,90 @@ impl MediaPlayer {
                     album: Some("Album 2".to_string()),
                     play_count: 0,
                 });
+                // Add a sample Opus file to show support
+                self.library.tracks.push(Track {
+                    path: "sample.opus".to_string(),
+                    title: Some("Sample Opus Track".to_string()),
+                    artist: Some("Artist 3".to_string()),
+                    album: Some("Album 3".to_string()),
+                    play_count: 0,
+                });
                 self.library.scanning = false;
             }
             LibraryAction::ImportFile(path) => {
-                let filename = std::path::Path::new(&path)
+                let file_path = std::path::Path::new(&path);
+                let filename = file_path
                     .file_name()
                     .and_then(|n| n.to_str())
                     .unwrap_or(&path)
                     .to_string();
-                self.library.tracks.push(Track {
-                    path,
-                    title: Some(filename),
-                    artist: None,
-                    album: None,
-                    play_count: 0,
-                });
+                        
+                // Check if the file is a supported audio format
+                if let Some(ext) = file_path.extension().and_then(|e| e.to_str()) {
+                    if self.is_supported_audio_format(&ext.to_lowercase()) {
+                        // Log before moving the path
+                        info!("Imported audio file: {}", path);
+                        
+                        // Now move the path into the Track
+                        self.library.tracks.push(Track {
+                            path,  // No need for clone since we use it before moving
+                            title: Some(filename),
+                            artist: None,
+                            album: None,
+                            play_count: 0,
+                        });
+                    } else {
+                        info!("Skipped unsupported file format: {}", path);
+                    }
+                }
             }
             LibraryAction::Search(_q) => {}
-            LibraryAction::None => {} // Add this new case
+            LibraryAction::None => {}
         }
+    }
+    
+    // Process dropped files for playback
+    pub fn process_dropped_file(&mut self, path: &std::path::Path) -> bool {
+        if let Some(extension) = path.extension().and_then(|e| e.to_str()) {
+            let ext_lowercase = extension.to_lowercase();
+            
+            // Check if it's a supported audio file type
+            if self.is_supported_audio_format(&ext_lowercase) {
+                // Process the audio file
+                let path_str = path.to_string_lossy().to_string();
+                let filename = path
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("Unknown")
+                    .to_string();
+                
+                // Now we know it's a supported audio file
+                if let Some(selected_idx) = self.playlists.selected {
+                    if selected_idx < self.playlists.playlists.len() {
+                        let playlist_id = self.playlists.playlists[selected_idx].id;
+                        
+                        // Create a track and add it to the selected playlist
+                        let track = Track {
+                            path: path_str,
+                            title: Some(filename),
+                            artist: None,
+                            album: None,
+                            play_count: 0,
+                        };
+                        
+                        self.handle_action(Action::Playlist(
+                            PlaylistAction::AddTrack(playlist_id, track)
+                        ));
+                        
+                        info!("Added file to playlist: {}", path.display());
+                        return true;
+                    }
+                }
+            } else {
+                info!("Unsupported file format: {}", ext_lowercase);
+            }
+        }
+        false
     }
     
     // Add track completion handling

@@ -11,4 +11,7 @@ anyhow = "1.0"
 cpal = "0.15.2"
 log = "0.4"
 iced = "0.13.1"
-symphonia = { version = "0.5.3", features = ["mp3", "wav", "flac"] }
+
+symphonia = { version = "0.5.3", features = ["mp3", "wav", "flac", "aac", "isomp4", "ogg"] }
+audiopus = { version = "0.3.0-rc.0" }
+ogg = "0.9"
