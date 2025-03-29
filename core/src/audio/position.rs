@@ -10,11 +10,10 @@ pub struct PlaybackPosition {
     pub channel_count: usize,
     pub seek_requested: Option<Arc<AtomicBool>>,
     pub seek_target: Option<Arc<Mutex<f32>>>,
-    pub buffer_health: Option<f32>,  // NEW: Add buffer health for network files
-    pub clear_buffers: bool,         // NEW: Flag to request buffer clearing
+    pub buffer_health: Option<f32>,       // Added for network file monitoring
+    pub clear_buffers: bool,              // Flag to request buffer clearing
 }
 
-// Then update the constructor to initialize these fields
 impl PlaybackPosition {
     pub fn new(sample_rate: u32) -> Self {
         Self {
@@ -24,8 +23,17 @@ impl PlaybackPosition {
             channel_count: 2,
             seek_requested: Some(Arc::new(AtomicBool::new(false))),
             seek_target: Some(Arc::new(Mutex::new(0.0))),
-            buffer_health: None,      // NEW: Initialize to None
-            clear_buffers: false,     // NEW: Initialize to false
+            buffer_health: None,
+            clear_buffers: false,
+        }
+    }
+    
+    // Add a method to update buffer health
+    pub fn update_buffer_health(&mut self, available: usize, capacity: usize) {
+        if capacity > 0 {
+            self.buffer_health = Some(available as f32 / capacity as f32);
+        } else {
+            self.buffer_health = None;
         }
     }
 
@@ -142,18 +150,9 @@ impl PlaybackPosition {
         }
     }
 
-    // If we want a dedicated setter for frame position:
+    // Setter for frame position
     pub fn set_current_frame(&self, frame_index: usize) {
         self.current_sample.store(frame_index, Ordering::SeqCst);
         log::debug!("Set current_frame to {}", frame_index);
-    }
-    
-    // Add a method to update buffer health
-    pub fn update_buffer_health(&mut self, available: usize, capacity: usize) {
-        if capacity > 0 {
-            self.buffer_health = Some(available as f32 / capacity as f32);
-        } else {
-            self.buffer_health = None;
-        }
     }
 }

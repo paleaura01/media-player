@@ -55,7 +55,9 @@ impl Default for MediaPlayer {
         };
 
         // Initialize the player with FFmpeg
-        let player = Player::new();
+        let mut player = Player::new();
+        // Configure network buffer settings
+        player.configure_network(8 * 1024 * 1024, 5); // 8MB buffer, 5 second pre-buffering
         let mut player_state = player.get_state();
         // Make sure shuffle starts off
         player_state.shuffle_enabled = false;
@@ -491,17 +493,4 @@ impl MediaPlayer {
         Ok(())
     }
     
-    // Display a status message
-    pub fn set_status_message(&mut self, message: String, duration: Duration) {
-        self.status_message = Some(message);
-        self.status_message_time = Some(Instant::now());
-        self.status_message_duration = Some(duration);
-    }
-    
-    // Clear the status message
-    pub fn clear_status_message(&mut self) {
-        self.status_message = None;
-        self.status_message_time = None;
-        self.status_message_duration = None;
-    }
 }

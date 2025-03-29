@@ -24,8 +24,6 @@ impl AudioRingBuffer {
     }
 
     /// Return the capacity of this ring buffer.
-    /// (Added so external code can safely read the capacity, instead of
-    /// accessing the private `capacity` field.)
     pub fn capacity(&self) -> usize {
         self.capacity
     }
@@ -45,6 +43,34 @@ impl AudioRingBuffer {
 
             if self.write_pos < self.buffer.len() {
                 self.buffer[self.write_pos] = sample;
+                self.write_pos = (self.write_pos + 1) % self.capacity;
+                self.samples_available += 1;
+                written += 1;
+            }
+        }
+
+        written
+    }
+
+    /// Safe version that prevents buffer overflow by limiting writes to 90% of capacity
+    pub fn write_safe(&mut self, samples: &[f32]) -> usize {
+        if samples.is_empty() || self.capacity == 0 {
+            return 0;
+        }
+
+        // Only fill at most 90% of capacity to prevent overflow
+        let max_to_write = (self.capacity as f32 * 0.9) as usize - self.samples_available;
+        if max_to_write == 0 {
+            return 0;
+        }
+
+        let to_write = std::cmp::min(samples.len(), max_to_write);
+        let mut written = 0;
+
+        // Only write what we can safely fit
+        for i in 0..to_write {
+            if self.write_pos < self.buffer.len() {
+                self.buffer[self.write_pos] = samples[i];
                 self.write_pos = (self.write_pos + 1) % self.capacity;
                 self.samples_available += 1;
                 written += 1;

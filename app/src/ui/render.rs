@@ -174,132 +174,154 @@ fn create_now_playing_section<'a>(
             ..Default::default()
         });
 
-    let content = if let Some(idx) = playlists.selected {
+    // Build a complete content column step by step
+    let mut content = Column::new().push(title);
+
+    if let Some(idx) = playlists.selected {
         if idx < playlists.playlists.len() {
             let playlist = &playlists.playlists[idx];
             
-            let tracks = scrollable(
-                Column::new()
-                    .spacing(5)
-                    .padding(10)
-                    .push(text(format!("{} tracks", playlist.tracks.len())).size(14))
-                    .push(horizontal_rule(1))
-                    .push(
-                        playlist.tracks.iter().enumerate().fold(
-                            Column::new().spacing(4),
-                            |column, (track_idx, track)| {
-                                let track_title = track.title.clone().unwrap_or_else(|| track.path.clone());
-                                
-                                // Check if this track is the currently playing track
-                                let is_current_track = if let Some(current_path) = &player_state.current_track {
-                                    current_path == &track.path
-                                } else {
-                                    false
-                                };
-                                
-                                // Create track row with play button and delete button
-                                let track_row = Row::new()
-                                    .push(
-                                        button(
-                                            Row::new()
-                                                .push(text(format!("{}. ", track_idx + 1)).size(14))
-                                                .push(
-                                                    text(format!("{} (played {})", 
-                                                        track_title, 
-                                                        track.play_count))
-                                                    .size(14)
-                                                )
-                                                .spacing(5)
-                                        )
-                                        .padding(5)
-                                        .width(Length::Fill)
-                                        .style(|_theme, _| button::Style {
-                                            background: None,
-                                            text_color: GREEN_COLOR,
-                                            ..Default::default()
-                                        })
-                                        .on_press(PlaylistAction::PlayTrack(playlist.id, track_idx))
-                                    )
-                                    .push(
-                                        button(
-                                            load_icon("ph--x-square-bold.svg")
-                                                .width(16)
-                                                .height(16)
-                                        )
-                                        .padding(5)
-                                        .on_press(PlaylistAction::RemoveTrack(playlist.id, track_idx))
-                                        .style(|_theme, _| button::Style {
-                                            background: None,
-                                            ..Default::default()
-                                        })
-                                    )
-                                    .spacing(5)
-                                    .align_y(Alignment::Center);
-                                
-                                // Add a network indicator for network paths
-                                let track_row = if track.path.starts_with("\\\\") || track.path.contains("://") {
-                                    Row::new()
-                                        .push(
-                                            text("🌐 ").size(14)
-                                                .style(|_: &Theme| text::Style {
-                                                    color: Some(Color::from_rgb(0.6, 0.8, 1.0)),
-                                                    ..Default::default()
-                                                })
-                                        )
-                                        .push(track_row)
-                                        .spacing(2)
-                                        .align_y(Alignment::Center)
-                                } else {
-                                    Row::new()
-                                        .push(Space::with_width(Length::Fixed(18.0))) // FIXED: Changed from Units to Fixed
-                                        .push(track_row)
-                                        .spacing(2)
-                                        .align_y(Alignment::Center)
-                                };
-                                
-                                // Wrap in a container that can be highlighted
-                                let track_container = container(track_row)
-                                    .width(Length::Fill)
-                                    .padding(2)
-                                    .style(move |_: &Theme| container::Style {
-                                        background: if is_current_track {
-                                            Some(Background::Color(iced::Color::from_rgb(0.15, 0.15, 0.15)))
-                                        } else {
-                                            None
-                                        },
-                                        ..Default::default()
-                                    });
-                                
-                                column.push(track_container)
-                            }
-                        )
-                    )
-            );
+            // Add playlist name to content
+            content = content.push(text(&playlist.name).size(16))
+                .push(Space::with_height(10));
             
-            Column::new()
-                .push(title)
-                .push(text(&playlist.name).size(16))
-                .push(Space::with_height(10))
-                .push(tracks)
+            // Add buffering indicator if needed
+            if player_state.network_buffering {
+                let buffering_text = text(format!("Buffering... {:.0}%", player_state.buffer_progress * 100.0))
+                    .size(14)
+                    .style(|_| text::Style {
+                        color: Some(Color::from_rgb(1.0, 0.8, 0.0)), // Yellow color for buffering
+                        ..Default::default()
+                    });
+                
+                let buffering_container = container(buffering_text)
+                    .width(Length::Fill)
+                    .padding(5)
+                    .style(|_| container::Style {
+                        background: Some(Background::Color(Color::from_rgb(0.3, 0.3, 0.0))),
+                        border: iced::Border {
+                            color: iced::Color::from_rgb(0.4, 0.4, 0.0),
+                            width: 1.0,
+                            radius: 4.0.into(),
+                        },
+                        ..Default::default()
+                    });
+                
+                content = content.push(buffering_container)
+                    .push(Space::with_height(5));
+            }
+            
+            // Create tracks view
+            let tracks_column = Column::new()
                 .spacing(5)
                 .padding(10)
-                .into()
+                .push(text(format!("{} tracks", playlist.tracks.len())).size(14))
+                .push(horizontal_rule(1));
+                
+            // Build track list
+            let track_list = playlist.tracks.iter().enumerate().fold(
+                Column::new().spacing(4),
+                |column, (track_idx, track)| {
+                    let track_title = track.title.clone().unwrap_or_else(|| track.path.clone());
+                    
+                    // Check if this track is the currently playing track
+                    let is_current_track = if let Some(current_path) = &player_state.current_track {
+                        current_path == &track.path
+                    } else {
+                        false
+                    };
+                    
+                    // Create track row with play button and delete button
+                    let track_row = Row::new()
+                        .push(
+                            button(
+                                Row::new()
+                                    .push(text(format!("{}. ", track_idx + 1)).size(14))
+                                    .push(
+                                        text(format!("{} (played {})", 
+                                            track_title, 
+                                            track.play_count))
+                                        .size(14)
+                                    )
+                                    .spacing(5)
+                            )
+                            .padding(5)
+                            .width(Length::Fill)
+                            .style(|_theme, _| button::Style {
+                                background: None,
+                                text_color: GREEN_COLOR,
+                                ..Default::default()
+                            })
+                            .on_press(PlaylistAction::PlayTrack(playlist.id, track_idx))
+                        )
+                        .push(
+                            button(
+                                load_icon("ph--x-square-bold.svg")
+                                    .width(16)
+                                    .height(16)
+                            )
+                            .padding(5)
+                            .on_press(PlaylistAction::RemoveTrack(playlist.id, track_idx))
+                            .style(|_theme, _| button::Style {
+                                background: None,
+                                ..Default::default()
+                            })
+                        )
+                        .spacing(5)
+                        .align_y(Alignment::Center);
+                    
+                    // Add a network indicator for network paths
+                    let track_row = if track.path.starts_with("\\\\") || track.path.contains("://") {
+                        Row::new()
+                            .push(
+                                text("🌐 ").size(14)
+                                    .style(|_: &Theme| text::Style {
+                                        color: Some(Color::from_rgb(0.6, 0.8, 1.0)),
+                                        ..Default::default()
+                                    })
+                            )
+                            .push(track_row)
+                            .spacing(2)
+                            .align_y(Alignment::Center)
+                    } else {
+                        Row::new()
+                            .push(Space::with_width(Length::Fixed(18.0)))
+                            .push(track_row)
+                            .spacing(2)
+                            .align_y(Alignment::Center)
+                    };
+                    
+                    // Wrap in a container that can be highlighted
+                    let track_container = container(track_row)
+                        .width(Length::Fill)
+                        .padding(2)
+                        .style(move |_: &Theme| container::Style {
+                            background: if is_current_track {
+                                Some(Background::Color(iced::Color::from_rgb(0.15, 0.15, 0.15)))
+                            } else {
+                                None
+                            },
+                            ..Default::default()
+                        });
+                    
+                    column.push(track_container)
+                }
+            );
+            
+            // Add track list to main column
+            let tracks_column = tracks_column.push(track_list);
+            
+            // Add scrollable container with tracks
+            content = content.push(scrollable(tracks_column));
         } else {
-            Column::new()
-                .push(title)
-                .push(text("No playlist selected").size(16))
-                .spacing(10)
-                .padding(10)
-                .into()
+            content = content.push(text("No playlist selected").size(16));
         }
     } else {
-        Column::new()
-            .push(title)
-            .push(text("No playlist selected").size(16))
-            .spacing(10)
-            .padding(10)
-            .into()
-    };
-    
+        content = content.push(text("No playlist selected").size(16));
+    }
+
     content
+        .spacing(5)
+        .padding(10)
+        .into()
 }

@@ -492,7 +492,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                         // Check if this is a network path
                         if path_str.starts_with("\\\\") || path_str.contains("://") {
                             // For network paths, show a status message
-                            let path_str_owned = path_str.to_owned();
+                            let _path_str_owned = path_str.to_owned();
                             let _ = Task::perform(
                                 async {
                                     async_std::task::sleep(Duration::from_millis(1)).await;

@@ -1,19 +1,21 @@
 use std::time::Duration;
 use serde::{Serialize, Deserialize};
 
-// Add #[derive(Serialize, Deserialize)] to make serialization work
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PlayerState {
     pub status: PlaybackStatus,
     pub current_track: Option<String>,
     pub progress: f32,
     pub volume: f32,
-    #[serde(skip)]  // Skip serializing these fields
+    #[serde(skip)]
     pub duration: Option<Duration>,
     #[serde(skip)]
     pub position: Option<Duration>,
     pub shuffle_enabled: bool,
-    pub track_completed: bool,  // Added track completion flag
+    pub track_completed: bool,
+    // Network playback fields
+    pub network_buffering: bool,
+    pub buffer_progress: f32,
 }
 
 impl PlayerState {
@@ -26,7 +28,9 @@ impl PlayerState {
             duration: None,
             position: None,
             shuffle_enabled: false,
-            track_completed: false,  // Initialize to false
+            track_completed: false,
+            network_buffering: false,
+            buffer_progress: 0.0,
         }
     }
 }
