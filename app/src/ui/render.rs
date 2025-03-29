@@ -1,6 +1,6 @@
 // app/src/ui/render.rs
 use iced::widget::{Column, Container, Row, container, text, scrollable, Space, horizontal_rule, button};
-use iced::{Element, Length, Background, Alignment, Theme, widget::svg};
+use iced::{Element, Length, Background, Alignment, Theme, widget::svg, Color};
 use crate::ui::theme::{
     library_container_style,
     playlist_container_style,
@@ -10,7 +10,8 @@ use crate::ui::theme::{
     GREEN_COLOR,
 };
 
-use core::player::PlayerState;
+// Fixed import to use the correct path for PlayerState
+use core::player::state::PlayerState;
 use core::playlist::PlaylistState;
 use core::library::LibraryState;
 
@@ -32,6 +33,7 @@ pub fn render_with_state<'a>(
     playlists: &'a PlaylistState,
     library: &'a LibraryState,
     playlist_view_state: &'a PlaylistViewState,
+    status_message: &'a Option<String>, // NEW: Status message for user feedback
 ) -> Element<'a, playlist_view::PlaylistAction> {
     // Player section
     let player_section = player_view::view(player_state);
@@ -116,13 +118,38 @@ pub fn render_with_state<'a>(
         .height(Length::Fill)
         .width(Length::Fill);
 
-    // Overall layout with top player container
-    let content = Column::new()
+    // Overall layout with top player container and optional status message
+    let mut content = Column::new()
         .push(player_container)
         .push(content_row)
         .spacing(1)
         .width(Length::Fill)
         .height(Length::Fill);
+        
+    // Add status message if present
+    if let Some(message) = status_message {
+        content = content.push(
+            Container::new(
+                text(message).size(14)
+                    .style(|_: &Theme| text::Style {
+                        color: Some(Color::from_rgb(1.0, 1.0, 0.8)), // Slightly different color for visibility
+                        ..Default::default()
+                    })
+            )
+            .width(Length::Fill)
+            .padding(8)
+            .style(|_| container::Style {
+                background: Some(Background::Color(Color::from_rgb(0.2, 0.2, 0.2))),
+                border: iced::Border {
+                    color: GREEN_COLOR,
+                    width: 1.0,
+                    radius: 4.0.into(),
+                },
+                text_color: Some(GREEN_COLOR),
+                ..Default::default()
+            })
+        );
+    }
 
     Container::new(content)
         .padding(0)
@@ -208,6 +235,27 @@ fn create_now_playing_section<'a>(
                                     )
                                     .spacing(5)
                                     .align_y(Alignment::Center);
+                                
+                                // Add a network indicator for network paths
+                                let track_row = if track.path.starts_with("\\\\") || track.path.contains("://") {
+                                    Row::new()
+                                        .push(
+                                            text("🌐 ").size(14)
+                                                .style(|_: &Theme| text::Style {
+                                                    color: Some(Color::from_rgb(0.6, 0.8, 1.0)),
+                                                    ..Default::default()
+                                                })
+                                        )
+                                        .push(track_row)
+                                        .spacing(2)
+                                        .align_y(Alignment::Center)
+                                } else {
+                                    Row::new()
+                                        .push(Space::with_width(Length::Fixed(18.0))) // FIXED: Changed from Units to Fixed
+                                        .push(track_row)
+                                        .spacing(2)
+                                        .align_y(Alignment::Center)
+                                };
                                 
                                 // Wrap in a container that can be highlighted
                                 let track_container = container(track_row)

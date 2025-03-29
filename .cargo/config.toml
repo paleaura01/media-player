@@ -1,17 +1,18 @@
 [env]
+VCPKG_ROOT = "C:/vcpkg"
 VCPKG_DEFAULT_TRIPLET = "x64-windows"
 VCPKG_TRIPLET = "x64-windows"
+RUST_BACKTRACE = "1"
+FFMPEG_PKG_CONFIG_PATH = "C:/vcpkg/installed/x64-windows-static-md/lib/pkgconfig"
+PKG_CONFIG_PATH = "C:/vcpkg/installed/x64-windows-static-md/lib/pkgconfig"
 
 [build]
 incremental = true
 rustc-wrapper = "sccache"
 target-dir = "target"
-rustflags = ["-C", "target-cpu=native"]
-
+rustflags = ["-C", "target-cpu=native", "-C", "link-arg=/NODEFAULTLIB:libcmt"]
 [target.x86_64-pc-windows-msvc]
 linker = "lld-link"
-rustflags = ["-C", "link-arg=-fuse-ld=lld", "-C", "link-arg=/LTCG", "-C", "target-cpu=native"]
-
 [profile.dev]
 opt-level = 0
 debug = false

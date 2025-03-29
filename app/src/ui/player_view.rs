@@ -2,7 +2,7 @@
 use iced::widget::{column, row, container, Space, slider, button};
 use iced::widget::svg; // Import svg module
 use iced::{Element, Length, Alignment, Theme, Border};
-use core::player::PlayerState;
+use core::PlayerState;
 use crate::ui::theme::{green_text, GREEN_COLOR, DARK_GREEN_COLOR}; // Import theme helpers
 
 #[derive(Debug, Clone)]
@@ -163,7 +163,7 @@ pub fn view(player: &PlayerState) -> Element<PlayerAction> {
         }),
         
         // Play/Pause button
-        if player.status == core::player::PlaybackStatus::Playing {
+        if player.status == core::PlaybackStatus::Playing {
             button(
                 load_icon("ph--pause-circle-bold.svg")
                     .width(30)

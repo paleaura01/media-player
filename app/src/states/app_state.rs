@@ -2,8 +2,9 @@
 // This file handles the core application state and actions
 
 use std::path::PathBuf;
+use std::time::{Instant, Duration};
 use log::{debug, error, info};
-use core::{Action, PlayerAction, PlaylistAction, LibraryAction, Track, Player, PlayerState, PlaylistState, LibraryState};
+use core::{Action, PlayerAction, PlaylistAction, LibraryAction, Track, Player, PlayerState, PlaybackStatus, PlaylistState, LibraryState};
 use crate::states::playlist_state::PlaylistViewState;
 use rand::Rng; // For picking random track if shuffle is on
 use anyhow::Result;
@@ -15,6 +16,9 @@ pub struct MediaPlayer {
     pub library: LibraryState,
     pub data_dir: PathBuf,
     pub playlist_view_state: PlaylistViewState,
+    pub status_message: Option<String>,              // NEW: For displaying status messages
+    pub status_message_time: Option<Instant>,        // NEW: When the message was set
+    pub status_message_duration: Option<Duration>,   // NEW: How long to show it
 }
 
 impl std::fmt::Debug for MediaPlayer {
@@ -25,6 +29,7 @@ impl std::fmt::Debug for MediaPlayer {
             .field("playlists", &self.playlists)
             .field("library", &self.library)
             .field("data_dir", &self.data_dir)
+            .field("status_message", &self.status_message)
             .finish()
     }
 }
@@ -49,7 +54,7 @@ impl Default for MediaPlayer {
             PlaylistState::new()
         };
 
-        // Initialize the player and register codecs including Opus
+        // Initialize the player with FFmpeg
         let player = Player::new();
         let mut player_state = player.get_state();
         // Make sure shuffle starts off
@@ -64,6 +69,9 @@ impl Default for MediaPlayer {
             library: LibraryState::new(),
             data_dir,
             playlist_view_state: PlaylistViewState::new(),
+            status_message: None,
+            status_message_time: None,
+            status_message_duration: None,
         }
     }
 }
@@ -111,19 +119,28 @@ impl MediaPlayer {
         None
     }
     
-    // Helper function to check if a file extension is a supported audio format
-    fn is_supported_audio_format(&self, extension: &str) -> bool {
-        // Added "opus" to the list of supported formats
-        ["mp3", "wav", "flac", "ogg", "m4a", "aac", "opus"].contains(&extension)
-    }
-    
     fn handle_player_action(&mut self, action: PlayerAction) {
         match action {
             PlayerAction::Play(path) => {
                 // When playing a track, we pass the full path to the player
                 info!("Attempting to play file: {}", path);
+                
+                // Check if it's a network path and set a status message
+                if path.starts_with("\\\\") || path.contains("://") {
+                    self.status_message = Some(format!("Loading network file: {}", 
+                        std::path::Path::new(&path)
+                            .file_name()
+                            .and_then(|n| n.to_str())
+                            .unwrap_or("Unknown")));
+                    self.status_message_time = Some(Instant::now());
+                    self.status_message_duration = Some(Duration::from_secs(5));
+                }
+                
                 if let Err(e) = self.player.play(&path) {
                     error!("Failed to play: {}", e);
+                    self.status_message = Some(format!("Error: {}", e));
+                    self.status_message_time = Some(Instant::now());
+                    self.status_message_duration = Some(Duration::from_secs(3));
                 } else {
                     info!("Started playback successfully");
                 }
@@ -131,11 +148,11 @@ impl MediaPlayer {
             PlayerAction::Pause => self.player.pause(),
             PlayerAction::Resume => {
                 // Check if we're already playing or paused
-                if self.player_state.status == core::player::PlaybackStatus::Paused {
+                if self.player_state.status == PlaybackStatus::Paused {
                     // Original resume logic for a paused track
                     info!("Resuming playback");
                     self.player.resume();
-                } else if self.player_state.status == core::player::PlaybackStatus::Stopped {
+                } else if self.player_state.status == PlaybackStatus::Stopped {
                     // New logic to start playing a track when nothing is playing
                     info!("Starting playback from Now Playing list");
                     
@@ -350,6 +367,15 @@ impl MediaPlayer {
                 if let Some(playlist) = self.playlists.get_playlist(playlist_id) {
                     if track_idx < playlist.tracks.len() {
                         let track = &playlist.tracks[track_idx];
+                        
+                        // Check if it's a network path before playing
+                        if track.path.starts_with("\\\\") || track.path.contains("://") {
+                            self.status_message = Some(format!("Loading network track: {}", 
+                                track.title.as_deref().unwrap_or("Unknown")));
+                            self.status_message_time = Some(Instant::now());
+                            self.status_message_duration = Some(Duration::from_secs(5));
+                        }
+                        
                         self.handle_action(core::Action::Player(
                             core::PlayerAction::Play(track.path.clone())
                         ));
@@ -403,73 +429,27 @@ impl MediaPlayer {
                     .and_then(|n| n.to_str())
                     .unwrap_or(&path)
                     .to_string();
-                        
-                // Check if the file is a supported audio format
-                if let Some(ext) = file_path.extension().and_then(|e| e.to_str()) {
-                    if self.is_supported_audio_format(&ext.to_lowercase()) {
-                        // Log before moving the path
-                        info!("Imported audio file: {}", path);
-                        
-                        // Now move the path into the Track
-                        self.library.tracks.push(Track {
-                            path,  // No need for clone since we use it before moving
-                            title: Some(filename),
-                            artist: None,
-                            album: None,
-                            play_count: 0,
-                        });
-                    } else {
-                        info!("Skipped unsupported file format: {}", path);
-                    }
+                
+                // Check if file is a valid audio file using FFmpeg
+                if core::audio::decoder::is_supported_audio_format(&path) {
+                    // Log before moving the path
+                    info!("Imported audio file: {}", path);
+                    
+                    // Now move the path into the Track
+                    self.library.tracks.push(Track {
+                        path,
+                        title: Some(filename),
+                        artist: None,
+                        album: None,
+                        play_count: 0,
+                    });
+                } else {
+                    info!("Skipped unsupported file format: {}", path);
                 }
             }
             LibraryAction::Search(_q) => {}
             LibraryAction::None => {}
         }
-    }
-    
-    // Process dropped files for playback
-    pub fn process_dropped_file(&mut self, path: &std::path::Path) -> bool {
-        if let Some(extension) = path.extension().and_then(|e| e.to_str()) {
-            let ext_lowercase = extension.to_lowercase();
-            
-            // Check if it's a supported audio file type
-            if self.is_supported_audio_format(&ext_lowercase) {
-                // Process the audio file
-                let path_str = path.to_string_lossy().to_string();
-                let filename = path
-                    .file_name()
-                    .and_then(|n| n.to_str())
-                    .unwrap_or("Unknown")
-                    .to_string();
-                
-                // Now we know it's a supported audio file
-                if let Some(selected_idx) = self.playlists.selected {
-                    if selected_idx < self.playlists.playlists.len() {
-                        let playlist_id = self.playlists.playlists[selected_idx].id;
-                        
-                        // Create a track and add it to the selected playlist
-                        let track = Track {
-                            path: path_str,
-                            title: Some(filename),
-                            artist: None,
-                            album: None,
-                            play_count: 0,
-                        };
-                        
-                        self.handle_action(Action::Playlist(
-                            PlaylistAction::AddTrack(playlist_id, track)
-                        ));
-                        
-                        info!("Added file to playlist: {}", path.display());
-                        return true;
-                    }
-                }
-            } else {
-                info!("Unsupported file format: {}", ext_lowercase);
-            }
-        }
-        false
     }
     
     // Add track completion handling
@@ -509,5 +489,19 @@ impl MediaPlayer {
         let path = self.data_dir.join("playlists.json");
         self.playlists.save_to_file(&path)?;
         Ok(())
+    }
+    
+    // Display a status message
+    pub fn set_status_message(&mut self, message: String, duration: Duration) {
+        self.status_message = Some(message);
+        self.status_message_time = Some(Instant::now());
+        self.status_message_duration = Some(duration);
+    }
+    
+    // Clear the status message
+    pub fn clear_status_message(&mut self) {
+        self.status_message = None;
+        self.status_message_time = None;
+        self.status_message_duration = None;
     }
 }

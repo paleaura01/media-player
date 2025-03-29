@@ -7,21 +7,25 @@ pub struct PlaybackPosition {
     pub total_samples: u64,
     pub current_sample: Arc<AtomicUsize>,
     pub sample_rate: u32,
-    pub channel_count: usize,  // NEW: Store channel count explicitly
-    // Fields for explicit seek control
+    pub channel_count: usize,
     pub seek_requested: Option<Arc<AtomicBool>>,
     pub seek_target: Option<Arc<Mutex<f32>>>,
+    pub buffer_health: Option<f32>,  // NEW: Add buffer health for network files
+    pub clear_buffers: bool,         // NEW: Flag to request buffer clearing
 }
 
+// Then update the constructor to initialize these fields
 impl PlaybackPosition {
     pub fn new(sample_rate: u32) -> Self {
         Self {
             total_samples: 0,
             current_sample: Arc::new(AtomicUsize::new(0)),
             sample_rate,
-            channel_count: 2,  // Default to stereo, will be updated later
+            channel_count: 2,
             seek_requested: Some(Arc::new(AtomicBool::new(false))),
             seek_target: Some(Arc::new(Mutex::new(0.0))),
+            buffer_health: None,      // NEW: Initialize to None
+            clear_buffers: false,     // NEW: Initialize to false
         }
     }
 
@@ -142,5 +146,14 @@ impl PlaybackPosition {
     pub fn set_current_frame(&self, frame_index: usize) {
         self.current_sample.store(frame_index, Ordering::SeqCst);
         log::debug!("Set current_frame to {}", frame_index);
+    }
+    
+    // Add a method to update buffer health
+    pub fn update_buffer_health(&mut self, available: usize, capacity: usize) {
+        if capacity > 0 {
+            self.buffer_health = Some(available as f32 / capacity as f32);
+        } else {
+            self.buffer_health = None;
+        }
     }
 }
