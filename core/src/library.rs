@@ -1,5 +1,6 @@
+// core/src/library.rs
 use serde::{Serialize, Deserialize};
-use crate::playlist::Track;
+use crate::Track; // Import Track from lib.rs re-export
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LibraryState {

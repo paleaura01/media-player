@@ -1,11 +1,11 @@
 // core/src/audio/decoder.rs
-use std::path::{Path, PathBuf};  // Added PathBuf import here
+use std::path::{Path, PathBuf};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc, Mutex,
 };
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use anyhow::{anyhow, Result};
 use log::{debug, error, info, warn};
@@ -17,10 +17,12 @@ use ffmpeg_sys_next::AVSampleFormat::AV_SAMPLE_FMT_FLT;
 
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int};
+use walkdir::WalkDir; // Import WalkDir for directory traversal
 
 use crate::audio::buffer::AudioRingBuffer;
 use crate::audio::position::PlaybackPosition;
 use crate::PlayerState;
+use crate::PlaybackStatus; // Import PlaybackStatus properly
 
 // Initialize FFmpeg only once
 static mut FFMPEG_INITIALIZED: bool = false;
@@ -183,7 +185,7 @@ unsafe fn process_audio_frame_safe(
     volume_arc: Arc<Mutex<f32>>,
     ring_buffer: Arc<Mutex<AudioRingBuffer>>,
     needs_data: &Arc<AtomicBool>,
-    last_buffer_warn: &mut Instant
+    last_buffer_warn: &mut std::time::Instant
 ) -> u64 {
     if frame.is_null() {
         return 0;
@@ -199,38 +201,12 @@ unsafe fn process_audio_frame_safe(
     let ratio = output_sample_rate as f64 / file_sample_rate as f64;
     let output_samples_calc = (nb_samples as f64 * ratio).ceil() as i32;
     
-    // Log sample rates periodically
-    static mut LAST_RATE_LOG: Option<Instant> = None;
-    let rate_log_needed = unsafe {
-        match LAST_RATE_LOG {
-            None => {
-                LAST_RATE_LOG = Some(Instant::now());
-                true
-            },
-            Some(last) => {
-                let elapsed = Instant::now().duration_since(last);
-                if elapsed > Duration::from_secs(5) {
-                    LAST_RATE_LOG = Some(Instant::now());
-                    true
-                } else {
-                    false
-                }
-            }
-        }
-    };
-    
-    if rate_log_needed {
-        info!("Resampling from {}Hz to {}Hz (ratio: {:.2}), frame size: {} samples", 
-              file_sample_rate, output_sample_rate, ratio, nb_samples);
-    }
-    
-    // Allocate properly sized output buffer - directly calculate the right size
-    let mut output: Vec<u8> = Vec::new();
-    let dest_nb_samples = output_samples_calc;
+    // Fix for av_samples_get_buffer_size function call
+    let mut dest_linesize = 0;
     let dest_data_size = ffmpeg::av_samples_get_buffer_size(
-        std::ptr::null_mut(),
+        &mut dest_linesize as *mut i32, // Fixed to be mutable
         channel_count as i32,
-        dest_nb_samples,
+        output_samples_calc,  // Use calculated output samples
         AV_SAMPLE_FMT_FLT,
         1
     );
@@ -241,7 +217,7 @@ unsafe fn process_audio_frame_safe(
     }
     
     // Safely allocate the right sized buffer on the heap
-    output.resize(dest_data_size as usize, 0);
+    let mut output = vec![0u8; dest_data_size as usize];
     let mut output_ptr = output.as_mut_ptr();
     
     // Create a vector of pointers to each channel's data
@@ -249,14 +225,14 @@ unsafe fn process_audio_frame_safe(
     for _ in 0..channel_count {
         output_ptrs.push(output_ptr);
         // Point to the next channel's position
-        output_ptr = output_ptr.add(dest_nb_samples as usize * std::mem::size_of::<f32>());
+        output_ptr = output_ptr.add(output_samples_calc as usize * std::mem::size_of::<f32>());
     }
     
     // Perform the resampling
     let out_samples = ffmpeg::swr_convert(
         swr_ctx,
         output_ptrs.as_mut_ptr(),
-        dest_nb_samples,
+        output_samples_calc,
         (*frame).extended_data as *mut *const u8,
         nb_samples
     );
@@ -306,7 +282,7 @@ unsafe fn process_audio_frame_safe(
         needs_data.store(false, Ordering::Release);
     }
     
-    *last_buffer_warn = Instant::now();
+    *last_buffer_warn = std::time::Instant::now();
     
     // Return the number of frames decoded
     nb_samples as u64
@@ -345,6 +321,9 @@ pub fn play_audio_file(
     let mut track_duration_secs = 300.0; // Default
     let mut channel_count = 2; // Default
     let mut sample_rate = 44100; // Default
+
+    // Track completion flag for completion detection
+    let track_completed_flag = Arc::new(AtomicBool::new(false));
 
     unsafe {
         // Create a C-string from the path
@@ -704,53 +683,29 @@ pub fn play_audio_file(
             return Err(anyhow!("Failed to allocate resampler context"));
         }
         
-        // Log resampling parameters
-        info!("Setting up resampler: {}Hz -> {}Hz, {} channels", 
-             sample_rate, output_sample_rate, channel_count);
-        
-        // Set options on the SwrContext
-        ffmpeg::av_opt_set_int(
-            swr_ctx as *mut _, 
-            CString::new("in_sample_rate")?.as_ptr(), 
-            sample_rate as i64, 
-            0
-        );
-        
-        ffmpeg::av_opt_set_int(
-            swr_ctx as *mut _, 
-            CString::new("out_sample_rate")?.as_ptr(), 
-            output_sample_rate as i64, 
-            0
-        );
-        
-        ffmpeg::av_opt_set_sample_fmt(
-            swr_ctx as *mut _, 
-            CString::new("in_sample_fmt")?.as_ptr(), 
-            (*codec_ctx).sample_fmt, 
-            0
-        );
-        
-        ffmpeg::av_opt_set_sample_fmt(
-            swr_ctx as *mut _, 
-            CString::new("out_sample_fmt")?.as_ptr(), 
-            AV_SAMPLE_FMT_FLT, 
-            0
-        );
-        
-        // Set channel layouts
-        ffmpeg::av_opt_set_chlayout(
-            swr_ctx as *mut _,
-            CString::new("in_chlayout")?.as_ptr(),
-            &in_ch_layout,
-            0
-        );
-                               
-        ffmpeg::av_opt_set_chlayout(
-            swr_ctx as *mut _,
-            CString::new("out_chlayout")?.as_ptr(),
+        // Fix the swr_alloc_set_opts2 function call with proper handling
+        let swr_result = ffmpeg::swr_alloc_set_opts2(
+            &mut swr_ctx,
             &out_ch_layout,
-            0
+            AV_SAMPLE_FMT_FLT,
+            output_sample_rate as i32,
+            &in_ch_layout,
+            (*codec_ctx).sample_fmt,
+            sample_rate as i32,
+            0,
+            std::ptr::null_mut(),
         );
+
+        if swr_result < 0 {
+            let error_buf = [0i8; 1024];
+            ffmpeg::av_strerror(swr_result, error_buf.as_ptr() as *mut i8, 1024);
+            let error_msg = to_string(error_buf.as_ptr());
+            error!("Failed to set SwrContext options: {} ({})", error_msg, swr_result);
+            ffmpeg::swr_free(&mut swr_ctx);
+            ffmpeg::avcodec_free_context(&mut (codec_ctx as *mut _));
+            ffmpeg::avformat_close_input(&mut format_ctx);
+            return Err(anyhow!("Failed to set SwrContext options: {}", error_msg));
+        }
         
         // Initialize the resampler
         let swr_init_result = ffmpeg::swr_init(swr_ctx);
@@ -790,8 +745,8 @@ pub fn play_audio_file(
         // Main decoding loop
         let mut current_frames: u64 = 0;
         let mut is_eof = false;
-        let mut last_progress_log = Instant::now();
-        let mut last_buffer_warn = Instant::now();
+        let mut last_progress_log = std::time::Instant::now();
+        let mut last_buffer_warn = std::time::Instant::now();
         
         while !is_eof && !stop_flag.load(Ordering::SeqCst) {
             // Handle pause state
@@ -878,15 +833,24 @@ pub fn play_audio_file(
                     info!("End of file reached");
                     is_eof = true;
                     
-                    // Signal track completion
-                    if let Ok(mut st) = state_arc.lock() {
-                        st.track_completed = true;
+                    // Signal track completion using our track_completed_flag
+                    track_completed_flag.store(true, Ordering::SeqCst);
+                    
+                    // Update player state
+                    if let Ok(mut state) = state_arc.lock() {
+                        state.track_completed = true;
+                        state.status = PlaybackStatus::Stopped; // Set to stopped on completion
                     }
                 } else {
                     let error_buf = [0i8; 1024];
                     ffmpeg::av_strerror(ret, error_buf.as_ptr() as *mut i8, 1024);
                     let error_msg = to_string(error_buf.as_ptr());
                     warn!("Error reading frame: {} ({})", error_msg, ret);
+                    
+                    // Update player state on error
+                    if let Ok(mut state) = state_arc.lock() {
+                        state.status = PlaybackStatus::Stopped;
+                    }
                 }
                 continue;
             }
@@ -973,7 +937,7 @@ pub fn play_audio_file(
                            rb.available() as f64 * 100.0 / rb.capacity() as f64);
                 }
                        
-                last_progress_log = Instant::now();
+                last_progress_log = std::time::Instant::now();
             }
             
             // Sleep a tiny bit to avoid busy-waiting and reduce CPU usage
@@ -1047,26 +1011,29 @@ fn scan_directory_recursively(dir: &Path, files: &mut Vec<PathBuf>, current_dept
         return;
     }
     
+    // More efficient directory scanning using walkdir
     info!("Scanning directory at depth {}/{}: {:?}", current_depth, max_depth, dir);
     
-    if let Ok(entries) = std::fs::read_dir(dir) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            
-            if path.is_dir() {
-                // Recurse into subdirectory with increased depth
-                scan_directory_recursively(&path, files, current_depth + 1, max_depth);
-            } else if path.is_file() {
-                // Check file extension for supported audio format
-                if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-                    let lowercase_ext = ext.to_lowercase();
-                    if get_supported_extensions().iter().any(|supported| &lowercase_ext == supported) {
-                        files.push(path);
-                    }
+    for entry in WalkDir::new(dir).max_depth(1).into_iter().filter_map(Result::ok) {
+        let path = entry.path();
+        
+        if path == dir {
+            continue; // Skip the directory itself
+        }
+        
+        if path.is_dir() {
+            // Recurse into subdirectory with increased depth
+            if current_depth < max_depth {
+                scan_directory_recursively(path, files, current_depth + 1, max_depth);
+            }
+        } else if path.is_file() {
+            // Check file extension for supported audio format
+            if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
+                let lowercase_ext = ext.to_lowercase();
+                if get_supported_extensions().iter().any(|supported| &lowercase_ext == supported) {
+                    files.push(path.to_path_buf());
                 }
             }
         }
-    } else {
-        warn!("Failed to read directory: {:?}", dir);
     }
 }

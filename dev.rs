@@ -55,25 +55,39 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .args(&args)
         .spawn()?;
     
-    let app_process_id = app_process.id();
+        let _app_process_id = app_process.id();
+
     
     // Set up file watcher
     let (tx, rx) = channel();
     let mut watcher = recommended_watcher(tx)?;
     
     watcher.watch(Path::new("./app/src"), RecursiveMode::Recursive)?;
-    println!("Watching for changes in app/src...");
+    watcher.watch(Path::new("./core/src"), RecursiveMode::Recursive)?; // Also watch core library
+    println!("Watching for changes in app/src and core/src...");
     println!("Press Ctrl+C to stop");
     
     // Main loop with improved Ctrl+C handler
+    let app_process_id_for_handler = app_process.id();
     ctrlc::set_handler(move || {
         println!("\nShutting down development environment...");
         
-        // Properly terminate the app process first
-        if let Err(e) = Command::new("taskkill")
-            .args(["/F", "/T", "/PID", &app_process_id.to_string()])
-            .status() {
-            eprintln!("Failed to kill app process: {}", e);
+        // Properly terminate the app process first with a more reliable approach
+        #[cfg(target_os = "windows")]
+        {
+            if let Err(e) = Command::new("taskkill")
+                .args(["/F", "/T", "/PID", &app_process_id_for_handler.to_string()])
+                .status() {
+                eprintln!("Failed to kill app process: {}", e);
+            }
+        }
+        #[cfg(not(target_os = "windows"))]
+        {
+            if let Err(e) = Command::new("kill")
+                .args(["-9", &app_process_id_for_handler.to_string()])
+                .status() {
+                eprintln!("Failed to kill app process: {}", e);
+            }
         }
         
         std::thread::sleep(Duration::from_millis(1000));
@@ -100,10 +114,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     std::thread::sleep(Duration::from_millis(500));
                     
                     println!("Stopping application for rebuild...");
-                    if let Err(e) = Command::new("taskkill")
-                        .args(["/F", "/T", "/PID", &app_process.id().to_string()])
-                        .status() {
-                        eprintln!("Failed to kill app process: {}", e);
+                    #[cfg(target_os = "windows")]
+                    {
+                        if let Err(e) = Command::new("taskkill")
+                            .args(["/F", "/T", "/PID", &app_process.id().to_string()])
+                            .status() {
+                            eprintln!("Failed to kill app process: {}", e);
+                        }
+                    }
+                    #[cfg(not(target_os = "windows"))]
+                    {
+                        if let Err(e) = Command::new("kill")
+                            .args(["-9", &app_process.id().to_string()])
+                            .status() {
+                            eprintln!("Failed to kill app process: {}", e);
+                        }
                     }
                     std::thread::sleep(Duration::from_millis(500));
                     
@@ -157,10 +182,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     
     println!("Attempting to clean up application process.");
-    if let Err(e) = Command::new("taskkill")
-        .args(["/F", "/T", "/PID", &app_process.id().to_string()])
-        .status() {
-        eprintln!("Failed to kill app process: {}", e);
+    #[cfg(target_os = "windows")]
+    {
+        if let Err(e) = Command::new("taskkill")
+            .args(["/F", "/T", "/PID", &app_process.id().to_string()])
+            .status() {
+            eprintln!("Failed to kill app process: {}", e);
+        }
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        if let Err(e) = Command::new("kill")
+            .args(["-9", &app_process.id().to_string()])
+            .status() {
+            eprintln!("Failed to kill app process: {}", e);
+        }
     }
     
     Ok(())

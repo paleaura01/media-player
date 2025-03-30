@@ -1,8 +1,9 @@
-// core/src/playlist.rs (adding BatchAddTracks variant)
+// core/src/playlist.rs
 use serde::{Serialize, Deserialize};
 use std::path::Path;
 use std::fs;
 use anyhow::Result;
+use log::warn;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Track {
@@ -10,7 +11,7 @@ pub struct Track {
     pub title: Option<String>,
     pub artist: Option<String>,
     pub album: Option<String>,
-    pub play_count: u32,  // Added play count field
+    pub play_count: u32,
 }
 
 #[derive(Clone, Debug)]
@@ -22,7 +23,7 @@ pub enum PlaylistAction {
     AddTrack(u32, Track),
     RemoveTrack(u32, usize),
     PlayTrack(u32, usize),
-    BatchAddTracks(u32, Vec<Track>), // Add BatchAddTracks for bulk operations
+    BatchAddTracks(u32, Vec<Track>),
     None,
 }
 
@@ -30,7 +31,7 @@ pub enum PlaylistAction {
 pub struct PlaylistState {
     pub playlists: Vec<Playlist>,
     pub selected: Option<usize>,
-    next_id: u32, // Added for ID generation
+    next_id: u32,
 }
 
 impl PlaylistState {
@@ -42,7 +43,6 @@ impl PlaylistState {
         }
     }
     
-    // Add this method that the app is expecting
     pub fn load_from_file(path: &Path) -> Result<Self> {
         // Check if file exists and has content
         if !path.exists() || path.metadata()?.len() == 0 {
@@ -57,7 +57,6 @@ impl PlaylistState {
         Ok(state)
     }
     
-    // Save playlist state to file
     pub fn save_to_file(&self, path: &Path) -> Result<()> {
         // Serialize to JSON
         let json = serde_json::to_string_pretty(self)?;
@@ -67,7 +66,6 @@ impl PlaylistState {
         Ok(())
     }
     
-    // Create a new playlist
     pub fn create_playlist(&mut self, name: String) -> Playlist {
         let id = self.next_id;
         self.next_id += 1;
@@ -80,7 +78,6 @@ impl PlaylistState {
         playlist
     }
     
-    // Delete a playlist by ID
     pub fn delete_playlist(&mut self, id: u32) {
         if let Some(pos) = self.playlists.iter().position(|p| p.id == id) {
             self.playlists.remove(pos);
@@ -91,36 +88,56 @@ impl PlaylistState {
                     self.selected = Some(selected - 1);
                 }
             }
+        } else {
+            warn!("Attempted to delete non-existent playlist ID: {}", id);
         }
     }
     
-    // Get a playlist by ID
     pub fn get_playlist(&self, id: u32) -> Option<&Playlist> {
         self.playlists.iter().find(|p| p.id == id)
     }
     
-    // Get a mutable playlist by ID
     pub fn get_playlist_mut(&mut self, id: u32) -> Option<&mut Playlist> {
         self.playlists.iter_mut().find(|p| p.id == id)
     }
     
-    // Rename a playlist
     pub fn rename_playlist(&mut self, id: u32, new_name: String) -> bool {
         if let Some(playlist) = self.get_playlist_mut(id) {
             playlist.name = new_name;
             true
         } else {
+            warn!("Attempted to rename non-existent playlist ID: {}", id);
             false
         }
     }
     
-    // Implement batch add tracks functionality
+    pub fn add_track(&mut self, id: u32, track: Track) {
+        if let Some(playlist) = self.get_playlist_mut(id) {
+            playlist.tracks.push(track);
+        } else {
+            warn!("Attempted to add track to non-existent playlist ID: {}", id);
+        }
+    }
+    
+    pub fn remove_track(&mut self, id: u32, index: usize) {
+        if let Some(playlist) = self.get_playlist_mut(id) {
+            if index < playlist.tracks.len() {
+                playlist.tracks.remove(index);
+            } else {
+                warn!("Attempted to remove track at invalid index {} from playlist ID: {}", index, id);
+            }
+        } else {
+            warn!("Attempted to remove track from non-existent playlist ID: {}", id);
+        }
+    }
+    
     pub fn batch_add_tracks(&mut self, id: u32, tracks: Vec<Track>) -> usize {
         if let Some(playlist) = self.get_playlist_mut(id) {
             let count = tracks.len();
             playlist.tracks.extend(tracks);
             count
         } else {
+            warn!("Attempted batch add to non-existent playlist ID: {}", id);
             0
         }
     }

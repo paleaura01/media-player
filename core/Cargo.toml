@@ -14,3 +14,4 @@ iced = "0.13.1"
 ffmpeg-sys-next = "7.1" 
 ffmpeg-next = "7.1" 
 libc = "0.2"
+walkdir = "2.3" # Added walkdir for directory traversal

@@ -8,6 +8,7 @@ use core::{Action, PlayerAction, PlaylistAction, LibraryAction, Track, Player, P
 use crate::states::playlist_state::PlaylistViewState;
 use rand::Rng; // For picking random track if shuffle is on
 use anyhow::Result;
+use std::fs;
 
 pub struct MediaPlayer {
     pub player: Player,
@@ -16,9 +17,10 @@ pub struct MediaPlayer {
     pub library: LibraryState,
     pub data_dir: PathBuf,
     pub playlist_view_state: PlaylistViewState,
-    pub status_message: Option<String>,              // NEW: For displaying status messages
-    pub status_message_time: Option<Instant>,        // NEW: When the message was set
-    pub status_message_duration: Option<Duration>,   // NEW: How long to show it
+    pub status_message: Option<String>,              // For displaying status messages
+    pub status_message_time: Option<Instant>,        // When the message was set
+    pub status_message_duration: Option<Duration>,   // How long to show it
+    pub is_batch_processing: bool,                   // Track when batch processing is active
 }
 
 impl std::fmt::Debug for MediaPlayer {
@@ -30,6 +32,7 @@ impl std::fmt::Debug for MediaPlayer {
             .field("library", &self.library)
             .field("data_dir", &self.data_dir)
             .field("status_message", &self.status_message)
+            .field("is_batch_processing", &self.is_batch_processing)
             .finish()
     }
 }
@@ -74,6 +77,7 @@ impl Default for MediaPlayer {
             status_message: None,
             status_message_time: None,
             status_message_duration: None,
+            is_batch_processing: false,
         }
     }
 }
@@ -382,11 +386,14 @@ impl MediaPlayer {
                 if let Some(playlist) = self.playlists.get_playlist_mut(playlist_id) {
                     info!("Adding batch of {} tracks to playlist {}", tracks.len(), playlist_id);
                     playlist.tracks.extend(tracks);
-                    // Save after adding batch of tracks
-                    if let Err(e) = self.save_playlists() {
-                        error!("Failed to save playlist after batch add: {}", e);
-                    } else {
-                        info!("Successfully saved playlist after batch add");
+                    
+                    // Only save if we're not in the middle of a large batch operation
+                    if !self.is_batch_processing {
+                        if let Err(e) = self.save_playlists() {
+                            error!("Failed to save playlist after batch add: {}", e);
+                        } else {
+                            info!("Successfully saved playlist after batch add");
+                        }
                     }
                 }
             },
@@ -512,10 +519,21 @@ impl MediaPlayer {
         }
     }
 
+    // Improved save_playlists implementation with atomic file operations
     pub fn save_playlists(&self) -> Result<(), anyhow::Error> {
         let path = self.data_dir.join("playlists.json");
         info!("Saving playlists to {}", path.display());
-        self.playlists.save_to_file(&path)?;
+        
+        // Create the JSON string first
+        let json_data = serde_json::to_string_pretty(&self.playlists)?;
+        
+        // First write to a temporary file
+        let temp_path = path.with_extension("json.tmp");
+        fs::write(&temp_path, &json_data)?;
+        
+        // Then rename the temporary file to the actual file, which is an atomic operation
+        fs::rename(&temp_path, &path)?;
+        
         info!("Successfully saved playlists");
         Ok(())
     }

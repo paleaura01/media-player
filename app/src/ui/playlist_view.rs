@@ -1,6 +1,6 @@
 // app/src/ui/playlist_view.rs
 use iced::widget::{button, column, container, row, text, scrollable, Space, text_input};
-use iced::widget::svg; // For SVG
+use iced::widget::svg; 
 use iced::{Alignment, Element, Length, Theme};
 use core::playlist::PlaylistState;
 use crate::ui::theme::GREEN_COLOR;
@@ -24,11 +24,14 @@ pub enum PlaylistAction {
     Library(crate::ui::library_view::LibraryMessage), 
 }
 
-// SVG loading function
+// SVG loading function - Fixed to work with your Iced version
 fn load_icon(name: &str) -> svg::Svg<iced::Theme> {
     let base_path = std::env::current_dir().unwrap_or_default();
     let icon_path = base_path.join("app").join("assets").join("icons").join(name);
-    println!("Loading icon from: {}", icon_path.display());
+    
+    if !icon_path.exists() {
+        println!("Warning: Icon file not found at: {}", icon_path.display());
+    }
 
     svg::Svg::new(svg::Handle::from_path(icon_path))
 }
@@ -45,10 +48,10 @@ pub fn view_with_state<'a>(
             ..Default::default()
         });
     
-    // Add button with an SVG icon - using file-plus icon instead of folder-plus
+    // Add button with an SVG icon - using the icon you prefer
     let add_button = button(
         row![
-            load_icon("ph--file-plus-fill.svg") // Changed from folder-plus to file-plus
+            load_icon("ph--file-plus-fill.svg")
                 .width(16)
                 .height(16),
             Space::with_width(5),
@@ -153,7 +156,7 @@ pub fn view_with_state<'a>(
             let playlist_container = container(row_content)
                 .width(Length::Fill)
                 .padding(2)
-                .style(move |_: &Theme| iced::widget::container::Style {
+                .style(move |_: &Theme| container::Style {
                     background: bg_color,
                     text_color: Some(GREEN_COLOR),
                     ..Default::default()

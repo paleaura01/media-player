@@ -1,30 +1,40 @@
+# ----- C:\Users\Joshua\Documents\Github\media-player\app\Cargo.toml -----
 [package]
 name = "app"
 version = "0.1.0"
 edition = "2021"
+publish = false # Prevent accidental publishing
 
 [[bin]]
 name = "media-player-app"
 path = "src/main.rs"
 
-[lib]
-name = "player_ui"
-crate-type = ["cdylib", "rlib"]
+# Optional: Define a library if needed for integration tests or other crates
+# [lib]
+# name = "player_ui"
+# crate-type = ["cdylib", "rlib"] # Adjust crate types as needed
 
 [dependencies]
-iced = { version = "0.13.1", features = ["image", "svg"] }
+# Ensure tokio feature is enabled for iced's async runtime
+iced = { version = "0.13.1", features = ["tokio", "image", "svg", "debug"] }
+tokio = { version = "1", features = ["time"] }
+
 core = { path = "../core" }
 log = "0.4"
-env_logger = "0.10"
-ctrlc = "3.2"
+env_logger = "0.11" # Use latest env_logger if desired
+ctrlc = "3.4" # Use latest ctrlc if desired
 lazy_static = "1.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-rfd = "0.12"
+rfd = "0.14" # Use latest rfd if desired
 rand = "0.8"
 chrono = "0.4"
 anyhow = "1.0"
-async-std = "1.12.0"
-# Add for FFmpeg path validation
-mime_guess = "2.0"
-tokio = { version = "1.0", features = ["rt", "macros", "sync"] }
+# Add walkdir for easier recursive directory traversal
+walkdir = "2.5"
+
+# async-std is not typically needed when using iced with the tokio feature
+# tokio = { version = "1", features = ["rt", "macros", "sync"] } # Tokio comes via iced feature
+
+# Remove mime_guess if not actively used for MIME type detection
+# mime_guess = "2.0"

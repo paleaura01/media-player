@@ -1,89 +1,2126 @@
 {
   "playlists": [
     {
-      "id": 1,
+      "id": 7,
       "name": "New Playlist",
       "tracks": [
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\02 Whales.flac",
-          "title": "02 Whales.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3",
+          "title": "Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3",
           "artist": null,
           "album": null,
-          "play_count": 9
+          "play_count": 0
         },
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\03 Emersion.flac",
-          "title": "03 Emersion.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Torn - Samurai Music Podcast 52_1216274743 - Samurai Music.mp3",
+          "title": "Torn - Samurai Music Podcast 52_1216274743 - Samurai Music.mp3",
           "artist": null,
           "album": null,
-          "play_count": 4
+          "play_count": 0
         },
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\04 The Levitated.flac",
-          "title": "04 The Levitated.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Torn - Samurai Music Podcast 60_1901237706 - Samurai Music.mp3",
+          "title": "Torn - Samurai Music Podcast 60_1901237706 - Samurai Music.mp3",
           "artist": null,
           "album": null,
-          "play_count": 5
+          "play_count": 0
         },
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\05 Secret Earth.flac",
-          "title": "05 Secret Earth.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Torn - Samurai Music; In Session (128kbit_AAC).m4a",
+          "title": "Torn - Samurai Music; In Session (128kbit_AAC).m4a",
           "artist": null,
           "album": null,
-          "play_count": 4
+          "play_count": 0
         },
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\06 Gallows.flac",
-          "title": "06 Gallows.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Torn & Roho - Samurai Music Podcast 47 (128kbit_AAC).m4a",
+          "title": "Torn & Roho - Samurai Music Podcast 47 (128kbit_AAC).m4a",
           "artist": null,
           "album": null,
-          "play_count": 3
+          "play_count": 0
         },
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\07 Origin of Species.flac",
-          "title": "07 Origin of Species.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Torn & Roho - Samurai Music Podcast 47_991472686 - Samurai Music.mp3",
+          "title": "Torn & Roho - Samurai Music Podcast 47_991472686 - Samurai Music.mp3",
           "artist": null,
           "album": null,
-          "play_count": 4
+          "play_count": 0
         },
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\08 Alpenglow.flac",
-          "title": "08 Alpenglow.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Torn Podcast 001_1702669587 - TORN.mp3",
+          "title": "Torn Podcast 001_1702669587 - TORN.mp3",
           "artist": null,
           "album": null,
-          "play_count": 3
+          "play_count": 0
         },
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\09 Black Hills.flac",
-          "title": "09 Black Hills.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Torn Podcast 002_1761106779 - TORN.mp3",
+          "title": "Torn Podcast 002_1761106779 - TORN.mp3",
           "artist": null,
           "album": null,
-          "play_count": 1
+          "play_count": 0
         },
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\10 Balkan.flac",
-          "title": "10 Balkan.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Tsugi Podcast 581 ; Homemade Weapons_764356417 - Tsugi.mp3",
+          "title": "Tsugi Podcast 581 ; Homemade Weapons_764356417 - Tsugi.mp3",
           "artist": null,
           "album": null,
-          "play_count": 2
+          "play_count": 0
         },
         {
-          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Metal-Rock\\Progressive Metal\\Scale The Summit\\2011 - The Collective\\11 Drifting Figures.flac",
-          "title": "11 Drifting Figures.flac",
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\UN #50 Pact Infernal_269984543 - SMOKE MACHINE.mp3",
+          "title": "UN #50 Pact Infernal_269984543 - SMOKE MACHINE.mp3",
           "artist": null,
           "album": null,
-          "play_count": 1
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Unknown - Grey Area, Volume 3 ¦ Out now_250895354 - Samurai Music.mp3",
+          "title": "Unknown - Grey Area, Volume 3 ¦ Out now_250895354 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Unknown - Grey Area, Volume Five_310203557 - Horo.mp3",
+          "title": "Unknown - Grey Area, Volume Five_310203557 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Upfront 004; Synkro_176904134 - Boiler Room.mp3",
+          "title": "Upfront 004; Synkro_176904134 - Boiler Room.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\UVB-76 Music Podcast 001_248815521 - UVB-76 Music.mp3",
+          "title": "UVB-76 Music Podcast 001_248815521 - UVB-76 Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Various Artists - Mors Omnibus I_661918544 - Altar.mp3",
+          "title": "Various Artists - Mors Omnibus I_661918544 - Altar.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Von Grall - Horo Vision Podcast 11 (128kbit_AAC).m4a",
+          "title": "Von Grall - Horo Vision Podcast 11 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Von Grall - Horo Vision Podcast 11_403492218 - Horo.mp3",
+          "title": "Von Grall - Horo Vision Podcast 11_403492218 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Weaponry #14 ROHO_771360316 - ROHO.mp3",
+          "title": "Weaponry #14 ROHO_771360316 - ROHO.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\XLR8R Podcast 425; Samuel Kerridge_247147053 - samuelkerridge.mp3",
+          "title": "XLR8R Podcast 425; Samuel Kerridge_247147053 - samuelkerridge.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\XLR8R Podcast 532; Homemade Weapons_409536963 - XLR8R.mp3",
+          "title": "XLR8R Podcast 532; Homemade Weapons_409536963 - XLR8R.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\XLR8R Podcast 830; Mumdance_1688758740 - XLR8R.mp3",
+          "title": "XLR8R Podcast 830; Mumdance_1688758740 - XLR8R.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Yorobi & Artilect  PolycliniqueRedux Feb062022_1211239591 - yorobi.mp3",
+          "title": "Yorobi & Artilect  PolycliniqueRedux Feb062022_1211239591 - yorobi.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Your Cell Will Teach You All Things - Tsugi Mix CD_264959683 - lucy.mp3",
+          "title": "Your Cell Will Teach You All Things - Tsugi Mix CD_264959683 - lucy.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
         },
         {
           "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ACD GALLERY MIX 04 ft. THE UNTOUCHABLES ⁄⁄⁄ ACDGALLERY.COM_211716850 - acdgallery.mp3",
           "title": "ACD GALLERY MIX 04 ft. THE UNTOUCHABLES ⁄⁄⁄ ACDGALLERY.COM_211716850 - acdgallery.mp3",
           "artist": null,
           "album": null,
-          "play_count": 3
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ADE 2014 MIX - Apollo Records by SYNKRO_171921228 - Studio 80.mp3",
+          "title": "ADE 2014 MIX - Apollo Records by SYNKRO_171921228 - Studio 80.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Alternate Cuts; Donato Dozzy (No Boundaries Set)_438780126 - Resident Advisor.mp3",
+          "title": "Alternate Cuts; Donato Dozzy (No Boundaries Set)_438780126 - Resident Advisor.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Ancestral Voices - Horo Vision Podcast 005 (128kbit_AAC).m4a",
+          "title": "Ancestral Voices - Horo Vision Podcast 005 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Ancestral Voices - Horo Vision Podcast 005_242946372 - Samurai Music.mp3",
+          "title": "Ancestral Voices - Horo Vision Podcast 005_242946372 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Antagonist - Samurai Music Podcast 43 (128kbit_AAC).m4a",
+          "title": "Antagonist - Samurai Music Podcast 43 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Antagonist - Samurai Music Podcast 43_766835860 - Samurai Music.mp3",
+          "title": "Antagonist - Samurai Music Podcast 43_766835860 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Antagonist b2b Artilect - Samurai Music; In Session (128kbit_AAC).m4a",
+          "title": "Antagonist b2b Artilect - Samurai Music; In Session (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ARMA PODCAST 165; Ena @ Mask_251354071 - ARMA17.mp3",
+          "title": "ARMA PODCAST 165; Ena @ Mask_251354071 - ARMA17.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Artilect  - Samurai Music Podcast 48 (128kbit_AAC).m4a",
+          "title": "Artilect  - Samurai Music Podcast 48 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ARTILECT - Formless Promo Mix VI_316238655 - Formless..mp3",
+          "title": "ARTILECT - Formless Promo Mix VI_316238655 - Formless..mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Artilect - Membrain Festival 2022 - Promo Mix_1303801105 - Membrain Festival.mp3",
+          "title": "Artilect - Membrain Festival 2022 - Promo Mix_1303801105 - Membrain Festival.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ARTILECT - Membrain Festival 2023 - Promo Mix_1574748664 - Membrain Festival.mp3",
+          "title": "ARTILECT - Membrain Festival 2023 - Promo Mix_1574748664 - Membrain Festival.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Artilect - Samurai Music Podcast 48_1039094458 - Samurai Music.mp3",
+          "title": "Artilect - Samurai Music Podcast 48_1039094458 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ASC  - Samurai Music Podcast 45 (128kbit_AAC).m4a",
+          "title": "ASC  - Samurai Music Podcast 45 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ASC - atmoteka 84_953687107 - atmoteka.mp3",
+          "title": "ASC - atmoteka 84_953687107 - atmoteka.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ASC - Horo Vision Podcast 07 (128kbit_AAC).m4a",
+          "title": "ASC - Horo Vision Podcast 07 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ASC - Horo Vision Podcast 07_302506807 - Horo.mp3",
+          "title": "ASC - Horo Vision Podcast 07_302506807 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ASC - Horo Vision Podcast 19_1191414235 - Horo.mp3",
+          "title": "ASC - Horo Vision Podcast 19_1191414235 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ASC - Samurai Music Podcast 61_2005921079 - Samurai Music.mp3",
+          "title": "ASC - Samurai Music Podcast 61_2005921079 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ASC 'Imagine The Future' - The Mix_205581729 - Samurai Music.mp3",
+          "title": "ASC 'Imagine The Future' - The Mix_205581729 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ASC 'Imagine The Future' The Mix (128kbit_AAC).m4a",
+          "title": "ASC 'Imagine The Future' The Mix (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Ashorecast #1 - Presha_65996374 - Samurai Music.mp3",
+          "title": "Ashorecast #1 - Presha_65996374 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Astral Mix Series - Episode H [@antagonistuk]_691754362 - Antagonist.mp3",
+          "title": "Astral Mix Series - Episode H [@antagonistuk]_691754362 - Antagonist.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Astral Mix Series - Episode I (@antagonistuk)_810071389 - Antagonist.mp3",
+          "title": "Astral Mix Series - Episode I (@antagonistuk)_810071389 - Antagonist.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Astral Mix Series - Episode J (@antagonistuk)_915682468 - Antagonist.mp3",
+          "title": "Astral Mix Series - Episode J (@antagonistuk)_915682468 - Antagonist.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Auxiliary & Samurai present; Grey Area, Podcast One_220645159 - Samurai Music.mp3",
+          "title": "Auxiliary & Samurai present; Grey Area, Podcast One_220645159 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Auxiliary and Samurai present; Grey Area, Podcast Two_246535632 - Samurai Music.mp3",
+          "title": "Auxiliary and Samurai present; Grey Area, Podcast Two_246535632 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Baby T - HATE Podcast 213_937545082 - HATE.mp3",
+          "title": "Baby T - HATE Podcast 213_937545082 - HATE.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Baby T - Mary Anne Hobbs BBC 6 Guest Mix_1300061614 - B.Traits.mp3",
+          "title": "Baby T - Mary Anne Hobbs BBC 6 Guest Mix_1300061614 - B.Traits.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Baby T - On The Record #105_1214317750 - On The Record.mp3",
+          "title": "Baby T - On The Record #105_1214317750 - On The Record.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Baby T - Samurai Music; In Session (128kbit_AAC).m4a",
+          "title": "Baby T - Samurai Music; In Session (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\BABY T - SAMURAI MUSIC; IN SESSION (DJ SET)_1033450603 - B.Traits.mp3",
+          "title": "BABY T - SAMURAI MUSIC; IN SESSION (DJ SET)_1033450603 - B.Traits.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\BABY T LIVE @ NAKED CITY FESTIVAL 2021_1143777847 - B.Traits.mp3",
+          "title": "BABY T LIVE @ NAKED CITY FESTIVAL 2021_1143777847 - B.Traits.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\BABY T LIVE @ NAKED CITY FESTIVAL 2022_1388883757 - B.Traits.mp3",
+          "title": "BABY T LIVE @ NAKED CITY FESTIVAL 2022_1388883757 - B.Traits.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Baby T x Notion Exclusive Mix_1208982520 - Notion Magazine.mp3",
+          "title": "Baby T x Notion Exclusive Mix_1208982520 - Notion Magazine.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music Ep10 09032022 320_1229715913 - Black Rhino Radio.mp3",
+          "title": "Bass Music Ep10 09032022 320_1229715913 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 1st of June 2022_1279635553 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 1st of June 2022_1279635553 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 4th May 2022_1262615767 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 4th May 2022_1262615767 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 5th April 2023_1486511983 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 5th April 2023_1486511983 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 5th February 2025_2027537828 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 5th February 2025_2027537828 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 6th April 2022_1248253753 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 6th April 2022_1248253753 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 6th of March 2024_1768607793 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 6th of March 2024_1768607793 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 7th of February 2024_1740488922 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 7th of February 2024_1740488922 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 8th February 2023_1443185863 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 8th February 2023_1443185863 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 9th February 2022_1213156549 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 9th February 2022_1213156549 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 11th December 2024_1981771395 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 11th December 2024_1981771395 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 11th January 2023_1422277087 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 11th January 2023_1422277087 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 15th December 2021_1178970997 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 15th December 2021_1178970997 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 15th November 2023_1666559877 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 15th November 2023_1666559877 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 17th November 2021_1162544683 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 17th November 2021_1162544683 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 18th September 2024_1919281715 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 18th September 2024_1919281715 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 19th October 2022_1366667902 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 19th October 2022_1366667902 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 20th October 2021_1145427559 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 20th October 2021_1145427559 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 21st September 2022_1348764625 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 21st September 2022_1348764625 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 23rd August 2023_1600172109 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 23rd August 2023_1600172109 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 24th August 2022_1330969234 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 24th August 2022_1330969234 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 25th August 2021_1113003721 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 25th August 2021_1113003721 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 29th May 2024_1837448784 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 29th May 2024_1837448784 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables - 30th of June_1079325820 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables - 30th of June_1079325820 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables & Eusebeia - 3rd of April 2024_1792290910 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables & Eusebeia - 3rd of April 2024_1792290910 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables & Homemade Weapons - 16th November 2022_1384951204 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables & Homemade Weapons - 16th November 2022_1384951204 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables & J;Kenzo - 12th January 2022_1195595314 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables & J;Kenzo - 12th January 2022_1195595314 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables & Loxy - 28th July 2021_1096264369 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables & Loxy - 28th July 2021_1096264369 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables & Presha - 30th September 2021_1134252853 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables & Presha - 30th September 2021_1134252853 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables & Tamen - 16th October 2024_1936422836 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables & Tamen - 16th October 2024_1936422836 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bass Music w⁄ The Untouchables, DJ Mantra & Double O - 8th March 2023_1464932518 - Black Rhino Radio.mp3",
+          "title": "Bass Music w⁄ The Untouchables, DJ Mantra & Double O - 8th March 2023_1464932518 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Bedou - Samurai Music DJ Competition Finalists_192765486 - Drum&BassArena.mp3",
+          "title": "Bedou - Samurai Music DJ Competition Finalists_192765486 - Drum&BassArena.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Black Rhino Mix 005; Presha_590964210 - Black Rhino Radio.mp3",
+          "title": "Black Rhino Mix 005; Presha_590964210 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Body Unknown - Horo Vision Podcast 15_556944465 - Horo.mp3",
+          "title": "Body Unknown - Horo Vision Podcast 15_556944465 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\BunZer0 x The Untouchables 04 Feb 2021_979983154 - Sub FM.mp3",
+          "title": "BunZer0 x The Untouchables 04 Feb 2021_979983154 - Sub FM.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Campfire Stories 6 (Lapsed Scenes)  by ASC_173190919 - Silent Season.mp3",
+          "title": "Campfire Stories 6 (Lapsed Scenes)  by ASC_173190919 - Silent Season.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Clarity - Exclusive Drum&BassArena Mix_182240860 - Drum&BassArena.mp3",
+          "title": "Clarity - Exclusive Drum&BassArena Mix_182240860 - Drum&BassArena.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Clarity - FABRICLIVE x Samurai Mix_89124824 - fabric.mp3",
+          "title": "Clarity - FABRICLIVE x Samurai Mix_89124824 - fabric.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Clarity - Samurai Music Official Podcast #30 (128kbit_AAC).m4a",
+          "title": "Clarity - Samurai Music Official Podcast #30 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Clarity - Samurai Music Official Podcast 18_169452995 - Samurai Music.mp3",
+          "title": "Clarity - Samurai Music Official Podcast 18_169452995 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Clarity @ Ambra Night, Sun and Bass 08⁄09⁄17_459964404 - Clarity.mp3",
+          "title": "Clarity @ Ambra Night, Sun and Bass 08⁄09⁄17_459964404 - Clarity.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Codecast 08 - Mixed by Overlook_85651470 - Code Apparel.mp3",
+          "title": "Codecast 08 - Mixed by Overlook_85651470 - Code Apparel.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\CrissNSA w⁄ THE UNTOUCHABLES - Dungeon Beats Sessions on Sub.FM - 17.07.20_860727199 - DUNGEON BEATS.mp3",
+          "title": "CrissNSA w⁄ THE UNTOUCHABLES - Dungeon Beats Sessions on Sub.FM - 17.07.20_860727199 - DUNGEON BEATS.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\CX;TECH03_4398059 - CX;Digital.mp3",
+          "title": "CX;TECH03_4398059 - CX;Digital.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Cylon;Podcast;001;Loxy_83761365 - loxy_.mp3",
+          "title": "Cylon;Podcast;001;Loxy_83761365 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Cylon;Podcast;002;Loxy_98514403 - loxy_.mp3",
+          "title": "Cylon;Podcast;002;Loxy_98514403 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\dd@pescheria 15.12.21_1193137345 - donato dozzy.mp3",
+          "title": "dd@pescheria 15.12.21_1193137345 - donato dozzy.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Depth Gate - Samurai Music DJ Competition Finalists_192765489 - Drum&BassArena.mp3",
+          "title": "Depth Gate - Samurai Music DJ Competition Finalists_192765489 - Drum&BassArena.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Digital Tsunami 195 - E-Saggila_1349105896 - Digital  Tsunami.mp3",
+          "title": "Digital Tsunami 195 - E-Saggila_1349105896 - Digital  Tsunami.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DiNT - Horo Vision Podcast 003 (128kbit_AAC).m4a",
+          "title": "DiNT - Horo Vision Podcast 003 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DiNT - Horo Vision Podcast 003_224150583 - Samurai Music.mp3",
+          "title": "DiNT - Horo Vision Podcast 003_224150583 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DISARM.mix_1790800627 - homemade weapons.mp3",
+          "title": "DISARM.mix_1790800627 - homemade weapons.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Dissonanze 08 ¦ Grebenstein_273797210 - Dissonanze Recordings.mp3",
+          "title": "Dissonanze 08 ¦ Grebenstein_273797210 - Dissonanze Recordings.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DJ Loxy - 2Shy MC - The End Game Mix 2020_903520792 - loxy_.mp3",
+          "title": "DJ Loxy - 2Shy MC - The End Game Mix 2020_903520792 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DJ Mag Podcast 76; Homemade Weapons_359432654 - djmag.mp3",
+          "title": "DJ Mag Podcast 76; Homemade Weapons_359432654 - djmag.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Dj Presha - Live @ SIGNAll FM (13.10.2013)_115642832 - SIGNAll_FM.mp3",
+          "title": "Dj Presha - Live @ SIGNAll FM (13.10.2013)_115642832 - SIGNAll_FM.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DJ Presha & MC Lowqui Live @ Sun and Bass 2011 ⁄ 15 Years Of ESP Agency_23927016 - Samurai Music.mp3",
+          "title": "DJ Presha & MC Lowqui Live @ Sun and Bass 2011 ⁄ 15 Years Of ESP Agency_23927016 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Djinn - Samurai Music; In Session (128kbit_AAC).m4a",
+          "title": "Djinn - Samurai Music; In Session (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Djinn ft. Chickaboo, Double O, Blackeye MC - Live at Sun & Bass 2022_1590575815 - DJINN.mp3",
+          "title": "Djinn ft. Chickaboo, Double O, Blackeye MC - Live at Sun & Bass 2022_1590575815 - DJINN.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DJRUM - FABRICLIVE Promo Mix_262298959 - fabric.mp3",
+          "title": "DJRUM - FABRICLIVE Promo Mix_262298959 - fabric.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Donato Dozzy - Samurai Music Podcast 46 (128kbit_AAC).m4a",
+          "title": "Donato Dozzy - Samurai Music Podcast 46 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Donato Dozzy - Samurai Music Podcast 46_932177257 - Samurai Music.mp3",
+          "title": "Donato Dozzy - Samurai Music Podcast 46_932177257 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Double O - jungletrain.net promomix february 2020_759016963 - jungletrain-dot-net.mp3",
+          "title": "Double O - jungletrain.net promomix february 2020_759016963 - jungletrain-dot-net.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DSS 094 ¦ Vardae_1932255308 - Deep Space Series.mp3",
+          "title": "DSS 094 ¦ Vardae_1932255308 - Deep Space Series.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DSS 096 ¦ Presha_1965219687 - Deep Space Series.mp3",
+          "title": "DSS 096 ¦ Presha_1965219687 - Deep Space Series.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DUSK107 By Torn_927351382 - DUSK. ¦ 夕闇.mp3",
+          "title": "DUSK107 By Torn_927351382 - DUSK. ¦ 夕闇.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DUSK117 By Djinn_974301595 - DUSK. ¦ 夕闇.mp3",
+          "title": "DUSK117 By Djinn_974301595 - DUSK. ¦ 夕闇.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DUSK127 By The Untouchables_1029238822 - DUSK. ¦ 夕闇.mp3",
+          "title": "DUSK127 By The Untouchables_1029238822 - DUSK. ¦ 夕闇.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DUSK148 By Roho_1130336749 - DUSK. ¦ 夕闇.mp3",
+          "title": "DUSK148 By Roho_1130336749 - DUSK. ¦ 夕闇.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\DUSK223 By Last Life_1353407212 - DUSK. ¦ 夕闇.mp3",
+          "title": "DUSK223 By Last Life_1353407212 - DUSK. ¦ 夕闇.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Ena - Divided; Mind_310344829 - Horo.mp3",
+          "title": "Ena - Divided; Mind_310344829 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ENA - Horo Vision Podcast 002_200619737 - Samurai Music.mp3",
+          "title": "ENA - Horo Vision Podcast 002_200619737 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ENA - Horo Vision Podcast 006_266314853 - Samurai Music.mp3",
+          "title": "ENA - Horo Vision Podcast 006_266314853 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ENA - Horo Vision Podcast 06 (128kbit_AAC).m4a",
+          "title": "ENA - Horo Vision Podcast 06 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Esoteric Music Mix #2 - Nucleus_233337986 - Nucleus.mp3",
+          "title": "Esoteric Music Mix #2 - Nucleus_233337986 - Nucleus.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Esoteric Music Mix #3 - Nucleus_256771458 - Nucleus.mp3",
+          "title": "Esoteric Music Mix #3 - Nucleus_256771458 - Nucleus.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Eusebeia - Membrain Festival 2022 - Promo Mix_1250182522 - Membrain Festival.mp3",
+          "title": "Eusebeia - Membrain Festival 2022 - Promo Mix_1250182522 - Membrain Festival.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Eusebeia - Samurai Music Official Podcast 57_1474799329 - Samurai Music.mp3",
+          "title": "Eusebeia - Samurai Music Official Podcast 57_1474799329 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Eusebeia - Samurai Music Podcast 57 (128kbit_AAC).m4a",
+          "title": "Eusebeia - Samurai Music Podcast 57 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Exclusive Mix; Ena_169340557 - Data Transmission.mp3",
+          "title": "Exclusive Mix; Ena_169340557 - Data Transmission.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\EXE - M040 - Antagonist(2020)_828279595 - EXE Project.mp3",
+          "title": "EXE - M040 - Antagonist(2020)_828279595 - EXE Project.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Fact Mix 867; E-Saggila (Jul '22)_1301861461 - 180.Fact.mp3",
+          "title": "Fact Mix 867; E-Saggila (Jul '22)_1301861461 - 180.Fact.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Fenton - Horo Vision Podcast 004 (128kbit_AAC).m4a",
+          "title": "Fenton - Horo Vision Podcast 004 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Fenton - Horo Vision Podcast 004_229855784 - Samurai Music.mp3",
+          "title": "Fenton - Horo Vision Podcast 004_229855784 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Feral Sound with Homemade Weapons - 14 Feb 2025_2035682248 - Sub FM.mp3",
+          "title": "Feral Sound with Homemade Weapons - 14 Feb 2025_2035682248 - Sub FM.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\FFS005; Loxy_823579969 - Free From Sleep.mp3",
+          "title": "FFS005; Loxy_823579969 - Free From Sleep.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\FFS013; Djinn_878997298 - Free From Sleep.mp3",
+          "title": "FFS013; Djinn_878997298 - Free From Sleep.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\First Timers; Mako @ SUNANDBASS 2019_892044730 - SUNANDBASS.mp3",
+          "title": "First Timers; Mako @ SUNANDBASS 2019_892044730 - SUNANDBASS.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Fre4knc ⁄⁄ Samurai Music Official Podcast 13_94270213 - Samurai Music.mp3",
+          "title": "Fre4knc ⁄⁄ Samurai Music Official Podcast 13_94270213 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Fresh Kicks 101; RQ_607387176 - djmag.mp3",
+          "title": "Fresh Kicks 101; RQ_607387176 - djmag.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Future beats radio show 02-05-13_95120344 - Doc Scott.mp3",
+          "title": "Future beats radio show 02-05-13_95120344 - Doc Scott.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Future Beats Radio Show 02-10-14_170475390 - Doc Scott.mp3",
+          "title": "Future Beats Radio Show 02-10-14_170475390 - Doc Scott.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Galaxy Run w⁄ RDG - 050520 (MMH Radio) - Inspirational Tracks_816249688 - RDG.mp3",
+          "title": "Galaxy Run w⁄ RDG - 050520 (MMH Radio) - Inspirational Tracks_816249688 - RDG.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Genotype - Samurai Music Official Podcast 14_100778845 - Samurai Music.mp3",
+          "title": "Genotype - Samurai Music Official Podcast 14_100778845 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grebenstein - 451 - Electronic Explorations_293368367 - Rob_Booth.mp3",
+          "title": "Grebenstein - 451 - Electronic Explorations_293368367 - Rob_Booth.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grebenstein - Horo Vision Podcast 08 (128kbit_AAC).m4a",
+          "title": "Grebenstein - Horo Vision Podcast 08 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grebenstein - Horo Vision Podcast 08_308992401 - Horo.mp3",
+          "title": "Grebenstein - Horo Vision Podcast 08_308992401 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Gremlinz - Samurai Music Official Podcast 15 (128kbit_AAC).m4a",
+          "title": "Gremlinz - Samurai Music Official Podcast 15 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Gremlinz - Samurai Music Official Podcast 15_118510364 - Samurai Music.mp3",
+          "title": "Gremlinz - Samurai Music Official Podcast 15_118510364 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grey Area Podcast One (128kbit_AAC).m4a",
+          "title": "Grey Area Podcast One (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grey Area Volume One #01_233935506 - Samurai Music.mp3",
+          "title": "Grey Area Volume One #01_233935506 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grey Area Volume One #02_233935504 - Samurai Music.mp3",
+          "title": "Grey Area Volume One #02_233935504 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grey Area Volume One #03_233935501 - Samurai Music.mp3",
+          "title": "Grey Area Volume One #03_233935501 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grey Area Volume One #04_233935497 - Samurai Music.mp3",
+          "title": "Grey Area Volume One #04_233935497 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grey Area, Podcast Three (128kbit_AAC).m4a",
+          "title": "Grey Area, Podcast Three (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grey Area, Podcast Three_313444461 - Horo.mp3",
+          "title": "Grey Area, Podcast Three_313444461 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Grey Area, Podcast Two (128kbit_AAC).m4a",
+          "title": "Grey Area, Podcast Two (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Groove Podcast 379 - Mantra_1519688620 - Groove Magazin.mp3",
+          "title": "Groove Podcast 379 - Mantra_1519688620 - Groove Magazin.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Hoji - Clockwork Heads Special [Mar.  2024]_1770532335 - hoji.mp3",
+          "title": "Hoji - Clockwork Heads Special [Mar.  2024]_1770532335 - hoji.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Closure Mix (Dec 2024)_1987329091 - homemade weapons.mp3",
+          "title": "Homemade Weapons - Closure Mix (Dec 2024)_1987329091 - homemade weapons.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Group Official Podcast 26 (720p_6fps_H264-128kbit_AAC).mp4",
+          "title": "Homemade Weapons - Samurai Music Group Official Podcast 26 (720p_6fps_H264-128kbit_AAC).mp4",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Official Podcast #32 (128kbit_AAC).m4a",
+          "title": "Homemade Weapons - Samurai Music Official Podcast #32 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Official Podcast #32 (720p_30fps_H264-128kbit_AAC).mp4",
+          "title": "Homemade Weapons - Samurai Music Official Podcast #32 (720p_30fps_H264-128kbit_AAC).mp4",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Official Podcast 16 (128kbit_AAC).m4a",
+          "title": "Homemade Weapons - Samurai Music Official Podcast 16 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Official Podcast 16_119915475 - Samurai Music.mp3",
+          "title": "Homemade Weapons - Samurai Music Official Podcast 16_119915475 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Official Podcast 26_220112006 - Samurai Music.mp3",
+          "title": "Homemade Weapons - Samurai Music Official Podcast 26_220112006 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Official Podcast 32_288697552 - Samurai Music.mp3",
+          "title": "Homemade Weapons - Samurai Music Official Podcast 32_288697552 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Podcast 40 (128kbit_AAC).m4a",
+          "title": "Homemade Weapons - Samurai Music Podcast 40 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Podcast 40_586314699 - Samurai Music.mp3",
+          "title": "Homemade Weapons - Samurai Music Podcast 40_586314699 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Podcast 42 (128kbit_AAC).m4a",
+          "title": "Homemade Weapons - Samurai Music Podcast 42 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Podcast 42_701027185 - Samurai Music.mp3",
+          "title": "Homemade Weapons - Samurai Music Podcast 42_701027185 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Podcast 54 [15 Years Of Samurai Music Retrospective] (128kbit_AAC).m4a",
+          "title": "Homemade Weapons - Samurai Music Podcast 54 [15 Years Of Samurai Music Retrospective] (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Homemade Weapons - Samurai Music Podcast 54 [15 Years Of Samurai Music Retrospective]_1321426747 - Samurai Music.mp3",
+          "title": "Homemade Weapons - Samurai Music Podcast 54 [15 Years Of Samurai Music Retrospective]_1321426747 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\INCHMIX036; Presha_356567474 - Aerial Palettes.mp3",
+          "title": "INCHMIX036; Presha_356567474 - Aerial Palettes.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\INDIGO ¦ VPX6 @ Cross Club Prague_122464760 - Ancestral Voices.mp3",
+          "title": "INDIGO ¦ VPX6 @ Cross Club Prague_122464760 - Ancestral Voices.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\IS 290 - ASC [Auxiliary, Silent Season]_268459944 - Input Selector.mp3",
+          "title": "IS 290 - ASC [Auxiliary, Silent Season]_268459944 - Input Selector.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\isolatedmix 45 - ASC_151457321 - astrangelyisolatedplace.mp3",
+          "title": "isolatedmix 45 - ASC_151457321 - astrangelyisolatedplace.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\isolatedmix 51 - Kiyoko_189219445 - astrangelyisolatedplace.mp3",
+          "title": "isolatedmix 51 - Kiyoko_189219445 - astrangelyisolatedplace.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ITPS022 PESSIMIST_309326615 - ILIAN TAPE.mp3",
+          "title": "ITPS022 PESSIMIST_309326615 - ILIAN TAPE.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\ITPS114 REEKO_2052456360 - ILIAN TAPE.mp3",
+          "title": "ITPS114 REEKO_2052456360 - ILIAN TAPE.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Juno Download Guest Mix - RDG (Boka Records)_857084323 - junodownload.com.mp3",
+          "title": "Juno Download Guest Mix - RDG (Boka Records)_857084323 - junodownload.com.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Kemistry Birthday Tribute Oct 2020_909862888 - DJ Storm DnB.mp3",
+          "title": "Kemistry Birthday Tribute Oct 2020_909862888 - DJ Storm DnB.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\KHIDI Podcast NR.79; Homemade Weapons_1416959425 - KHIDI.mp3",
+          "title": "KHIDI Podcast NR.79; Homemade Weapons_1416959425 - KHIDI.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\KHIDI Podcast NR.83; Sam KDC_1440835300 - KHIDI.mp3",
+          "title": "KHIDI Podcast NR.83; Sam KDC_1440835300 - KHIDI.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Korse - Decomposed_442520919 - Horo.mp3",
+          "title": "Korse - Decomposed_442520919 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Kwartz - Horo Vision Podcast 12 (128kbit_AAC).m4a",
+          "title": "Kwartz - Horo Vision Podcast 12 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Kwartz - Horo Vision Podcast 12_464247846 - Horo.mp3",
+          "title": "Kwartz - Horo Vision Podcast 12_464247846 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Label Showcase; Samurai Music⁄Horo (Mix by Presha)_1312764007 - Orb Mag.mp3",
+          "title": "Label Showcase; Samurai Music⁄Horo (Mix by Presha)_1312764007 - Orb Mag.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Last Life - Samurai Music Podcast 035 (128kbit_AAC).m4a",
+          "title": "Last Life - Samurai Music Podcast 035 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Last Life - Samurai Music Podcast 35_343565733 - Samurai Music.mp3",
+          "title": "Last Life - Samurai Music Podcast 35_343565733 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Last Life - Samurai Music Podcast 44 (128kbit_AAC).m4a",
+          "title": "Last Life - Samurai Music Podcast 44 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Last Life - Samurai Music Podcast 49 (128kbit_AAC).m4a",
+          "title": "Last Life - Samurai Music Podcast 49 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Last Life - Samurai Music Podcast 49_1112607355 - Samurai Music.mp3",
+          "title": "Last Life - Samurai Music Podcast 49_1112607355 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Laura BCR invite ASC - 1er Février 2021_977071978 - Rinse France.mp3",
+          "title": "Laura BCR invite ASC - 1er Février 2021_977071978 - Rinse France.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Lemna - Horo Vision Podcast 10 - Live in Tokyo_361645556 - Horo.mp3",
+          "title": "Lemna - Horo Vision Podcast 10 - Live in Tokyo_361645556 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Lemna - The Five Elements [HOROEX33] (128kbit_AAC).m4a",
+          "title": "Lemna - The Five Elements [HOROEX33] (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Live on Jungletrain.net 02.03.23 [Formless]_1477150762 - DJINN.mp3",
+          "title": "Live on Jungletrain.net 02.03.23 [Formless]_1477150762 - DJINN.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Lost In Ether ¦ Podcast #102 ¦ Torn_518259009 - Lost In Ether.mp3",
+          "title": "Lost In Ether ¦ Podcast #102 ¦ Torn_518259009 - Lost In Ether.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Lost In Ether ¦ Podcast #156 ¦ Sam KDC x Presha_774238672 - Lost In Ether.mp3",
+          "title": "Lost In Ether ¦ Podcast #156 ¦ Sam KDC x Presha_774238672 - Lost In Ether.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Lost In Ether ¦ Podcast #182 ¦ Homemade Weapons_960318670 - Lost In Ether.mp3",
+          "title": "Lost In Ether ¦ Podcast #182 ¦ Homemade Weapons_960318670 - Lost In Ether.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Lost In Ether ¦ Podcast #227 ¦ Roho_1461119245 - Lost In Ether.mp3",
+          "title": "Lost In Ether ¦ Podcast #227 ¦ Roho_1461119245 - Lost In Ether.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Low_End Cast 05 w⁄ THE UNTOUCHABLES_1061553013 - LOKSCHUPPEN BERLIN.mp3",
+          "title": "Low_End Cast 05 w⁄ THE UNTOUCHABLES_1061553013 - LOKSCHUPPEN BERLIN.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy - Applied Sciences Division - Inferno❌ ⁄ Directors Cut_1101424384 - loxy_.mp3",
+          "title": "Loxy - Applied Sciences Division - Inferno❌ ⁄ Directors Cut_1101424384 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy - Dispatch Recordings Label Mix - January 2023_1433820757 - Dispatch Recs ¦ Ant TC1.mp3",
+          "title": "Loxy - Dispatch Recordings Label Mix - January 2023_1433820757 - Dispatch Recs ¦ Ant TC1.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy - Killmonger Rollers Edition Mix_870060697 - loxy_.mp3",
+          "title": "Loxy - Killmonger Rollers Edition Mix_870060697 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy - Live at 10 years of EXIT, Sun and Bass 2013_831534667 - Clear Dance.mp3",
+          "title": "Loxy - Live at 10 years of EXIT, Sun and Bass 2013_831534667 - Clear Dance.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy - Ram Live House Party Mix 02⁄05⁄2020_826587136 - loxy_.mp3",
+          "title": "Loxy - Ram Live House Party Mix 02⁄05⁄2020_826587136 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy & Mr Porter - Technicality@ Rye Wax May 2018_534508188 - Inperspective Records.mp3",
+          "title": "Loxy & Mr Porter - Technicality@ Rye Wax May 2018_534508188 - Inperspective Records.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy ; Applied Science Division ; Immortal❌_1353400912 - loxy_.mp3",
+          "title": "Loxy ; Applied Science Division ; Immortal❌_1353400912 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy ; Applied Science Division ; Project Hellions_944561248 - loxy_.mp3",
+          "title": "Loxy ; Applied Science Division ; Project Hellions_944561248 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\LOXY ; APPLIED SCIENCES DIVISION ; 007 - Cylon Podcast_465672990 - loxy_.mp3",
+          "title": "LOXY ; APPLIED SCIENCES DIVISION ; 007 - Cylon Podcast_465672990 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy ; Destiny ❌ ; Applied Science Division_1177608754 - loxy_.mp3",
+          "title": "Loxy ; Destiny ❌ ; Applied Science Division_1177608754 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy ; Soundwave Mix Session 1.0_1394891791 - loxy_.mp3",
+          "title": "Loxy ; Soundwave Mix Session 1.0_1394891791 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy ; X Of Swords Mix_883764385 - loxy_.mp3",
+          "title": "Loxy ; X Of Swords Mix_883764385 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy @ Humanoid 10 - 26.08.22, Remise, Berlin_1371041236 - Humanoid.mp3",
+          "title": "Loxy @ Humanoid 10 - 26.08.22, Remise, Berlin_1371041236 - Humanoid.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy ⁄⁄ Samurai Music Official Podcast 11_61341415 - Samurai Music.mp3",
+          "title": "Loxy ⁄⁄ Samurai Music Official Podcast 11_61341415 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\LOXY ACD GALLERY 5 YEAR ANNIVERSARY MIX_618345360 - acdgallery.mp3",
+          "title": "LOXY ACD GALLERY 5 YEAR ANNIVERSARY MIX_618345360 - acdgallery.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy CX;TECH001 (2010)_809198941 - loxy_.mp3",
+          "title": "Loxy CX;TECH001 (2010)_809198941 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy CX;TECH002 (2010)_809208127 - loxy_.mp3",
+          "title": "Loxy CX;TECH002 (2010)_809208127 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy Cylon Podcast;003 Applied Sciences Division_163977724 - loxy_.mp3",
+          "title": "Loxy Cylon Podcast;003 Applied Sciences Division_163977724 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy Cylon Sessions 001 (Galactica Promo)_141484720 - Cylon ⁄ XA.mp3",
+          "title": "Loxy Cylon Sessions 001 (Galactica Promo)_141484720 - Cylon ⁄ XA.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy 'House Of M' Promo mix_582205302 - loxy_.mp3",
+          "title": "Loxy 'House Of M' Promo mix_582205302 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy Live @Rupture - Corsica Studios 2018_509621541 - Rupture.mp3",
+          "title": "Loxy Live @Rupture - Corsica Studios 2018_509621541 - Rupture.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy live@Noise Test v Eternia Music, Bristol 18.05.18_457266177 - NOISE TEST.mp3",
+          "title": "Loxy live@Noise Test v Eternia Music, Bristol 18.05.18_457266177 - NOISE TEST.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy STANDARD PROCEDURE (Rollers Edition)_1117112008 - loxy_.mp3",
+          "title": "Loxy STANDARD PROCEDURE (Rollers Edition)_1117112008 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy;Cylon Podcast;APPLIED SCIENCES004 pt1_182562724 - loxy_.mp3",
+          "title": "Loxy;Cylon Podcast;APPLIED SCIENCES004 pt1_182562724 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy;Cylon Recordings Podcast006;Applied Sciences Division_251001787 - loxy_.mp3",
+          "title": "Loxy;Cylon Recordings Podcast006;Applied Sciences Division_251001787 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy;Cylon;Podcast005 Pt1 Applied Sciences Division_217782234 - loxy_.mp3",
+          "title": "Loxy;Cylon;Podcast005 Pt1 Applied Sciences Division_217782234 - loxy_.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy170823.mp3",
+          "title": "Loxy170823.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Loxy200723.mp3",
+          "title": "Loxy200723.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\LU2K INVITE HOMEMADE WEAPONS - 12 Février 2024_1744617090 - Rinse France.mp3",
+          "title": "LU2K INVITE HOMEMADE WEAPONS - 12 Février 2024_1744617090 - Rinse France.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Lynne - Samurai Music DJ Competition Finalists_192765498 - Drum&BassArena.mp3",
+          "title": "Lynne - Samurai Music DJ Competition Finalists_192765498 - Drum&BassArena.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Mako (feat Rider Shafique) - Samurai Music Podcast 53 (128kbit_AAC).m4a",
+          "title": "Mako (feat Rider Shafique) - Samurai Music Podcast 53 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Mako b2b Quartz - Samurai Music; In Session (128kbit_AAC).m4a",
+          "title": "Mako b2b Quartz - Samurai Music; In Session (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Mako feat Rider Shafique - Samurai Music Podcast 53_1301821567 - Samurai Music.mp3",
+          "title": "Mako feat Rider Shafique - Samurai Music Podcast 53_1301821567 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Mantra & Blackeye @ Alchemy - The Cause Closing Party [Dec 2021]_1183025173 - Alchemy.mp3",
+          "title": "Mantra & Blackeye @ Alchemy - The Cause Closing Party [Dec 2021]_1183025173 - Alchemy.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Mantra - Reprezent Guest Mix for High Class Filter_701264050 - Mantra.mp3",
+          "title": "Mantra - Reprezent Guest Mix for High Class Filter_701264050 - Mantra.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Marcus Intalex exclusive promomix GIVE ME A BREAK edition 1_198014042 - One87.mp3",
+          "title": "Marcus Intalex exclusive promomix GIVE ME A BREAK edition 1_198014042 - One87.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Metalheadz Podcast 69 - Quartz_861752677 - Metalheadz.mp3",
+          "title": "Metalheadz Podcast 69 - Quartz_861752677 - Metalheadz.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Metalheadz Podcast 73 - Loxy_1257263446 - Metalheadz.mp3",
+          "title": "Metalheadz Podcast 73 - Loxy_1257263446 - Metalheadz.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Metalheadz with Loxy and Digital - 15 July 2020_858904912 - Rinse FM.mp3",
+          "title": "Metalheadz with Loxy and Digital - 15 July 2020_858904912 - Rinse FM.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Metalheadz with Quartz & Detboi - 17 February 2021_987964483 - Rinse FM.mp3",
+          "title": "Metalheadz with Quartz & Detboi - 17 February 2021_987964483 - Rinse FM.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\MNMT Recordings  ; Sam KDC (Live) – Anecumene @9128.LIVE_998051872 - MONUMENT.mp3",
+          "title": "MNMT Recordings  ; Sam KDC (Live) – Anecumene @9128.LIVE_998051872 - MONUMENT.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Mumdance - Shared Meanings_532830501 - mumdance.mp3",
+          "title": "Mumdance - Shared Meanings_532830501 - mumdance.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Mumdance b2b ENA - Live from Tokyo - 26th September 2017_344167794 - Rinse FM.mp3",
+          "title": "Mumdance b2b ENA - Live from Tokyo - 26th September 2017_344167794 - Rinse FM.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Nastika - Horo Vision Podcast 13_525763977 - Horo.mp3",
+          "title": "Nastika - Horo Vision Podcast 13_525763977 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\NE188; Ancestral Voices_238473214 - selftitledmag.mp3",
+          "title": "NE188; Ancestral Voices_238473214 - selftitledmag.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\New Brvtalism No. 110 - Pact Infernal_342442570 - THE BRVTALIST.mp3",
+          "title": "New Brvtalism No. 110 - Pact Infernal_342442570 - THE BRVTALIST.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\New Brvtalism No. 122 - Ancestral Voices_367054163 - THE BRVTALIST.mp3",
+          "title": "New Brvtalism No. 122 - Ancestral Voices_367054163 - THE BRVTALIST.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Noods Radio - 18th March 2020_778852822 - RDG.mp3",
+          "title": "Noods Radio - 18th March 2020_778852822 - RDG.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Nucleus - Samurai Music Official Podcast #31 (128kbit_AAC).m4a",
+          "title": "Nucleus - Samurai Music Official Podcast #31 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Nucleus - Samurai Music Official Podcast 31_286606417 - Samurai Music.mp3",
+          "title": "Nucleus - Samurai Music Official Podcast 31_286606417 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\NYX RITUAL XLIV - HOMEMADE WEAPONS_1266581638 - Νύξ altar.mp3",
+          "title": "NYX RITUAL XLIV - HOMEMADE WEAPONS_1266581638 - Νύξ altar.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Odyssey Sessions w⁄ Ellen & Last Life - 26th May 2023_1525001476 - Black Rhino Radio.mp3",
+          "title": "Odyssey Sessions w⁄ Ellen & Last Life - 26th May 2023_1525001476 - Black Rhino Radio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\On The 5th Day Podcast #064 - Sam KDC_480087198 - On the 5th Day.mp3",
+          "title": "On The 5th Day Podcast #064 - Sam KDC_480087198 - On the 5th Day.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\On The 5th Day Podcast #105- ASC live rec. hybrid set (21 Jul 18 @ On the 5th Day)_763313545 - On the 5th Day.mp3",
+          "title": "On The 5th Day Podcast #105- ASC live rec. hybrid set (21 Jul 18 @ On the 5th Day)_763313545 - On the 5th Day.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Onset 17 Promo Mix By Homemade Weapons_555167334 - Onset Audio.mp3",
+          "title": "Onset 17 Promo Mix By Homemade Weapons_555167334 - Onset Audio.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\OSH⁄36 Paradox Vol.49 Radio Show_1974249595 - PARADOX.mp3",
+          "title": "OSH⁄36 Paradox Vol.49 Radio Show_1974249595 - PARADOX.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Overlook - Samurai Music Group Official Podcast 24 (720p_6fps_H264-128kbit_AAC).mp4",
+          "title": "Overlook - Samurai Music Group Official Podcast 24 (720p_6fps_H264-128kbit_AAC).mp4",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Overlook - Samurai Music Official Podcast 24_207505640 - Samurai Music.mp3",
+          "title": "Overlook - Samurai Music Official Podcast 24_207505640 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Pact Infernal - Ex Thaum_316364775 - Horo.mp3",
+          "title": "Pact Infernal - Ex Thaum_316364775 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Pact Infernal - Horo Vision Podcast 001 (128kbit_AAC).m4a",
+          "title": "Pact Infernal - Horo Vision Podcast 001 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Pact Infernal - Horo Vision Podcast 001_197444888 - Samurai Music.mp3",
+          "title": "Pact Infernal - Horo Vision Podcast 001_197444888 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Pact Infernal - Infernality LP_328971356 - Horo.mp3",
+          "title": "Pact Infernal - Infernality LP_328971356 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Pact Infernal Live - Horo Vision Podcast 18_782298358 - Horo.mp3",
+          "title": "Pact Infernal Live - Horo Vision Podcast 18_782298358 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Page 99; Sam KDC_1456915384 - The Memoir.mp3",
+          "title": "Page 99; Sam KDC_1456915384 - The Memoir.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Paradox - Samurai Music Group Official Podcast 19 (128kbit_AAC).m4a",
+          "title": "Paradox - Samurai Music Group Official Podcast 19 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Paradox - Samurai Music Official Podcast 19_172133780 - Samurai Music.mp3",
+          "title": "Paradox - Samurai Music Official Podcast 19_172133780 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Paradox ⁄⁄ Samurai Music Official Podcast 12_78812407 - Samurai Music.mp3",
+          "title": "Paradox ⁄⁄ Samurai Music Official Podcast 12_78812407 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Pessimist - NTS Radio - 08 12 16_296969303 - Pessimist.mp3",
+          "title": "Pessimist - NTS Radio - 08 12 16_296969303 - Pessimist.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Pessimist - Samurai Music Group Official Podcast 23 (128kbit_AAC).m4a",
+          "title": "Pessimist - Samurai Music Group Official Podcast 23 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Pessimist - Samurai Music Official Podcast 23_206590442 - Samurai Music.mp3",
+          "title": "Pessimist - Samurai Music Official Podcast 23_206590442 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Pessimist And That w⁄ Loxy '93 Special - Noods Radio - EPISODE 7_882040117 - Pessimist.mp3",
+          "title": "Pessimist And That w⁄ Loxy '93 Special - Noods Radio - EPISODE 7_882040117 - Pessimist.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\PM030 Paradox Music Vol.19 Radio Show_222303290 - PARADOX.mp3",
+          "title": "PM030 Paradox Music Vol.19 Radio Show_222303290 - PARADOX.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\PM032 Paradox Music Vol.21 Radio Show_243222761 - PARADOX.mp3",
+          "title": "PM032 Paradox Music Vol.21 Radio Show_243222761 - PARADOX.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\PM042 Paradox Vol.42 Radio Show_1318464916 - PARADOX.mp3",
+          "title": "PM042 Paradox Vol.42 Radio Show_1318464916 - PARADOX.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Polyclinique Redux X Membrain Festival 2021 w⁄ Torana & Yorobi June 13 2021_1067991316 - yorobi.mp3",
+          "title": "Polyclinique Redux X Membrain Festival 2021 w⁄ Torana & Yorobi June 13 2021_1067991316 - yorobi.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Positive Centre - Forever Optimum - Full Album [Mixed Version] (128kbit_AAC).m4a",
+          "title": "Positive Centre - Forever Optimum - Full Album [Mixed Version] (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Positive Centre - Horo Vision Podcast 014_540646587 - Horo.mp3",
+          "title": "Positive Centre - Horo Vision Podcast 014_540646587 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - 10 Years Of Samurai ¦ Berlin 05.05 ¦ Promo Mix_320970334 - Samurai Music.mp3",
+          "title": "Presha - 10 Years Of Samurai ¦ Berlin 05.05 ¦ Promo Mix_320970334 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - HÖR ¦ 28.07.23_1607726172 - Samurai Music.mp3",
+          "title": "Presha - HÖR ¦ 28.07.23_1607726172 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Mix for Noisey Italia (128kbit_AAC).m4a",
+          "title": "Presha - Mix for Noisey Italia (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Organic Guest Mix Dec 2011_44297221 - Samurai Music.mp3",
+          "title": "Presha - Organic Guest Mix Dec 2011_44297221 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Rinse France ¦ 07 Jan 2017_301671964 - Horo.mp3",
+          "title": "Presha - Rinse France ¦ 07 Jan 2017_301671964 - Horo.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Rinse France Mix ¦ 02 Jan 2017 (128kbit_AAC).m4a",
+          "title": "Presha - Rinse France Mix ¦ 02 Jan 2017 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Samurai Music - HÖR - 15 Jan 2021_976284424 - Samurai Music.mp3",
+          "title": "Presha - Samurai Music - HÖR - 15 Jan 2021_976284424 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Samurai Music Japan Tour 2015 Promo Mix_208437150 - Samurai Music.mp3",
+          "title": "Presha - Samurai Music Japan Tour 2015 Promo Mix_208437150 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Samurai Music Official Podcast 17 (128kbit_AAC).m4a",
+          "title": "Presha - Samurai Music Official Podcast 17 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Samurai Music Official Podcast 17_139359113 - Samurai Music.mp3",
+          "title": "Presha - Samurai Music Official Podcast 17_139359113 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Samurai Music Podcast 037 (128kbit_AAC).m4a",
+          "title": "Presha - Samurai Music Podcast 037 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Samurai Music Podcast 37_477230916 - Samurai Music.mp3",
+          "title": "Presha - Samurai Music Podcast 37_477230916 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Samurai Music Podcast 41 (128kbit_AAC).m4a",
+          "title": "Presha - Samurai Music Podcast 41 (128kbit_AAC).m4a",
+          "artist": null,
+          "album": null,
+          "play_count": 0
+        },
+        {
+          "path": "\\\\?\\UNC\\FREENAS\\OurShare\\Music\\Lidarr\\Dum & Bass\\Mixes\\Rollers\\Presha - Samurai Music Podcast 41_670769288 - Samurai Music.mp3",
+          "title": "Presha - Samurai Music Podcast 41_670769288 - Samurai Music.mp3",
+          "artist": null,
+          "album": null,
+          "play_count": 0
         }
       ]
     }
   ],
-  "selected": null,
-  "next_id": 4
+  "selected": 0,
+  "next_id": 9
 }
