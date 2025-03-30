@@ -8,6 +8,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 use std::fs;
 use tokio::time::sleep; // Use tokio instead
+use log::info; // Only import the info macro we actually use
 
 use crate::ui::playlist_view::PlaylistAction;
 use crate::ui::library_view::LibraryMessage;
@@ -50,8 +51,6 @@ pub enum Message {
     ClearSeekFlag,
     /// Set a temporary status message
     SetStatusMessage(String, Duration),
-    /// File validation result
-    FileValidationResult(Option<(String, PathBuf, u32)>),
     /// Batch file processing result
     BatchProcessingResult(Vec<(String, PathBuf)>, u32),
     /// Process next batch of files
@@ -127,54 +126,6 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             )
         },
 
-        Message::FileValidationResult(result) => {
-            if let Some((path_str, abs_path, playlist_id)) = result {
-                let path_str_clone = path_str.clone();
-                let abs_path_clone = abs_path.clone();
-                let playlist_id_clone = playlist_id;
-
-                if core::audio::decoder::is_supported_audio_format(&path_str_clone) {
-                    let filename = abs_path_clone
-                        .file_name()
-                        .and_then(|n| n.to_str())
-                        .unwrap_or("Unknown")
-                        .to_string();
-
-                    let track = core::Track {
-                        path: path_str_clone.clone(),
-                        title: Some(filename.clone()),
-                        artist: None,
-                        album: None,
-                        play_count: 0,
-                    };
-                    state.handle_action(core::Action::Playlist(core::PlaylistAction::AddTrack(playlist_id_clone, track)));
-                    
-                    // Force save after adding track
-                    if let Err(e) = state.save_playlists() {
-                        log::error!("Failed to save playlist after adding track: {}", e);
-                    }
-                    
-                    log::info!("Added audio file to playlist: {}", filename);
-
-                    Task::perform(
-                        async { sleep(Duration::from_millis(1)).await; },
-                        move |_| Message::SetStatusMessage(format!("Added: {}", filename), Duration::from_secs(2))
-                    )
-                } else {
-                    let path_str_for_closure = path_str_clone.clone();
-                    Task::perform(
-                        async { sleep(Duration::from_millis(1)).await; },
-                        move |_| Message::SetStatusMessage(format!("Unsupported: {}", path_str_for_closure), Duration::from_secs(3))
-                    )
-                }
-            } else {
-                Task::perform(
-                    async { sleep(Duration::from_millis(1)).await; },
-                    |_| Message::SetStatusMessage("File validation failed".to_string(), Duration::from_secs(3))
-                )
-            }
-        },
-
         Message::DirectoryScanResult(files, playlist_id) => {
             if files.is_empty() {
                 return Task::perform(
@@ -183,7 +134,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 );
             }
 
-            log::info!("Found {} files to process for playlist {}", files.len(), playlist_id);
+            info!("Found {} files to process for playlist {}", files.len(), playlist_id);
 
             // Create a BatchProcessingJob with even smaller batch size for stability
             let job = BatchProcessingJob {
@@ -208,9 +159,9 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
         Message::ProcessNextBatch(job) => {
             let mut job_clone = job.clone();
 
-            log::info!("BATCH: Processing batch {}/{} files - progress: {}/{}",
-                      job_clone.current_index, job_clone.current_index + job_clone.batch_size,
-                      job_clone.processed_count, job_clone.files.len());
+            info!("BATCH: Processing batch {}/{} files - progress: {}/{}",
+                  job_clone.current_index, job_clone.current_index + job_clone.batch_size,
+                  job_clone.processed_count, job_clone.files.len());
 
             // CHECK IF SHOULD PAUSE PROCESSING
             if state.is_batch_processing && job_clone.current_index > 0 && job_clone.current_index % 100 == 0 {
@@ -218,7 +169,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 if let Err(e) = state.save_playlists() {
                     log::error!("Failed to save playlists at checkpoint: {}", e);
                 } else {
-                    log::info!("BATCH CHECKPOINT: Saved playlist at {} files", job_clone.current_index);
+                    info!("BATCH CHECKPOINT: Saved playlist at {} files", job_clone.current_index);
                 }
                 
                 // Take a longer pause every 100 files to let the system catch up
@@ -229,8 +180,8 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             }
 
             if job_clone.current_index >= job_clone.files.len() {
-                log::info!("BATCH: All batches completed. Processed {} files, failed {} files",
-                          job_clone.processed_count, job_clone.failed_count);
+                info!("BATCH: All batches completed. Processed {} files, failed {} files",
+                      job_clone.processed_count, job_clone.failed_count);
 
                 let processed = job_clone.processed_count;
                 let failed = job_clone.failed_count;
@@ -240,7 +191,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 if let Err(e) = state.save_playlists() {
                     log::error!("Failed to save playlists after batch completion: {}", e);
                 } else {
-                    log::info!("BATCH: Final playlist save successful");
+                    info!("BATCH: Final playlist save successful");
                 }
                 
                 // Reset batch processing flag
@@ -299,8 +250,12 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
 
             if !tracks.is_empty() {
                 state.handle_action(core::Action::Playlist(
-                    core::PlaylistAction::BatchAddTracks(playlist_id, tracks)
+                    core::PlaylistAction::BatchAddTracks(playlist_id, tracks.clone())
                 ));
+                
+                // Also create a UI action using BatchAddTracks
+                let ui_action = PlaylistAction::BatchAddTracks(playlist_id, tracks);
+                state.playlist_view_state.handle_action(ui_action);
                 
                 // Save every 200 files
                 if job_clone.current_index % 200 == 0 || job_clone.current_index >= job_clone.files.len() {
@@ -321,7 +276,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             // Start at 500ms at the beginning and increase up to 1.5 seconds
             let delay_ms = 500 + ((progress * 1000.0) as u64);
             
-            log::info!("QUEUE: Scheduling next batch with {} ms delay...", delay_ms);
+            info!("QUEUE: Scheduling next batch with {} ms delay...", delay_ms);
             
             Task::perform(
                 async move {
@@ -332,13 +287,13 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
         },
 
         Message::BatchProcessingComplete(processed, failed, _playlist_id) => {
-            log::info!("Processed {} files successfully, {} files failed", processed, failed);
+            info!("Processed {} files successfully, {} files failed", processed, failed);
             
             // Force final save
             if let Err(e) = state.save_playlists() {
                 log::error!("Failed to save playlists after batch completion: {}", e);
             } else {
-                log::info!("BATCH: Final playlist save successful after batch processing");
+                info!("BATCH: Final playlist save successful after batch processing");
             }
             
             Task::perform(
@@ -382,9 +337,16 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             }
 
             if !tracks.is_empty() {
+                // Explicitly use both variants - the core action and UI action
+                let tracks_for_ui = tracks.clone();
+                
                 state.handle_action(core::Action::Playlist(
                     core::PlaylistAction::BatchAddTracks(playlist_id, tracks)
                 ));
+                
+                // Generate UI action with BatchAddTracks variant
+                let playlist_action = PlaylistAction::BatchAddTracks(playlist_id, tracks_for_ui);
+                state.playlist_view_state.handle_action(playlist_action);
                 
                 if let Err(e) = state.save_playlists() {
                     log::error!("Failed to save playlists after batch result: {}", e);
@@ -473,7 +435,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             match action {
                 PlaylistAction::Seek(pos) => {
                     state.playlist_view_state.is_seeking = true;
-                    log::info!("(Playlist) Received Seek({:.4})", pos);
+                    info!("(Playlist) Received Seek({:.4})", pos);
                     state.player.clear_audio_buffers();
                     if let Ok(mut lock) = state.player.playback_position.lock() {
                         lock.request_seek(pos);
@@ -494,7 +456,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     Task::none() // Just UI update, no task needed
                 },
                 PlaylistAction::PlayTrack(pid, tid) => {
-                    log::info!("Playing track {} from playlist {}", tid, pid);
+                    info!("Playing track {} from playlist {}", tid, pid);
                     let path_str = state.playlists.get_playlist(pid)
                         .and_then(|p| p.tracks.get(tid))
                         .map(|t| t.path.clone());
@@ -515,7 +477,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     }
                 },
                 PlaylistAction::BatchAddTracks(pid, tracks) => {
-                    log::info!("Adding {} tracks to playlist {} in batch", tracks.len(), pid);
+                    info!("Adding {} tracks to playlist {} in batch", tracks.len(), pid);
                     state.handle_action(core::Action::Playlist(core::PlaylistAction::BatchAddTracks(pid, tracks)));
                     
                     // Only save if not in batch processing mode
@@ -524,10 +486,17 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                         if let Err(e) = state.save_playlists() {
                             log::error!("Failed to save playlists after batch add: {}", e);
                         } else {
-                            log::info!("Successfully saved playlists after batch add");
+                            info!("Successfully saved playlists after batch add");
                         }
                     }
                     
+                    Task::none()
+                },
+                PlaylistAction::StartEditing(id, name) => {
+                    info!("UI StartEditing for playlist ID: {}", id);
+                    state.playlist_view_state.editing_playlist = Some(id);
+                    state.playlist_view_state.edit_value = name;
+                    state.playlist_view_state.last_click = None;
                     Task::none()
                 },
                 PlaylistAction::PlayerControl(ctrl) => {
@@ -614,7 +583,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
 
         Message::FolderSelected(Some(path)) => {
             if let Some(path_str) = path.to_str() {
-                log::info!("Selected music folder: {}", path_str);
+                info!("Selected music folder: {}", path_str);
                 state.handle_action(core::Action::Library(
                     core::LibraryAction::AddScanDirectory(path_str.to_string()),
                 ));
@@ -622,7 +591,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
 
                 // Schedule DirectoryScanResult Task after adding dir and starting scan
                  if path.is_dir() {
-                    log::info!("Scanning directory for audio files recursively: {}", path_str);
+                    info!("Scanning directory for audio files recursively: {}", path_str);
                     let playlist_id = state.playlists.playlists.last().map(|p| p.id).unwrap_or(0); // Use last selected/created or default
                     let path_clone = path.clone();
                     Task::perform(
@@ -642,7 +611,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             }
         },
         Message::FolderSelected(None) => {
-            log::info!("Folder selection cancelled");
+            info!("Folder selection cancelled");
             Task::none()
         },
 
@@ -658,13 +627,13 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
         Message::FileHovered => { Task::none() },
 
         Message::FileDropped(path) => {
-            log::info!("File dropped: {:?}", path);
+            info!("File dropped: {:?}", path);
             if let Some(selected_idx) = state.playlists.selected {
                 if selected_idx < state.playlists.playlists.len() {
                     let playlist_id = state.playlists.playlists[selected_idx].id;
                     
                     // Added logging for playlist ID tracking
-                    log::info!("Using playlist ID {} for dropped files", playlist_id);
+                    info!("Using playlist ID {} for dropped files", playlist_id);
 
                     // Task for status message
                     let _status_task = Task::perform(
@@ -673,7 +642,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     );
 
                     if path.is_dir() {
-                        log::info!("Found directory, scanning for audio files recursively");
+                        info!("Found directory, scanning for audio files recursively");
                         let playlist_id_clone = playlist_id;
                         let path_clone = path.clone();
                         
@@ -687,19 +656,21 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                             move |files| Message::DirectoryScanResult(files, playlist_id_clone)
                         )
                     } else {
+                        // Process a single file using BatchProcessingResult
                         let path_clone = path.clone();
                         let playlist_id_clone = playlist_id;
+                        
                         Task::perform(
                             async move {
                                 match std::fs::canonicalize(&path_clone) {
                                     Ok(abs_path) => {
                                         let path_str = abs_path.to_string_lossy().to_string();
-                                        Some((path_str, abs_path, playlist_id_clone))
+                                        vec![(path_str, abs_path)]
                                     },
-                                    _ => None,
+                                    _ => vec![],
                                 }
                             },
-                            Message::FileValidationResult
+                            move |files| Message::BatchProcessingResult(files, playlist_id_clone)
                         )
                     }
                 } else {
@@ -721,7 +692,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
 
 // Recursive directory scanner function
 fn scan_directory_recursively(dir: &PathBuf, files: &mut Vec<PathBuf>) {
-    log::info!("SCAN: Scanning directory: {:?}", dir);
+    info!("SCAN: Scanning directory: {:?}", dir);
 
     let count_before = files.len();
 
@@ -738,8 +709,8 @@ fn scan_directory_recursively(dir: &PathBuf, files: &mut Vec<PathBuf>) {
     }
 
     let count_after = files.len();
-    log::info!("SCAN: Directory {:?} added {} files (total now: {})",
-               dir, count_after - count_before, count_after);
+    info!("SCAN: Directory {:?} added {} files (total now: {})",
+           dir, count_after - count_before, count_after);
 }
 
 fn view(state: &MediaPlayer) -> Element<Message> {
@@ -804,9 +775,9 @@ pub fn run() -> iced::Result {
         log::error!("Failed to initialize FFmpeg: {}", e);
         // Optionally, you might want to return an error or show a message here
     } else {
-        log::info!("FFmpeg initialized successfully");
+        info!("FFmpeg initialized successfully");
         let formats = core::audio::decoder::get_supported_extensions();
-        log::info!("Supported audio formats: {}", formats.join(", "));
+        info!("Supported audio formats: {}", formats.join(", "));
     }
 
     iced::application("Media Player", update, view)

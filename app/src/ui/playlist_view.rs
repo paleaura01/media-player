@@ -102,7 +102,7 @@ pub fn view_with_state<'a>(
                 .spacing(5)
                 .align_y(Alignment::Center)
             } else {
-                // Normal mode - create the row with the playlist name and delete button
+                // Normal mode - create the row with the playlist name, edit and delete buttons
                 let mut row_elements = row![
                     // Playlist name button
                     button(
@@ -121,8 +121,24 @@ pub fn view_with_state<'a>(
                     })
                 ];
                 
-                // Only add the delete button if this playlist is selected
+                // Only add the edit and delete buttons if this playlist is selected
                 if is_selected {
+                    // Add edit button - using StartEditing variant
+                    row_elements = row_elements.push(
+                        button(
+                            load_icon("ph--pencil-simple-bold.svg")
+                                .width(16)
+                                .height(16)
+                        )
+                        .padding(5)
+                        .on_press(PlaylistAction::StartEditing(id, playlist.name.clone()))
+                        .style(|_theme, _| button::Style {
+                            background: None,
+                            ..Default::default()
+                        })
+                    );
+                    
+                    // Add delete button
                     row_elements = row_elements.push(
                         button(
                             load_icon("ph--x-square-bold.svg")
@@ -138,7 +154,7 @@ pub fn view_with_state<'a>(
                     );
                 } else {
                     // Add an empty space of the same width when not selected
-                    row_elements = row_elements.push(Space::with_width(26));
+                    row_elements = row_elements.push(Space::with_width(52)); // Space for both buttons
                 }
                 
                 row_elements

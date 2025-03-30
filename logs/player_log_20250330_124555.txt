@@ -1,0 +1,367 @@
+[2025-03-30 12:45:55.934] INFO [app\src\main.rs:50] Logging initialized to file: logs/player_log_20250330_124555.txt
+[2025-03-30 12:45:55.937] INFO [app\src\main.rs:105] Application starting...
+[2025-03-30 12:45:55.937] INFO [app\src\main.rs:67] =========== RUNNING AUDIO SYSTEM DIAGNOSTICS ===========
+[2025-03-30 12:45:55.938] INFO [core\src\audio\decoder.rs:48] FFmpeg initialized successfully
+[2025-03-30 12:45:55.938] INFO [app\src\main.rs:73] ✅ FFmpeg initialized successfully
+[2025-03-30 12:45:55.938] INFO [app\src\main.rs:77] Supported audio formats: mp3, wav, flac, ogg, m4a, aac, opus, wma, ape, mka, mp4, mp2, ac3, amr, au, mid, midi, ra, rm, tta, wv, caf, aiff, aif, oga, m4b, dts, mpc, tak, pcm, sbc, voc, w64, webm, 3ga, dsf, dff, gsm, spx, shn, xa, svx, 8svx, pvf, sf, vox, iff, sln, aa3, oma, at3, adx, adp, dxa, dca, imc, wady, mat, mmf, eam, eas, paf, raw, mod, s3m, xm, it, mkv, avi, mov, wmv, 3gp, ogv, mka, MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, MKA, MP4, MP2, AC3, AMR, AU, MID, MIDI, RA, RM, TTA, WV, CAF, AIFF, AIF
+[2025-03-30 12:45:55.939] INFO [core\src\audio\diagnostics.rs:14] ================ AUDIO DEVICE DIAGNOSTICS ================
+[2025-03-30 12:45:55.940] INFO [core\src\audio\diagnostics.rs:17] Host: WASAPI
+[2025-03-30 12:45:56.480] INFO [core\src\audio\diagnostics.rs:23] Found 3 output devices:
+[2025-03-30 12:45:56.481] INFO [core\src\audio\diagnostics.rs:27]   Device 0: Headset Earphone (3- Wireless Controller)
+[2025-03-30 12:45:56.617] INFO [core\src\audio\diagnostics.rs:33]     Supported configs: 2
+[2025-03-30 12:45:56.617] INFO [core\src\audio\diagnostics.rs:36]     Config 0: channels=2, min_rate=32000Hz, max_rate=32000Hz, sample_format=U8
+[2025-03-30 12:45:56.617] INFO [core\src\audio\diagnostics.rs:36]     Config 1: channels=2, min_rate=32000Hz, max_rate=32000Hz, sample_format=I16
+[2025-03-30 12:45:56.618] INFO [core\src\audio\diagnostics.rs:27]   Device 1: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:45:56.870] INFO [core\src\audio\diagnostics.rs:33]     Supported configs: 4
+[2025-03-30 12:45:56.870] INFO [core\src\audio\diagnostics.rs:36]     Config 0: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=U8
+[2025-03-30 12:45:56.870] INFO [core\src\audio\diagnostics.rs:36]     Config 1: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=I16
+[2025-03-30 12:45:56.870] INFO [core\src\audio\diagnostics.rs:36]     Config 2: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=I32
+[2025-03-30 12:45:56.870] INFO [core\src\audio\diagnostics.rs:36]     Config 3: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=F32
+[2025-03-30 12:45:56.870] INFO [core\src\audio\diagnostics.rs:27]   Device 2: Speakers (Logitech USB Headset H540)
+[2025-03-30 12:45:57.007] INFO [core\src\audio\diagnostics.rs:33]     Supported configs: 4
+[2025-03-30 12:45:57.007] INFO [core\src\audio\diagnostics.rs:36]     Config 0: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=U8
+[2025-03-30 12:45:57.007] INFO [core\src\audio\diagnostics.rs:36]     Config 1: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=I16
+[2025-03-30 12:45:57.008] INFO [core\src\audio\diagnostics.rs:36]     Config 2: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=I32
+[2025-03-30 12:45:57.008] INFO [core\src\audio\diagnostics.rs:36]     Config 3: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=F32
+[2025-03-30 12:45:57.011] INFO [core\src\audio\diagnostics.rs:52] Default output device: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:45:57.011] INFO [core\src\audio\diagnostics.rs:60] ==========================================================
+[2025-03-30 12:45:57.011] INFO [core\src\audio\diagnostics.rs:65] ================ AUDIO OUTPUT TEST ================
+[2025-03-30 12:45:57.014] INFO [core\src\audio\diagnostics.rs:77] Using device: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:45:57.015] INFO [core\src\audio\diagnostics.rs:88] Using config: channels=2, sample_rate=44100Hz, sample_format=F32
+[2025-03-30 12:45:57.034] INFO [core\src\audio\diagnostics.rs:131] Started audio test playback
+[2025-03-30 12:45:57.235] INFO [core\src\audio\diagnostics.rs:147] Audio test result: SUCCESS
+[2025-03-30 12:45:57.235] INFO [core\src\audio\diagnostics.rs:148] =================================================
+[2025-03-30 12:45:57.241] INFO [app\src\main.rs:89] ✅ Basic audio test passed - audio system is working
+[2025-03-30 12:45:57.241] INFO [core\src\audio\diagnostics.rs:155] ================ AUDIO BUFFER TEST ================
+[2025-03-30 12:45:57.241] INFO [core\src\audio\diagnostics.rs:163] Wrote 512 samples to buffer
+[2025-03-30 12:45:57.241] INFO [core\src\audio\diagnostics.rs:164] Buffer status: 512/1024 samples available
+[2025-03-30 12:45:57.241] INFO [core\src\audio\diagnostics.rs:169] Read 256 samples from buffer
+[2025-03-30 12:45:57.241] INFO [core\src\audio\diagnostics.rs:170] Buffer status: 256/1024 samples available
+[2025-03-30 12:45:57.241] INFO [core\src\audio\diagnostics.rs:174] Data integrity test: PASSED
+[2025-03-30 12:45:57.241] INFO [core\src\audio\diagnostics.rs:176] =================================================
+[2025-03-30 12:45:57.242] INFO [app\src\main.rs:97] =========== AUDIO DIAGNOSTICS COMPLETE ===========
+[2025-03-30 12:45:57.267] INFO [core\src\audio\diagnostics.rs:372] Started diagnostic audio stream
+[2025-03-30 12:45:57.267] INFO [app\src\application.rs:778] FFmpeg initialized successfully
+[2025-03-30 12:45:57.267] INFO [app\src\application.rs:780] Supported audio formats: mp3, wav, flac, ogg, m4a, aac, opus, wma, ape, mka, mp4, mp2, ac3, amr, au, mid, midi, ra, rm, tta, wv, caf, aiff, aif, oga, m4b, dts, mpc, tak, pcm, sbc, voc, w64, webm, 3ga, dsf, dff, gsm, spx, shn, xa, svx, 8svx, pvf, sf, vox, iff, sln, aa3, oma, at3, adx, adp, dxa, dca, imc, wady, mat, mmf, eam, eas, paf, raw, mod, s3m, xm, it, mkv, avi, mov, wmv, 3gp, ogv, mka, MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, MKA, MP4, MP2, AC3, AMR, AU, MID, MIDI, RA, RM, TTA, WV, CAF, AIFF, AIF
+[2025-03-30 12:45:57.312] INFO [core\src\player\mod.rs:34] Initializing Media Player with FFmpeg...
+[2025-03-30 12:45:57.312] INFO [core\src\player\mod.rs:42] Supported audio formats: mp3, wav, flac, ogg, m4a, aac, opus, wma, ape, mka, mp4, mp2, ac3, amr, au, mid, midi, ra, rm, tta, wv, caf, aiff, aif, oga, m4b, dts, mpc, tak, pcm, sbc, voc, w64, webm, 3ga, dsf, dff, gsm, spx, shn, xa, svx, 8svx, pvf, sf, vox, iff, sln, aa3, oma, at3, adx, adp, dxa, dca, imc, wady, mat, mmf, eam, eas, paf, raw, mod, s3m, xm, it, mkv, avi, mov, wmv, 3gp, ogv, mka, MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, MKA, MP4, MP2, AC3, AMR, AU, MID, MIDI, RA, RM, TTA, WV, CAF, AIFF, AIF
+[2025-03-30 12:45:57.312] INFO [core\src\player\mod.rs:75] Network playback configured: buffer=8192KB, prebuffer=5s
+[2025-03-30 12:45:57.312] INFO [app\src\states\app_state.rs:68] MediaPlayer default state created
+[2025-03-30 12:45:57.506] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:696] InstanceFlags::VALIDATION requested, but unable to find layer: VK_LAYER_KHRONOS_validation
+[2025-03-30 12:45:57.551] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:341] Debug utils not enabled: debug_utils_user_data not passed to Instance::from_raw
+[2025-03-30 12:45:57.555] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\dx12\instance.rs:31] Unable to enable D3D12 debug interface: 0x887A002D
+[2025-03-30 12:45:57.556] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\auxil\dxgi\factory.rs:160] Unable to enable DXGI debug interface: 0x887A002D
+[2025-03-30 12:45:57.664] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:62] Settings {
+    present_mode: AutoVsync,
+    backends: Backends(
+        VULKAN | GL | METAL | DX12 | BROWSER_WEBGPU,
+    ),
+    default_font: Font {
+        family: SansSerif,
+        weight: Normal,
+        stretch: Normal,
+        style: Normal,
+    },
+    default_text_size: Pixels(
+        16.0,
+    ),
+    antialiasing: None,
+}
+[2025-03-30 12:45:59.740] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:71] Available adapters: [
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "NVIDIA",
+        driver_info: "572.60",
+        backend: Vulkan,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "Microsoft Basic Render Driver",
+        vendor: 5140,
+        device: 140,
+        device_type: Cpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER/PCIe/SSE2",
+        vendor: 4318,
+        device: 0,
+        device_type: Other,
+        driver: "",
+        driver_info: "",
+        backend: Gl,
+    },
+]
+[2025-03-30 12:46:01.528] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:94] Selected: AdapterInfo {
+    name: "NVIDIA GeForce RTX 2080 SUPER",
+    vendor: 4318,
+    device: 7809,
+    device_type: DiscreteGpu,
+    driver: "NVIDIA",
+    driver_info: "572.60",
+    backend: Vulkan,
+}
+[2025-03-30 12:46:01.531] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:103] Available formats: Copied {
+    it: Iter(
+        [
+            Bgra8UnormSrgb,
+            Rgba8UnormSrgb,
+            Bgra8Unorm,
+            Rgba8Unorm,
+        ],
+    ),
+}
+[2025-03-30 12:46:01.532] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:119] Available alpha modes: [
+    Opaque,
+]
+[2025-03-30 12:46:01.532] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:137] Selected format: Bgra8UnormSrgb with alpha mode: Auto
+[2025-03-30 12:46:01.718] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_winit-0.13.0\src\program.rs:522] Window attributes for id `Id(
+    1,
+)`: WindowAttributes {
+    inner_size: Some(
+        Logical(
+            LogicalSize {
+                width: 1200.0,
+                height: 800.0,
+            },
+        ),
+    ),
+    min_inner_size: None,
+    max_inner_size: None,
+    position: Some(
+        Logical(
+            LogicalPosition {
+                x: 2055.0,
+                y: 162.0,
+            },
+        ),
+    ),
+    resizable: true,
+    enabled_buttons: WindowButtons(
+        CLOSE | MINIMIZE | MAXIMIZE,
+    ),
+    title: "Media Player",
+    maximized: false,
+    visible: false,
+    transparent: false,
+    blur: false,
+    decorations: true,
+    window_icon: Some(
+        RaiiIcon {
+            handle: 249302019,
+        },
+    ),
+    preferred_theme: None,
+    resize_increments: None,
+    content_protected: false,
+    window_level: Normal,
+    active: true,
+    cursor: Icon(
+        Default,
+    ),
+    parent_window: None,
+    fullscreen: None,
+    platform_specific: PlatformSpecificWindowAttributes {
+        owner: None,
+        menu: None,
+        taskbar_icon: None,
+        no_redirection_bitmap: false,
+        drag_and_drop: true,
+        skip_taskbar: false,
+        class_name: "Window Class",
+        decoration_shadow: false,
+        backdrop_type: Auto,
+        clip_children: true,
+        border_color: None,
+        title_background_color: None,
+        title_text_color: None,
+        corner_preference: None,
+    },
+}
+[2025-03-30 12:46:02.267] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39373 callbacks/sec
+[2025-03-30 12:46:02.971] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:02.978] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:02.978] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:02.986] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:02.986] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:02.995] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:07.268] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39381 callbacks/sec
+[2025-03-30 12:46:11.980] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:11.987] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:12.268] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59004 callbacks/sec
+[2025-03-30 12:46:13.272] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:13.279] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:14.962] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:14.968] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:15.183] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:15.190] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:15.495] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:15.502] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:16.696] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:16.703] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:17.269] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39576 callbacks/sec
+[2025-03-30 12:46:17.439] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:17.446] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:17.845] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:17.852] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:22.269] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.398 callbacks/sec
+[2025-03-30 12:46:27.270] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39061 callbacks/sec
+[2025-03-30 12:46:29.467] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:46:29.474] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:46:32.270] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59796 callbacks/sec
+[2025-03-30 12:46:37.272] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.36117 callbacks/sec
+[2025-03-30 12:46:42.272] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3956 callbacks/sec
+[2025-03-30 12:46:47.273] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59279 callbacks/sec
+[2025-03-30 12:46:52.273] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39551 callbacks/sec
+[2025-03-30 12:46:57.274] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39748 callbacks/sec
+[2025-03-30 12:47:02.274] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39508 callbacks/sec
+[2025-03-30 12:47:07.275] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39102 callbacks/sec
+[2025-03-30 12:47:12.275] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59165 callbacks/sec
+[2025-03-30 12:47:17.277] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.37336 callbacks/sec
+[2025-03-30 12:47:22.277] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39183 callbacks/sec
+[2025-03-30 12:47:27.278] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39174 callbacks/sec
+[2025-03-30 12:47:32.279] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59003 callbacks/sec
+[2025-03-30 12:47:37.279] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39197 callbacks/sec
+[2025-03-30 12:47:42.280] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39498 callbacks/sec
+[2025-03-30 12:47:47.281] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59305 callbacks/sec
+[2025-03-30 12:47:52.281] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39111 callbacks/sec
+[2025-03-30 12:47:57.282] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39023 callbacks/sec
+[2025-03-30 12:48:02.283] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.394104 callbacks/sec
+[2025-03-30 12:48:07.283] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59218 callbacks/sec
+[2025-03-30 12:48:12.284] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39095 callbacks/sec
+[2025-03-30 12:48:17.284] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39561 callbacks/sec
+[2025-03-30 12:48:22.286] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.37329 callbacks/sec
+[2025-03-30 12:48:27.289] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.591995 callbacks/sec
+[2025-03-30 12:48:32.289] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3931 callbacks/sec
+[2025-03-30 12:48:37.290] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.395546 callbacks/sec
+[2025-03-30 12:48:42.292] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.561386 callbacks/sec
+[2025-03-30 12:48:47.294] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.35962 callbacks/sec
+[2025-03-30 12:48:52.295] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.38586 callbacks/sec
+[2025-03-30 12:48:57.295] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59905 callbacks/sec
+[2025-03-30 12:49:02.296] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.388054 callbacks/sec
+[2025-03-30 12:49:07.296] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39188 callbacks/sec
+[2025-03-30 12:49:12.297] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39653 callbacks/sec
+[2025-03-30 12:49:17.297] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59776 callbacks/sec
+[2025-03-30 12:49:22.298] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3925 callbacks/sec
+[2025-03-30 12:49:27.298] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39479 callbacks/sec
+[2025-03-30 12:49:32.299] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39337 callbacks/sec
+[2025-03-30 12:49:37.299] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.58831 callbacks/sec
+[2025-03-30 12:49:42.300] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39847 callbacks/sec
+[2025-03-30 12:49:47.300] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.391655 callbacks/sec
+[2025-03-30 12:49:52.302] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.37708 callbacks/sec
+[2025-03-30 12:49:57.302] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39014 callbacks/sec
+[2025-03-30 12:50:02.303] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.392494 callbacks/sec
+[2025-03-30 12:50:07.303] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39626 callbacks/sec
+[2025-03-30 12:50:12.304] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39157 callbacks/sec
+[2025-03-30 12:50:17.304] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39161 callbacks/sec
+[2025-03-30 12:50:22.305] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59314 callbacks/sec
+[2025-03-30 12:50:27.305] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.38928 callbacks/sec
+[2025-03-30 12:50:32.306] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39631 callbacks/sec
+[2025-03-30 12:50:37.306] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.390945 callbacks/sec
+[2025-03-30 12:50:42.307] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.593506 callbacks/sec
+[2025-03-30 12:50:47.307] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39441 callbacks/sec
+[2025-03-30 12:50:52.308] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39266 callbacks/sec
+[2025-03-30 12:50:57.308] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39434 callbacks/sec
+[2025-03-30 12:51:02.309] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59143 callbacks/sec
+[2025-03-30 12:51:07.309] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39462 callbacks/sec
+[2025-03-30 12:51:12.310] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39681 callbacks/sec
+[2025-03-30 12:51:17.310] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.397194 callbacks/sec
+[2025-03-30 12:51:22.311] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59219 callbacks/sec
+[2025-03-30 12:51:27.311] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39653 callbacks/sec
+[2025-03-30 12:51:32.311] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3923 callbacks/sec
+[2025-03-30 12:51:37.312] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.392555 callbacks/sec
+[2025-03-30 12:51:42.313] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.592255 callbacks/sec
+[2025-03-30 12:51:47.313] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39683 callbacks/sec
+[2025-03-30 12:51:52.314] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.394775 callbacks/sec
+[2025-03-30 12:51:57.314] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39104 callbacks/sec
+[2025-03-30 12:52:02.315] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59183 callbacks/sec
+[2025-03-30 12:52:07.316] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.392365 callbacks/sec
+[2025-03-30 12:52:12.316] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.38951 callbacks/sec
+[2025-03-30 12:52:13.183] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:52:13.190] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:52:13.344] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:52:13.351] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:52:17.317] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.393776 callbacks/sec
+[2025-03-30 12:52:22.317] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39072 callbacks/sec
+[2025-03-30 12:52:27.318] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.5943 callbacks/sec
+[2025-03-30 12:52:32.318] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39753 callbacks/sec
+[2025-03-30 12:52:37.318] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39834 callbacks/sec
+[2025-03-30 12:52:42.319] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39842 callbacks/sec
+[2025-03-30 12:52:47.319] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59922 callbacks/sec
+[2025-03-30 12:52:52.320] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.38996 callbacks/sec
+[2025-03-30 12:52:57.320] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39247 callbacks/sec
+[2025-03-30 12:53:02.321] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39138 callbacks/sec
+[2025-03-30 12:53:07.321] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.5888 callbacks/sec
+[2025-03-30 12:53:12.322] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3891 callbacks/sec
+[2025-03-30 12:53:17.323] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39246 callbacks/sec
+[2025-03-30 12:53:22.323] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.388985 callbacks/sec
+[2025-03-30 12:53:27.324] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59246 callbacks/sec
+[2025-03-30 12:53:32.324] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39539 callbacks/sec
+[2025-03-30 12:53:37.325] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.389595 callbacks/sec
+[2025-03-30 12:53:42.325] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39429 callbacks/sec
+[2025-03-30 12:53:47.326] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59636 callbacks/sec
+[2025-03-30 12:53:52.326] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.391754 callbacks/sec
+[2025-03-30 12:53:57.327] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39662 callbacks/sec
+[2025-03-30 12:54:02.327] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39254 callbacks/sec
+[2025-03-30 12:54:07.328] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.389595 callbacks/sec
+[2025-03-30 12:54:12.328] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59874 callbacks/sec
+[2025-03-30 12:54:17.329] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39678 callbacks/sec
+[2025-03-30 12:54:22.329] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3923 callbacks/sec
+[2025-03-30 12:54:27.330] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39027 callbacks/sec
+[2025-03-30 12:54:32.330] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59622 callbacks/sec
+[2025-03-30 12:54:37.330] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39862 callbacks/sec
+[2025-03-30 12:54:42.331] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3896 callbacks/sec
+[2025-03-30 12:54:47.331] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.398544 callbacks/sec
+[2025-03-30 12:54:52.332] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59727 callbacks/sec
+[2025-03-30 12:54:57.332] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39572 callbacks/sec
+[2025-03-30 12:55:02.332] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39867 callbacks/sec
+[2025-03-30 12:55:07.333] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.392456 callbacks/sec
+[2025-03-30 12:55:12.333] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39664 callbacks/sec
+[2025-03-30 12:55:17.333] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59862 callbacks/sec
+[2025-03-30 12:55:22.334] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39514 callbacks/sec
+[2025-03-30 12:55:27.334] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.38963 callbacks/sec
+[2025-03-30 12:55:32.335] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.398346 callbacks/sec
+[2025-03-30 12:55:37.335] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59223 callbacks/sec
+[2025-03-30 12:55:42.335] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39916 callbacks/sec
+[2025-03-30 12:55:47.336] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39838 callbacks/sec
+[2025-03-30 12:55:52.336] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3985 callbacks/sec
+[2025-03-30 12:55:57.336] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3977 callbacks/sec
+[2025-03-30 12:56:02.337] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59218 callbacks/sec
+[2025-03-30 12:56:07.337] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39785 callbacks/sec
+[2025-03-30 12:56:12.337] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.392624 callbacks/sec
+[2025-03-30 12:56:17.338] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39476 callbacks/sec
+[2025-03-30 12:56:22.338] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.596306 callbacks/sec
+[2025-03-30 12:56:27.339] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39138 callbacks/sec
+[2025-03-30 12:56:32.339] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39903 callbacks/sec
+[2025-03-30 12:56:37.339] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39361 callbacks/sec
+[2025-03-30 12:56:42.340] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.588715 callbacks/sec
+[2025-03-30 12:56:47.340] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39845 callbacks/sec
+[2025-03-30 12:56:52.341] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.397095 callbacks/sec
+[2025-03-30 12:56:57.341] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39359 callbacks/sec
+[2025-03-30 12:57:02.341] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3962 callbacks/sec
+[2025-03-30 12:57:07.342] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.5974 callbacks/sec
+[2025-03-30 12:57:09.134] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:57:09.141] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:57:09.344] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:57:09.351] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:57:09.816] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:57:09.824] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:57:12.342] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.38988 callbacks/sec
+[2025-03-30 12:57:16.529] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:57:16.535] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:57:16.630] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:57:16.636] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:57:17.343] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.389366 callbacks/sec

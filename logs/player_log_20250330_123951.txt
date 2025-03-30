@@ -1,0 +1,374 @@
+[2025-03-30 12:39:51.896] INFO [app\src\main.rs:50] Logging initialized to file: logs/player_log_20250330_123951.txt
+[2025-03-30 12:39:51.907] INFO [app\src\main.rs:105] Application starting...
+[2025-03-30 12:39:51.907] INFO [app\src\main.rs:67] =========== RUNNING AUDIO SYSTEM DIAGNOSTICS ===========
+[2025-03-30 12:39:51.909] INFO [core\src\audio\decoder.rs:48] FFmpeg initialized successfully
+[2025-03-30 12:39:51.909] INFO [app\src\main.rs:73] ✅ FFmpeg initialized successfully
+[2025-03-30 12:39:51.909] INFO [app\src\main.rs:77] Supported audio formats: mp3, wav, flac, ogg, m4a, aac, opus, wma, ape, mka, mp4, mp2, ac3, amr, au, mid, midi, ra, rm, tta, wv, caf, aiff, aif, oga, m4b, dts, mpc, tak, pcm, sbc, voc, w64, webm, 3ga, dsf, dff, gsm, spx, shn, xa, svx, 8svx, pvf, sf, vox, iff, sln, aa3, oma, at3, adx, adp, dxa, dca, imc, wady, mat, mmf, eam, eas, paf, raw, mod, s3m, xm, it, mkv, avi, mov, wmv, 3gp, ogv, mka, MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, MKA, MP4, MP2, AC3, AMR, AU, MID, MIDI, RA, RM, TTA, WV, CAF, AIFF, AIF
+[2025-03-30 12:39:51.910] INFO [core\src\audio\diagnostics.rs:14] ================ AUDIO DEVICE DIAGNOSTICS ================
+[2025-03-30 12:39:51.910] INFO [core\src\audio\diagnostics.rs:17] Host: WASAPI
+[2025-03-30 12:39:52.621] INFO [core\src\audio\diagnostics.rs:23] Found 3 output devices:
+[2025-03-30 12:39:52.622] INFO [core\src\audio\diagnostics.rs:27]   Device 0: Headset Earphone (3- Wireless Controller)
+[2025-03-30 12:39:52.798] INFO [core\src\audio\diagnostics.rs:33]     Supported configs: 2
+[2025-03-30 12:39:52.799] INFO [core\src\audio\diagnostics.rs:36]     Config 0: channels=2, min_rate=32000Hz, max_rate=32000Hz, sample_format=U8
+[2025-03-30 12:39:52.799] INFO [core\src\audio\diagnostics.rs:36]     Config 1: channels=2, min_rate=32000Hz, max_rate=32000Hz, sample_format=I16
+[2025-03-30 12:39:52.799] INFO [core\src\audio\diagnostics.rs:27]   Device 1: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:39:53.152] INFO [core\src\audio\diagnostics.rs:33]     Supported configs: 4
+[2025-03-30 12:39:53.152] INFO [core\src\audio\diagnostics.rs:36]     Config 0: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=U8
+[2025-03-30 12:39:53.152] INFO [core\src\audio\diagnostics.rs:36]     Config 1: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=I16
+[2025-03-30 12:39:53.152] INFO [core\src\audio\diagnostics.rs:36]     Config 2: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=I32
+[2025-03-30 12:39:53.153] INFO [core\src\audio\diagnostics.rs:36]     Config 3: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=F32
+[2025-03-30 12:39:53.153] INFO [core\src\audio\diagnostics.rs:27]   Device 2: Speakers (Logitech USB Headset H540)
+[2025-03-30 12:39:53.403] INFO [core\src\audio\diagnostics.rs:33]     Supported configs: 4
+[2025-03-30 12:39:53.403] INFO [core\src\audio\diagnostics.rs:36]     Config 0: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=U8
+[2025-03-30 12:39:53.403] INFO [core\src\audio\diagnostics.rs:36]     Config 1: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=I16
+[2025-03-30 12:39:53.403] INFO [core\src\audio\diagnostics.rs:36]     Config 2: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=I32
+[2025-03-30 12:39:53.403] INFO [core\src\audio\diagnostics.rs:36]     Config 3: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=F32
+[2025-03-30 12:39:53.411] INFO [core\src\audio\diagnostics.rs:52] Default output device: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:39:53.411] INFO [core\src\audio\diagnostics.rs:60] ==========================================================
+[2025-03-30 12:39:53.412] INFO [core\src\audio\diagnostics.rs:65] ================ AUDIO OUTPUT TEST ================
+[2025-03-30 12:39:53.417] INFO [core\src\audio\diagnostics.rs:77] Using device: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:39:53.419] INFO [core\src\audio\diagnostics.rs:88] Using config: channels=2, sample_rate=44100Hz, sample_format=F32
+[2025-03-30 12:39:53.458] INFO [core\src\audio\diagnostics.rs:131] Started audio test playback
+[2025-03-30 12:39:53.658] INFO [core\src\audio\diagnostics.rs:147] Audio test result: SUCCESS
+[2025-03-30 12:39:53.659] INFO [core\src\audio\diagnostics.rs:148] =================================================
+[2025-03-30 12:39:53.664] INFO [app\src\main.rs:89] ✅ Basic audio test passed - audio system is working
+[2025-03-30 12:39:53.664] INFO [core\src\audio\diagnostics.rs:155] ================ AUDIO BUFFER TEST ================
+[2025-03-30 12:39:53.664] INFO [core\src\audio\diagnostics.rs:163] Wrote 512 samples to buffer
+[2025-03-30 12:39:53.664] INFO [core\src\audio\diagnostics.rs:164] Buffer status: 512/1024 samples available
+[2025-03-30 12:39:53.664] INFO [core\src\audio\diagnostics.rs:169] Read 256 samples from buffer
+[2025-03-30 12:39:53.664] INFO [core\src\audio\diagnostics.rs:170] Buffer status: 256/1024 samples available
+[2025-03-30 12:39:53.664] INFO [core\src\audio\diagnostics.rs:174] Data integrity test: PASSED
+[2025-03-30 12:39:53.664] INFO [core\src\audio\diagnostics.rs:176] =================================================
+[2025-03-30 12:39:53.664] INFO [app\src\main.rs:97] =========== AUDIO DIAGNOSTICS COMPLETE ===========
+[2025-03-30 12:39:53.696] INFO [core\src\audio\diagnostics.rs:372] Started diagnostic audio stream
+[2025-03-30 12:39:53.696] INFO [app\src\application.rs:828] FFmpeg initialized successfully
+[2025-03-30 12:39:53.696] INFO [app\src\application.rs:830] Supported audio formats: mp3, wav, flac, ogg, m4a, aac, opus, wma, ape, mka, mp4, mp2, ac3, amr, au, mid, midi, ra, rm, tta, wv, caf, aiff, aif, oga, m4b, dts, mpc, tak, pcm, sbc, voc, w64, webm, 3ga, dsf, dff, gsm, spx, shn, xa, svx, 8svx, pvf, sf, vox, iff, sln, aa3, oma, at3, adx, adp, dxa, dca, imc, wady, mat, mmf, eam, eas, paf, raw, mod, s3m, xm, it, mkv, avi, mov, wmv, 3gp, ogv, mka, MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, MKA, MP4, MP2, AC3, AMR, AU, MID, MIDI, RA, RM, TTA, WV, CAF, AIFF, AIF
+[2025-03-30 12:39:53.736] INFO [core\src\player\mod.rs:34] Initializing Media Player with FFmpeg...
+[2025-03-30 12:39:53.736] INFO [core\src\player\mod.rs:42] Supported audio formats: mp3, wav, flac, ogg, m4a, aac, opus, wma, ape, mka, mp4, mp2, ac3, amr, au, mid, midi, ra, rm, tta, wv, caf, aiff, aif, oga, m4b, dts, mpc, tak, pcm, sbc, voc, w64, webm, 3ga, dsf, dff, gsm, spx, shn, xa, svx, 8svx, pvf, sf, vox, iff, sln, aa3, oma, at3, adx, adp, dxa, dca, imc, wady, mat, mmf, eam, eas, paf, raw, mod, s3m, xm, it, mkv, avi, mov, wmv, 3gp, ogv, mka, MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, MKA, MP4, MP2, AC3, AMR, AU, MID, MIDI, RA, RM, TTA, WV, CAF, AIFF, AIF
+[2025-03-30 12:39:53.736] INFO [core\src\player\mod.rs:75] Network playback configured: buffer=8192KB, prebuffer=5s
+[2025-03-30 12:39:53.736] INFO [app\src\states\app_state.rs:68] MediaPlayer default state created
+[2025-03-30 12:39:53.964] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:696] InstanceFlags::VALIDATION requested, but unable to find layer: VK_LAYER_KHRONOS_validation
+[2025-03-30 12:39:54.021] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:341] Debug utils not enabled: debug_utils_user_data not passed to Instance::from_raw
+[2025-03-30 12:39:54.025] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\dx12\instance.rs:31] Unable to enable D3D12 debug interface: 0x887A002D
+[2025-03-30 12:39:54.026] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\auxil\dxgi\factory.rs:160] Unable to enable DXGI debug interface: 0x887A002D
+[2025-03-30 12:39:54.150] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:62] Settings {
+    present_mode: AutoVsync,
+    backends: Backends(
+        VULKAN | GL | METAL | DX12 | BROWSER_WEBGPU,
+    ),
+    default_font: Font {
+        family: SansSerif,
+        weight: Normal,
+        stretch: Normal,
+        style: Normal,
+    },
+    default_text_size: Pixels(
+        16.0,
+    ),
+    antialiasing: None,
+}
+[2025-03-30 12:39:58.699] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3833 callbacks/sec
+[2025-03-30 12:40:00.091] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:71] Available adapters: [
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "NVIDIA",
+        driver_info: "572.60",
+        backend: Vulkan,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "Microsoft Basic Render Driver",
+        vendor: 5140,
+        device: 140,
+        device_type: Cpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER/PCIe/SSE2",
+        vendor: 4318,
+        device: 0,
+        device_type: Other,
+        driver: "",
+        driver_info: "",
+        backend: Gl,
+    },
+]
+[2025-03-30 12:40:01.735] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:94] Selected: AdapterInfo {
+    name: "NVIDIA GeForce RTX 2080 SUPER",
+    vendor: 4318,
+    device: 7809,
+    device_type: DiscreteGpu,
+    driver: "NVIDIA",
+    driver_info: "572.60",
+    backend: Vulkan,
+}
+[2025-03-30 12:40:01.741] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:103] Available formats: Copied {
+    it: Iter(
+        [
+            Bgra8UnormSrgb,
+            Rgba8UnormSrgb,
+            Bgra8Unorm,
+            Rgba8Unorm,
+        ],
+    ),
+}
+[2025-03-30 12:40:01.741] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:119] Available alpha modes: [
+    Opaque,
+]
+[2025-03-30 12:40:01.741] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:137] Selected format: Bgra8UnormSrgb with alpha mode: Auto
+[2025-03-30 12:40:01.938] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_winit-0.13.0\src\program.rs:522] Window attributes for id `Id(
+    1,
+)`: WindowAttributes {
+    inner_size: Some(
+        Logical(
+            LogicalSize {
+                width: 1200.0,
+                height: 800.0,
+            },
+        ),
+    ),
+    min_inner_size: None,
+    max_inner_size: None,
+    position: Some(
+        Logical(
+            LogicalPosition {
+                x: -32000.0,
+                y: -32000.0,
+            },
+        ),
+    ),
+    resizable: true,
+    enabled_buttons: WindowButtons(
+        CLOSE | MINIMIZE | MAXIMIZE,
+    ),
+    title: "Media Player",
+    maximized: false,
+    visible: false,
+    transparent: false,
+    blur: false,
+    decorations: true,
+    window_icon: Some(
+        RaiiIcon {
+            handle: 1103890477,
+        },
+    ),
+    preferred_theme: None,
+    resize_increments: None,
+    content_protected: false,
+    window_level: Normal,
+    active: true,
+    cursor: Icon(
+        Default,
+    ),
+    parent_window: None,
+    fullscreen: None,
+    platform_specific: PlatformSpecificWindowAttributes {
+        owner: None,
+        menu: None,
+        taskbar_icon: None,
+        no_redirection_bitmap: false,
+        drag_and_drop: true,
+        skip_taskbar: false,
+        class_name: "Window Class",
+        decoration_shadow: false,
+        backdrop_type: Auto,
+        clip_children: true,
+        border_color: None,
+        title_background_color: None,
+        title_text_color: None,
+        corner_preference: None,
+    },
+}
+[2025-03-30 12:40:02.750] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:02.757] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:02.757] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:02.765] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:02.766] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:02.774] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:02.774] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:02.781] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:03.700] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59322 callbacks/sec
+[2025-03-30 12:40:08.729] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 95.83688 callbacks/sec
+[2025-03-30 12:40:16.318] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:26.844] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 4.146756 callbacks/sec
+[2025-03-30 12:40:26.846] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:26.846] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:26.854] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:26.946] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:26.953] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:26.953] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:26.960] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:26.960] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:26.967] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:26.967] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:26.977] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:26.979] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:26.987] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:26.987] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:26.995] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:26.995] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.003] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.003] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.010] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.010] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.017] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.017] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.027] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.027] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.034] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.034] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.041] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.041] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.049] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.049] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.058] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.058] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.066] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.066] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.075] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.075] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.082] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.082] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.089] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.089] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.098] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.098] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.105] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.105] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.112] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.112] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.120] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.120] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.128] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.128] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.137] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.137] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.144] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.144] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.151] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.151] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.157] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.158] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.165] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.165] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.172] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.172] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.178] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.179] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.186] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.186] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.193] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:27.193] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:27.202] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.483] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.490] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.495] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.504] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.508] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.514] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.522] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.529] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.552] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.558] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.582] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.589] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.628] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.635] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.659] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.667] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.691] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.698] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.721] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.728] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.753] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.760] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.785] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.791] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.815] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.822] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.847] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.855] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.880] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.887] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.927] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.934] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.958] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.965] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:28.990] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:28.997] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:29.023] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:29.030] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:29.056] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:29.064] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:29.088] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:29.095] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:29.117] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:29.124] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:29.149] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:29.156] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:31.838] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:31.844] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:31.844] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:31.846] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39586 callbacks/sec
+[2025-03-30 12:40:31.851] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:32.128] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:32.135] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:33.717] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:33.726] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:35.399] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:35.406] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:36.846] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.596565 callbacks/sec
+[2025-03-30 12:40:37.717] INFO [app\src\application.rs:509] Playing track 0 from playlist 7
+[2025-03-30 12:40:37.717] INFO [app\src\states\app_state.rs:131] Attempting to play file: \\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3
+[2025-03-30 12:40:37.717] INFO [core\src\player\mod.rs:253] Player::stop()
+[2025-03-30 12:40:37.818] INFO [core\src\player\mod.rs:297] Player stop operation completed
+[2025-03-30 12:40:37.918] INFO [core\src\player\mod.rs:95] Player::play(\\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3)
+[2025-03-30 12:40:37.918] INFO [core\src\player\mod.rs:101] Network path detected, using enhanced buffering
+[2025-03-30 12:40:37.919] INFO [core\src\audio\decoder.rs:970] Playing audio file with enhanced mode - prefetch=true, buffer_size=Some(8388608)
+[2025-03-30 12:40:37.919] INFO [core\src\audio\decoder.rs:977] Using network-optimized playback settings for \\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3
+[2025-03-30 12:40:37.919] INFO [core\src\audio\decoder.rs:299] Attempting to play file: \\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3
+[2025-03-30 12:40:37.959] INFO [core\src\audio\decoder.rs:410] Found audio stream: 2 channels, 44100 Hz
+[2025-03-30 12:40:37.959] INFO [core\src\audio\decoder.rs:424] Using codec: mp3float
+[2025-03-30 12:40:37.959] INFO [core\src\audio\decoder.rs:446] Codec parameters: sample_fmt=AV_SAMPLE_FMT_FLTP, sample_rate=44100, channels=2
+[2025-03-30 12:40:37.959] INFO [core\src\audio\decoder.rs:465] Track duration: 3388.081633s
+[2025-03-30 12:40:37.959] INFO [core\src\audio\decoder.rs:473] Setting up audio output with CPAL...
+[2025-03-30 12:40:37.959] INFO [core\src\audio\decoder.rs:475] Audio host: WASAPI
+[2025-03-30 12:40:37.962] INFO [core\src\audio\decoder.rs:479] Using output device: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:40:38.217] INFO [core\src\audio\decoder.rs:511] Selected output config: 2 channels, 44100 Hz
+[2025-03-30 12:40:38.217] INFO [core\src\audio\decoder.rs:548] Output config: 2 channels, 44100 Hz
+[2025-03-30 12:40:38.217] INFO [core\src\audio\position.rs:45] Set total_samples to 298828800 (channel_count = 2)
+[2025-03-30 12:40:38.217] INFO [core\src\audio\position.rs:51] Set channel_count to 2
+[2025-03-30 12:40:38.217] INFO [core\src\audio\decoder.rs:564] Creating ring buffer with 70560 samples (0.27 MB)
+[2025-03-30 12:40:38.217] INFO [core\src\audio\decoder.rs:576] Ring buffer initialized: capacity=70560, available=0
+[2025-03-30 12:40:38.217] INFO [core\src\audio\decoder.rs:581] Building audio output stream...
+[2025-03-30 12:40:38.234] INFO [core\src\audio\decoder.rs:660] Started audio playback stream
+[2025-03-30 12:40:38.234] INFO [core\src\audio\decoder.rs:743] Beginning decode loop for file: \\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3
+[2025-03-30 12:40:38.419] INFO [core\src\player\mod.rs:223] Started playback successfully
+[2025-03-30 12:40:38.419] INFO [app\src\states\app_state.rs:151] Started playback successfully
+[2025-03-30 12:40:41.846] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39767 callbacks/sec
+[2025-03-30 12:40:42.946] INFO [app\src\application.rs:488] (Playlist) Received Seek(0.2100)
+[2025-03-30 12:40:42.946] INFO [core\src\audio\position.rs:130] Seek requested to 0.2100 (21.00%)
+[2025-03-30 12:40:42.946] INFO [core\src\audio\position.rs:136] Current frame: 108887/149414400 (0.07%), Target frame: 31377026/149414400 (21.00%)
+[2025-03-30 12:40:42.947] INFO [core\src\audio\decoder.rs:776] Seek requested to position 0.2100
+[2025-03-30 12:40:43.078] INFO [core\src\audio\decoder.rs:801] Seek successful
+[2025-03-30 12:40:44.924] INFO [core\src\player\mod.rs:235] Player::pause()
+[2025-03-30 12:40:45.542] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:45.549] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:46.847] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39339 callbacks/sec
+[2025-03-30 12:40:46.858] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:46.866] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:40:47.400] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:40:47.407] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
