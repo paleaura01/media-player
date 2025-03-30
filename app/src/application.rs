@@ -337,17 +337,17 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 PlaylistAction::PlayTrack(pid, tid) => {
                     log::info!("Playing track {} from playlist {}", tid, pid);
                     
-                    // Check if the track is from a network path
-                    let path_str = state.playlists.get_playlist(pid)
+                    // Check if the track is from a network path and get its title
+                    let track_info = state.playlists.get_playlist(pid)
                         .and_then(|p| p.tracks.get(tid))
-                        .map(|t| t.path.clone());
+                        .map(|t| (t.path.clone(), t.title.clone().unwrap_or_else(|| t.path.clone())));
                     
-                    if let Some(path) = path_str {
+                    if let Some((path, title)) = track_info {
                         if path.starts_with("\\\\") || path.contains("://") {
-                            // For network files, show a loading message
                             let _ = Task::perform(
                                 async { async_std::task::sleep(Duration::from_millis(1)).await; },
-                                |_| Message::SetStatusMessage("Loading network file...".to_string(), Duration::from_secs(3))
+                                move |_| Message::SetStatusMessage(format!("Playing: {}", title), 
+                                    Duration::from_secs(2))
                             );
                         }
                     }

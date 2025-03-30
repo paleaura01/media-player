@@ -103,4 +103,11 @@ impl AudioRingBuffer {
     pub fn available(&self) -> usize {
         self.samples_available
     }
+    
+    /// Clear the buffer
+    pub fn clear(&mut self) {
+        self.read_pos = 0;
+        self.write_pos = 0;
+        self.samples_available = 0;
+    }
 }

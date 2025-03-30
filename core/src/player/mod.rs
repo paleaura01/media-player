@@ -1,4 +1,3 @@
-// core/src/player/mod.rs
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -22,11 +21,6 @@ pub struct Player {
     pub track_completed_signal: bool,
     track_completed_flag: Arc<AtomicBool>,
     is_network_path: bool,
-    // Network configuration fields
-    pub network_buffer_size: Option<usize>,
-    pub network_prebuffer_seconds: Option<u64>,
-    // Track last warning time to prevent log spam
-    last_buffer_warning: Instant,
 }
 
 impl Player {
@@ -56,24 +50,13 @@ impl Player {
             track_completed_signal: false,
             track_completed_flag,
             is_network_path: false,
-            network_buffer_size: Some(4 * 1024 * 1024),  // Default 4MB
-            network_prebuffer_seconds: Some(3),          // Default 3 seconds
-            last_buffer_warning: Instant::now(),
         }
     }
     
-    // Configure network playback settings with safety limits
-    pub fn configure_network(&mut self, buffer_size: usize, prebuffer_seconds: u64) {
-        // Add safety limits to prevent excessive memory allocation
-        let max_buffer = 16 * 1024 * 1024; // 16MB absolute maximum
-        let safe_buffer_size = std::cmp::min(buffer_size, max_buffer);
-        let safe_prebuffer = std::cmp::min(prebuffer_seconds, 10); // Max 10 seconds
-        
-        self.network_buffer_size = Some(safe_buffer_size);
-        self.network_prebuffer_seconds = Some(safe_prebuffer);
-        
-        info!("Network playback configured: buffer={}KB, prebuffer={}s", 
-              safe_buffer_size / 1024, safe_prebuffer);
+    // Simple no-op method to maintain backward compatibility
+    pub fn configure_network(&mut self, _buffer_size: usize, _prebuffer_seconds: u64) {
+        // This method intentionally does nothing now that we're using direct streaming
+        info!("Network buffering disabled, using direct streaming mode");
     }
     
     pub fn clear_audio_buffers(&self) {
@@ -94,7 +77,7 @@ impl Player {
         self.is_network_path = path.starts_with("\\\\") || path.contains("://");
         
         if self.is_network_path {
-            info!("Network path detected, using enhanced buffering");
+            info!("Network path detected, using direct streaming mode");
         }
         
         // Reset flags
@@ -110,11 +93,9 @@ impl Player {
                 state.progress = 0.0;
                 state.track_completed = false;
                 
-                // Set buffering state for network files
-                if self.is_network_path {
-                    state.network_buffering = true;
-                    state.buffer_progress = 0.0;
-                }
+                // Set direct streaming mode for all files (no buffering)
+                state.network_buffering = false;
+                state.buffer_progress = 1.0; 
             }
         }
         
@@ -135,9 +116,6 @@ impl Player {
         let playback_position = Arc::clone(&self.playback_position);
         let volume = Arc::clone(&self.volume);
         let track_completed = Arc::clone(&self.track_completed_flag);
-        let is_network = self.is_network_path;
-        let network_buffer_size = self.network_buffer_size;
-        let _network_prebuffer_seconds = self.network_prebuffer_seconds;
         
         // Set up a channel for thread communication
         let (error_tx, error_rx) = std::sync::mpsc::channel();
@@ -155,30 +133,15 @@ impl Player {
                     // Create a local copy for the closure
                     let state_arc_local = Arc::clone(&state_arc);
                     
-                    // Use the enhanced version with proper network handling
-                    let result = if is_network {
-                        // For network paths, use enhanced playback with proper buffering
-                        audio::decoder::play_audio_file_enhanced(
-                            &path_str, 
-                            pause_flag, 
-                            stop_flag, 
-                            state_arc_local, 
-                            playback_position,
-                            volume,
-                            true, // Enable prefetch mode
-                            network_buffer_size // Use configured buffer size
-                        )
-                    } else {
-                        // For local paths, use standard playback
-                        audio::decoder::play_audio_file(
-                            &path_str, 
-                            pause_flag, 
-                            stop_flag, 
-                            state_arc_local,
-                            playback_position, 
-                            volume
-                        )
-                    };
+                    // Use the simple implementation for all files
+                    let result = audio::decoder::play_audio_file(
+                        &path_str, 
+                        pause_flag, 
+                        stop_flag, 
+                        state_arc_local,
+                        playback_position, 
+                        volume
+                    );
                     
                     match result {
                         Ok(_) => {
@@ -207,9 +170,8 @@ impl Player {
             }
         }));
         
-        // Check for immediate errors - use longer timeout for network files
-        let timeout = if self.is_network_path { 500 } else { 200 };
-        match error_rx.recv_timeout(Duration::from_millis(timeout)) {
+        // Check for immediate errors
+        match error_rx.recv_timeout(Duration::from_millis(200)) {
             Ok(err_msg) => {
                 error!("Failed to start playback: {}", err_msg);
                 return Err(anyhow::anyhow!("Playback error: {}", err_msg));
@@ -339,24 +301,6 @@ impl Player {
             // Update track completion state
             if self.track_completed_signal {
                 state.track_completed = true;
-            }
-        }
-        
-        // For network playback, periodically log the buffer health
-        if self.is_network_path {
-            // Limit warning frequency to avoid log spam
-            let current_time = Instant::now();
-            if current_time.duration_since(self.last_buffer_warning) >= Duration::from_secs(1) {
-                if let Ok(pos) = self.playback_position.lock() {
-                    if let Some(buffer_health) = pos.buffer_health {
-                        if buffer_health < 0.1 {
-                            warn!("Network buffer health critical: {:.1}%", buffer_health * 100.0);
-                        } else if buffer_health < 0.4 {
-                            debug!("Network buffer health low: {:.1}%", buffer_health * 100.0);
-                        }
-                    }
-                }
-                self.last_buffer_warning = current_time;
             }
         }
     }

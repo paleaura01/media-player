@@ -124,20 +124,20 @@ impl MediaPlayer {
     fn handle_player_action(&mut self, action: PlayerAction) {
         match action {
             PlayerAction::Play(path) => {
-                // When playing a track, we pass the full path to the player
                 info!("Attempting to play file: {}", path);
                 
-                // Check if it's a network path and set a status message
+                // For network paths, show a status message but don't do special buffering
                 if path.starts_with("\\\\") || path.contains("://") {
-                    self.status_message = Some(format!("Loading network file: {}", 
+                    self.status_message = Some(format!("Direct streaming: {}", 
                         std::path::Path::new(&path)
                             .file_name()
                             .and_then(|n| n.to_str())
                             .unwrap_or("Unknown")));
                     self.status_message_time = Some(Instant::now());
-                    self.status_message_duration = Some(Duration::from_secs(5));
+                    self.status_message_duration = Some(Duration::from_secs(3));
                 }
                 
+                // Play the file directly - no buffering needed
                 if let Err(e) = self.player.play(&path) {
                     error!("Failed to play: {}", e);
                     self.status_message = Some(format!("Error: {}", e));

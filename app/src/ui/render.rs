@@ -33,7 +33,7 @@ pub fn render_with_state<'a>(
     playlists: &'a PlaylistState,
     library: &'a LibraryState,
     playlist_view_state: &'a PlaylistViewState,
-    status_message: &'a Option<String>, // NEW: Status message for user feedback
+    status_message: &'a Option<String>, // Status message for user feedback
 ) -> Element<'a, playlist_view::PlaylistAction> {
     // Player section
     let player_section = player_view::view(player_state);
@@ -184,32 +184,6 @@ fn create_now_playing_section<'a>(
             // Add playlist name to content
             content = content.push(text(&playlist.name).size(16))
                 .push(Space::with_height(10));
-            
-            // Add buffering indicator if needed
-            if player_state.network_buffering {
-                let buffering_text = text(format!("Buffering... {:.0}%", player_state.buffer_progress * 100.0))
-                    .size(14)
-                    .style(|_| text::Style {
-                        color: Some(Color::from_rgb(1.0, 0.8, 0.0)), // Yellow color for buffering
-                        ..Default::default()
-                    });
-                
-                let buffering_container = container(buffering_text)
-                    .width(Length::Fill)
-                    .padding(5)
-                    .style(|_| container::Style {
-                        background: Some(Background::Color(Color::from_rgb(0.3, 0.3, 0.0))),
-                        border: iced::Border {
-                            color: iced::Color::from_rgb(0.4, 0.4, 0.0),
-                            width: 1.0,
-                            radius: 4.0.into(),
-                        },
-                        ..Default::default()
-                    });
-                
-                content = content.push(buffering_container)
-                    .push(Space::with_height(5));
-            }
             
             // Create tracks view
             let tracks_column = Column::new()

@@ -4,6 +4,7 @@ pub mod decoder;
 pub mod device;
 pub mod position;
 pub mod resampler;
+pub mod diagnostics;  // Add this line to include the diagnostics module
 
 // Re-export key types
 pub use buffer::AudioRingBuffer;

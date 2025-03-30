@@ -1,4 +1,4 @@
-// app/src/main.rs - Update to use proper file logging
+// app/src/main.rs
 #![windows_subsystem = "windows"] // Hides the console on Windows
 
 mod ui;
@@ -6,7 +6,7 @@ mod states;
 mod application;
 
 use std::fs::File;
-use log::{LevelFilter, info};
+use log::{LevelFilter, info, error};
 use std::io::Write;
 
 // Enhanced logging setup with file output
@@ -23,7 +23,7 @@ fn setup_logging() {
     // Create log file with buffered writing
     let log_file = File::create(&log_filename).expect("Failed to create log file");
     
-    // Configure the logger to write both to file and console
+    // Configure the logger - LOWER DEBUG SPAM by setting different levels
     let mut builder = env_logger::Builder::new();
     builder
         .format(|buf, record| {
@@ -39,7 +39,12 @@ fn setup_logging() {
             )
         })
         .target(env_logger::Target::Pipe(Box::new(log_file)))
+        // Set default level to Info
         .filter(None, LevelFilter::Info)
+        // Set specific module log levels
+        .filter(Some("core::audio::position"), LevelFilter::Info)  // Reduce position spam
+        .filter(Some("core::audio::decoder"), LevelFilter::Info)   // Keep decoder logs at Info
+        .filter(Some("wgpu_core"), LevelFilter::Warn)              // Reduce WGPU spam
         .init();
     
     info!("Logging initialized to file: {}", log_filename);
@@ -57,12 +62,54 @@ fn setup_logging() {
     }
 }
 
+// Run comprehensive audio diagnostics
+fn run_audio_diagnostics() {
+    info!("=========== RUNNING AUDIO SYSTEM DIAGNOSTICS ===========");
+    
+    // Test FFmpeg initialization
+    if let Err(e) = core::audio::decoder::initialize_ffmpeg() {
+        error!("❌ FFmpeg initialization failed: {}", e);
+    } else {
+        info!("✅ FFmpeg initialized successfully");
+        
+        // Log supported formats
+        let formats = core::audio::decoder::get_supported_extensions();
+        info!("Supported audio formats: {}", formats.join(", "));
+    }
+    
+    // Import diagnostics module
+    use core::audio::diagnostics;
+    
+    // Log audio devices
+    diagnostics::log_audio_devices();
+    
+    // Test basic audio output
+    let audio_test_result = diagnostics::test_audio_output();
+    if audio_test_result {
+        info!("✅ Basic audio test passed - audio system is working");
+    } else {
+        error!("❌ Basic audio test failed - system audio may not be functional");
+    }
+    
+    // Test audio buffer
+    diagnostics::test_audio_buffer();
+    
+    info!("=========== AUDIO DIAGNOSTICS COMPLETE ===========");
+}
+
 fn main() -> iced::Result {
     // Set up logging
     setup_logging();
     
     // Log application start
     info!("Application starting...");
+    
+    // Run audio diagnostics
+    run_audio_diagnostics();
+    
+    // Create a diagnostic audio monitor
+    use core::audio::diagnostics;
+    let _diagnostic_stream = diagnostics::create_diagnostic_stream();
     
     // Run the application using the implementation in application.rs
     application::run()
