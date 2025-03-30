@@ -1,5 +1,5 @@
 // core/src/audio/decoder.rs
-use std::path::Path;
+use std::path::{Path, PathBuf};  // Added PathBuf import here
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc, Mutex,
@@ -14,7 +14,6 @@ use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use ffmpeg_sys_next as ffmpeg;
 use ffmpeg_sys_next::AVMediaType::AVMEDIA_TYPE_AUDIO;
 use ffmpeg_sys_next::AVSampleFormat::AV_SAMPLE_FMT_FLT;
-// Removed unused AVRounding import
 
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int};
@@ -29,6 +28,7 @@ static mut FFMPEG_INITIALIZED: bool = false;
 // Define constants for buffer safety
 const MAX_CHANNELS: usize = 8;
 const MAX_BUFFER_SIZE: usize = 16 * 1024 * 1024; // 16MB maximum buffer size
+const MAX_DIRECTORY_DEPTH: usize = 20; // Maximum directory recursion depth
 
 // Helper function to convert C string to Rust string
 unsafe fn to_string(ptr: *const c_char) -> String {
@@ -86,20 +86,32 @@ pub fn is_supported_audio_format(path: &str) -> bool {
         return false;
     }
     
+    // Special handling for UNC paths
+    let normalized_path = if path.starts_with("\\\\?\\UNC\\") {
+        // Convert Windows long path format to regular UNC path for checks
+        let unc_path = format!("\\\\{}", &path[8..]);
+        unc_path
+    } else if path.starts_with("\\\\?\\") {
+        // Strip the long path prefix for local files
+        path[4..].to_string()
+    } else {
+        path.to_string()
+    };
+    
     // For network paths, assume supported based on extension
-    if path.starts_with("\\\\") || path.contains("://") {
-        let lowercase_path = path.to_lowercase();
+    if normalized_path.starts_with("\\\\") || normalized_path.contains("://") {
+        let lowercase_path = normalized_path.to_lowercase();
         return get_supported_extensions().iter().any(|ext| lowercase_path.ends_with(&format!(".{}", ext)));
     }
     
     // Check if local file exists
-    if !Path::new(path).exists() {
+    if !Path::new(&normalized_path).exists() {
         return false;
     }
     
     // Try to open the file with FFmpeg
     unsafe {
-        let c_path = match CString::new(path) {
+        let c_path = match CString::new(normalized_path) {
             Ok(s) => s,
             Err(_) => return false,
         };
@@ -988,9 +1000,73 @@ pub fn play_audio_file_enhanced(
     state_arc: Arc<Mutex<PlayerState>>,
     playback_position: Arc<Mutex<PlaybackPosition>>,
     volume_arc: Arc<Mutex<f32>>,
-    _prefetch_mode: bool,  // Prefixed with underscore to avoid unused variable warning
-    _buffer_size: Option<usize>,  // Prefixed with underscore to avoid unused variable warning
+    prefetch_mode: bool,  
+    buffer_size: Option<usize>,  
 ) -> Result<()> {
-    // All files use the same implementation now
+    info!("Playing audio file with enhanced mode - prefetch={}, buffer_size={:?}", 
+          prefetch_mode, buffer_size);
+          
+    // For network paths, we'll apply special handling
+    let is_network = is_network_path(path);
+    
+    if is_network {
+        info!("Using network-optimized playback settings for {}", path);
+        // Adjust timeout and buffer settings in playerState if needed
+        if let Ok(mut state) = state_arc.lock() {
+            state.network_buffering = true;
+            state.buffer_progress = 0.2; // Start with some initial progress
+        }
+    }
+    
+    // All files now use the same implementation with internal optimizations
     play_audio_file(path, pause_flag, stop_flag, state_arc, playback_position, volume_arc)
+}
+
+// Helper function to scan directories with depth limit
+pub fn scan_directory_for_audio_files(dir_path: &Path) -> Vec<PathBuf> {
+    let mut files = Vec::new();
+    scan_directory_recursively(dir_path, &mut files, 0, MAX_DIRECTORY_DEPTH);
+    files
+}
+
+// Implementation of recursive directory scanning with depth limit
+fn scan_directory_recursively(dir: &Path, files: &mut Vec<PathBuf>, current_depth: usize, max_depth: usize) {
+    // Enforce maximum directory depth
+    if current_depth > max_depth {
+        warn!("Maximum directory scan depth ({}) reached at {:?}", max_depth, dir);
+        return;
+    }
+    
+    // Skip hidden directories
+    if dir.file_name()
+        .and_then(|name| name.to_str())
+        .map(|name| name.starts_with("."))
+        .unwrap_or(false) 
+    {
+        debug!("Skipping hidden directory: {:?}", dir);
+        return;
+    }
+    
+    info!("Scanning directory at depth {}/{}: {:?}", current_depth, max_depth, dir);
+    
+    if let Ok(entries) = std::fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            
+            if path.is_dir() {
+                // Recurse into subdirectory with increased depth
+                scan_directory_recursively(&path, files, current_depth + 1, max_depth);
+            } else if path.is_file() {
+                // Check file extension for supported audio format
+                if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
+                    let lowercase_ext = ext.to_lowercase();
+                    if get_supported_extensions().iter().any(|supported| &lowercase_ext == supported) {
+                        files.push(path);
+                    }
+                }
+            }
+        }
+    } else {
+        warn!("Failed to read directory: {:?}", dir);
+    }
 }

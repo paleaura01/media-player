@@ -341,27 +341,52 @@ impl MediaPlayer {
         match action {
             PlaylistAction::Create(name) => {
                 self.playlists.create_playlist(name);
+                // Save after creating playlist
+                let _ = self.save_playlists();
             },
             PlaylistAction::Delete(id) => {
                 self.playlists.delete_playlist(id);
+                // Save after deleting playlist
+                let _ = self.save_playlists();
             },
             PlaylistAction::Select(id) => {
                 if let Some(pos) = self.playlists.playlists.iter().position(|p| p.id == id) {
                     self.playlists.selected = Some(pos);
+                    // No need to save for selection changes
                 }
             },
             PlaylistAction::Rename(id, new_name) => {
-                let _ = self.playlists.rename_playlist(id, new_name);
+                let renamed = self.playlists.rename_playlist(id, new_name);
+                if renamed {
+                    // Save after renaming playlist
+                    let _ = self.save_playlists();
+                }
             },
             PlaylistAction::AddTrack(playlist_id, track) => {
                 if let Some(playlist) = self.playlists.get_playlist_mut(playlist_id) {
                     playlist.tracks.push(track);
+                    // Save after adding track
+                    let _ = self.save_playlists();
                 }
             },
             PlaylistAction::RemoveTrack(playlist_id, index) => {
                 if let Some(playlist) = self.playlists.get_playlist_mut(playlist_id) {
                     if index < playlist.tracks.len() {
                         playlist.tracks.remove(index);
+                        // Save after removing track
+                        let _ = self.save_playlists();
+                    }
+                }
+            },
+            PlaylistAction::BatchAddTracks(playlist_id, tracks) => {
+                if let Some(playlist) = self.playlists.get_playlist_mut(playlist_id) {
+                    info!("Adding batch of {} tracks to playlist {}", tracks.len(), playlist_id);
+                    playlist.tracks.extend(tracks);
+                    // Save after adding batch of tracks
+                    if let Err(e) = self.save_playlists() {
+                        error!("Failed to save playlist after batch add: {}", e);
+                    } else {
+                        info!("Successfully saved playlist after batch add");
                     }
                 }
             },
@@ -487,10 +512,11 @@ impl MediaPlayer {
         }
     }
 
-    fn save_playlists(&self) -> Result<(), anyhow::Error> {
+    pub fn save_playlists(&self) -> Result<(), anyhow::Error> {
         let path = self.data_dir.join("playlists.json");
+        info!("Saving playlists to {}", path.display());
         self.playlists.save_to_file(&path)?;
+        info!("Successfully saved playlists");
         Ok(())
     }
-    
 }

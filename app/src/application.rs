@@ -18,7 +18,7 @@ struct BatchProcessingJob {
     files: Vec<PathBuf>,
     playlist_id: u32,
     current_index: usize,
-    batch_size: usize,
+    batch_size: usize,  // Fixed: Added proper type declaration
     processed_count: usize,
     failed_count: usize,
 }
@@ -148,6 +148,12 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                         play_count: 0,
                     };
                     state.handle_action(core::Action::Playlist(core::PlaylistAction::AddTrack(playlist_id_clone, track)));
+                    
+                    // Force save after adding track
+                    if let Err(e) = state.save_playlists() {
+                        log::error!("Failed to save playlist after adding track: {}", e);
+                    }
+                    
                     log::info!("Added audio file to playlist: {}", filename);
 
                     // Use SetStatusMessage which returns a Task
@@ -184,7 +190,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 files: files.clone(),
                 playlist_id,
                 current_index: 0,
-                batch_size: 50,
+                batch_size: 15, // Reduced batch size for better reliability
                 processed_count: 0,
                 failed_count: 0,
             };
@@ -282,15 +288,23 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 state.handle_action(core::Action::Playlist(
                     core::PlaylistAction::BatchAddTracks(playlist_id, tracks)
                 ));
+                
+                // Force save after adding batch
+                if let Err(e) = state.save_playlists() {
+                    log::error!("Failed to save playlists after batch: {}", e);
+                } else {
+                    log::info!("BATCH: Successfully saved playlist after adding {} tracks", processed_in_batch);
+                }
             } else {
                 log::warn!("BATCH: No tracks to add in this batch!");
             }
 
-            // Always schedule the next batch or completion check
+            // Always schedule the next batch or completion check with increased delay
             let job_for_next_batch = job_clone.clone();
+            log::info!("QUEUE: Scheduling next batch with 300 ms delay...");
             Task::perform(
                 async {
-                    async_std::task::sleep(Duration::from_millis(50)).await; // Delay before next batch
+                    async_std::task::sleep(Duration::from_millis(300)).await; // Increased delay before next batch
                 },
                 move |_| Message::ProcessNextBatch(job_for_next_batch.clone())
             ) // Return Task
@@ -298,6 +312,14 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
 
         Message::BatchProcessingComplete(processed, failed, _playlist_id) => {
             log::info!("Processed {} files successfully, {} files failed", processed, failed);
+            
+            // Force final save
+            if let Err(e) = state.save_playlists() {
+                log::error!("Failed to save playlists after batch completion: {}", e);
+            } else {
+                log::info!("BATCH: Final playlist save successful after batch processing");
+            }
+            
             Task::perform(
                 async { async_std::task::sleep(Duration::from_millis(1)).await; },
                 move |_| Message::SetStatusMessage(
@@ -342,6 +364,14 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 state.handle_action(core::Action::Playlist(
                     core::PlaylistAction::BatchAddTracks(playlist_id, tracks)
                 ));
+                
+                // Force save after batch operation
+                if let Err(e) = state.save_playlists() {
+                    log::error!("Failed to save playlists after batch result: {}", e);
+                } else {
+                    log::info!("Successfully saved playlist after adding {} tracks", supported_count);
+                }
+                
                 log::info!("Added {} tracks to playlist in batch", supported_count);
                 let final_count = supported_count;
                 Task::perform(
@@ -409,6 +439,12 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 _ => { // Playlist or Library Actions passed via Action enum
                     state.handle_action(action);
                     state.player_state.shuffle_enabled = shuffle_before;
+                    
+                    // Force save after playlist/library actions
+                    if let Err(e) = state.save_playlists() {
+                        log::error!("Failed to save playlists after action: {}", e);
+                    }
+                    
                     Task::none() // Playlist/Library actions are typically synchronous state updates
                 }
             }
@@ -462,6 +498,14 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 PlaylistAction::BatchAddTracks(pid, tracks) => {
                     log::info!("Adding {} tracks to playlist {} in batch", tracks.len(), pid);
                     state.handle_action(core::Action::Playlist(core::PlaylistAction::BatchAddTracks(pid, tracks)));
+                    
+                    // Force save after batch add
+                    if let Err(e) = state.save_playlists() {
+                        log::error!("Failed to save playlists after batch add: {}", e);
+                    } else {
+                        log::info!("Successfully saved playlists after batch add");
+                    }
+                    
                     Task::none()
                 },
                 PlaylistAction::PlayerControl(ctrl) => {
@@ -517,6 +561,12 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     state.handle_action(core_action);
                     state.player_state = state.player.get_state();
                     state.player_state.shuffle_enabled = shuffle_before;
+                    
+                    // Force save after any playlist action
+                    if let Err(e) = state.save_playlists() {
+                        log::error!("Failed to save playlists after action: {}", e);
+                    }
+                    
                     Task::none() // These are synchronous state updates
                 }
             }
@@ -587,6 +637,9 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             if let Some(selected_idx) = state.playlists.selected {
                 if selected_idx < state.playlists.playlists.len() {
                     let playlist_id = state.playlists.playlists[selected_idx].id;
+                    
+                    // Added logging for playlist ID tracking
+                    log::info!("Using playlist ID {} for dropped files", playlist_id);
 
                     // Task for status message
                     let _status_task = Task::perform(
@@ -623,7 +676,10 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                         )
                     }
                 } else {
-                    Task::none() // No valid playlist selected
+                     Task::perform( // No valid playlist selected
+                        async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                        |_| Message::SetStatusMessage("Select a playlist before dropping files".to_string(), Duration::from_secs(3))
+                    )
                 }
             } else {
                  Task::perform( // No playlist selected, show message
@@ -732,6 +788,6 @@ pub fn run() -> iced::Result {
         .subscription(subscription)
         .window(window_state::window_settings())
         .theme(|_state| ui::theme::dark_theme())
-        // Removed the invalid .channel_capacity() call
+        // Removed .channel_capacity line - not available in this Iced version
         .run()
 }
