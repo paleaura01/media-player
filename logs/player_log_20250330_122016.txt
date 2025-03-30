@@ -1,0 +1,223 @@
+[2025-03-30 12:20:16.444] INFO [app\src\main.rs:50] Logging initialized to file: logs/player_log_20250330_122016.txt
+[2025-03-30 12:20:16.447] INFO [app\src\main.rs:105] Application starting...
+[2025-03-30 12:20:16.447] INFO [app\src\main.rs:67] =========== RUNNING AUDIO SYSTEM DIAGNOSTICS ===========
+[2025-03-30 12:20:16.448] INFO [core\src\audio\decoder.rs:48] FFmpeg initialized successfully
+[2025-03-30 12:20:16.449] INFO [app\src\main.rs:73] ✅ FFmpeg initialized successfully
+[2025-03-30 12:20:16.449] INFO [app\src\main.rs:77] Supported audio formats: mp3, wav, flac, ogg, m4a, aac, opus, wma, ape, mka, mp4, mp2, ac3, amr, au, mid, midi, ra, rm, tta, wv, caf, aiff, aif, oga, m4b, dts, mpc, tak, pcm, sbc, voc, w64, webm, 3ga, dsf, dff, gsm, spx, shn, xa, svx, 8svx, pvf, sf, vox, iff, sln, aa3, oma, at3, adx, adp, dxa, dca, imc, wady, mat, mmf, eam, eas, paf, raw, mod, s3m, xm, it, mkv, avi, mov, wmv, 3gp, ogv, mka, MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, MKA, MP4, MP2, AC3, AMR, AU, MID, MIDI, RA, RM, TTA, WV, CAF, AIFF, AIF
+[2025-03-30 12:20:16.449] INFO [core\src\audio\diagnostics.rs:14] ================ AUDIO DEVICE DIAGNOSTICS ================
+[2025-03-30 12:20:16.450] INFO [core\src\audio\diagnostics.rs:17] Host: WASAPI
+[2025-03-30 12:20:16.974] INFO [core\src\audio\diagnostics.rs:23] Found 3 output devices:
+[2025-03-30 12:20:16.974] INFO [core\src\audio\diagnostics.rs:27]   Device 0: Headset Earphone (3- Wireless Controller)
+[2025-03-30 12:20:17.103] INFO [core\src\audio\diagnostics.rs:33]     Supported configs: 2
+[2025-03-30 12:20:17.103] INFO [core\src\audio\diagnostics.rs:36]     Config 0: channels=2, min_rate=32000Hz, max_rate=32000Hz, sample_format=U8
+[2025-03-30 12:20:17.103] INFO [core\src\audio\diagnostics.rs:36]     Config 1: channels=2, min_rate=32000Hz, max_rate=32000Hz, sample_format=I16
+[2025-03-30 12:20:17.103] INFO [core\src\audio\diagnostics.rs:27]   Device 1: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:20:17.354] INFO [core\src\audio\diagnostics.rs:33]     Supported configs: 4
+[2025-03-30 12:20:17.354] INFO [core\src\audio\diagnostics.rs:36]     Config 0: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=U8
+[2025-03-30 12:20:17.354] INFO [core\src\audio\diagnostics.rs:36]     Config 1: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=I16
+[2025-03-30 12:20:17.354] INFO [core\src\audio\diagnostics.rs:36]     Config 2: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=I32
+[2025-03-30 12:20:17.354] INFO [core\src\audio\diagnostics.rs:36]     Config 3: channels=2, min_rate=44100Hz, max_rate=44100Hz, sample_format=F32
+[2025-03-30 12:20:17.355] INFO [core\src\audio\diagnostics.rs:27]   Device 2: Speakers (Logitech USB Headset H540)
+[2025-03-30 12:20:17.479] INFO [core\src\audio\diagnostics.rs:33]     Supported configs: 4
+[2025-03-30 12:20:17.479] INFO [core\src\audio\diagnostics.rs:36]     Config 0: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=U8
+[2025-03-30 12:20:17.480] INFO [core\src\audio\diagnostics.rs:36]     Config 1: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=I16
+[2025-03-30 12:20:17.480] INFO [core\src\audio\diagnostics.rs:36]     Config 2: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=I32
+[2025-03-30 12:20:17.480] INFO [core\src\audio\diagnostics.rs:36]     Config 3: channels=2, min_rate=48000Hz, max_rate=48000Hz, sample_format=F32
+[2025-03-30 12:20:17.483] INFO [core\src\audio\diagnostics.rs:52] Default output device: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:20:17.483] INFO [core\src\audio\diagnostics.rs:60] ==========================================================
+[2025-03-30 12:20:17.483] INFO [core\src\audio\diagnostics.rs:65] ================ AUDIO OUTPUT TEST ================
+[2025-03-30 12:20:17.486] INFO [core\src\audio\diagnostics.rs:77] Using device: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:20:17.487] INFO [core\src\audio\diagnostics.rs:88] Using config: channels=2, sample_rate=44100Hz, sample_format=F32
+[2025-03-30 12:20:17.507] INFO [core\src\audio\diagnostics.rs:131] Started audio test playback
+[2025-03-30 12:20:17.708] INFO [core\src\audio\diagnostics.rs:147] Audio test result: SUCCESS
+[2025-03-30 12:20:17.708] INFO [core\src\audio\diagnostics.rs:148] =================================================
+[2025-03-30 12:20:17.711] INFO [app\src\main.rs:89] ✅ Basic audio test passed - audio system is working
+[2025-03-30 12:20:17.712] INFO [core\src\audio\diagnostics.rs:155] ================ AUDIO BUFFER TEST ================
+[2025-03-30 12:20:17.712] INFO [core\src\audio\diagnostics.rs:163] Wrote 512 samples to buffer
+[2025-03-30 12:20:17.712] INFO [core\src\audio\diagnostics.rs:164] Buffer status: 512/1024 samples available
+[2025-03-30 12:20:17.712] INFO [core\src\audio\diagnostics.rs:169] Read 256 samples from buffer
+[2025-03-30 12:20:17.712] INFO [core\src\audio\diagnostics.rs:170] Buffer status: 256/1024 samples available
+[2025-03-30 12:20:17.713] INFO [core\src\audio\diagnostics.rs:174] Data integrity test: PASSED
+[2025-03-30 12:20:17.713] INFO [core\src\audio\diagnostics.rs:176] =================================================
+[2025-03-30 12:20:17.713] INFO [app\src\main.rs:97] =========== AUDIO DIAGNOSTICS COMPLETE ===========
+[2025-03-30 12:20:17.736] INFO [core\src\audio\diagnostics.rs:372] Started diagnostic audio stream
+[2025-03-30 12:20:17.736] INFO [app\src\application.rs:807] FFmpeg initialized successfully
+[2025-03-30 12:20:17.736] INFO [app\src\application.rs:809] Supported audio formats: mp3, wav, flac, ogg, m4a, aac, opus, wma, ape, mka, mp4, mp2, ac3, amr, au, mid, midi, ra, rm, tta, wv, caf, aiff, aif, oga, m4b, dts, mpc, tak, pcm, sbc, voc, w64, webm, 3ga, dsf, dff, gsm, spx, shn, xa, svx, 8svx, pvf, sf, vox, iff, sln, aa3, oma, at3, adx, adp, dxa, dca, imc, wady, mat, mmf, eam, eas, paf, raw, mod, s3m, xm, it, mkv, avi, mov, wmv, 3gp, ogv, mka, MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, MKA, MP4, MP2, AC3, AMR, AU, MID, MIDI, RA, RM, TTA, WV, CAF, AIFF, AIF
+[2025-03-30 12:20:17.789] INFO [core\src\player\mod.rs:34] Initializing Media Player with FFmpeg...
+[2025-03-30 12:20:17.789] INFO [core\src\player\mod.rs:42] Supported audio formats: mp3, wav, flac, ogg, m4a, aac, opus, wma, ape, mka, mp4, mp2, ac3, amr, au, mid, midi, ra, rm, tta, wv, caf, aiff, aif, oga, m4b, dts, mpc, tak, pcm, sbc, voc, w64, webm, 3ga, dsf, dff, gsm, spx, shn, xa, svx, 8svx, pvf, sf, vox, iff, sln, aa3, oma, at3, adx, adp, dxa, dca, imc, wady, mat, mmf, eam, eas, paf, raw, mod, s3m, xm, it, mkv, avi, mov, wmv, 3gp, ogv, mka, MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, WMA, APE, MKA, MP4, MP2, AC3, AMR, AU, MID, MIDI, RA, RM, TTA, WV, CAF, AIFF, AIF
+[2025-03-30 12:20:17.789] INFO [core\src\player\mod.rs:75] Network playback configured: buffer=8192KB, prebuffer=5s
+[2025-03-30 12:20:17.790] INFO [app\src\states\app_state.rs:68] MediaPlayer default state created
+[2025-03-30 12:20:17.980] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:696] InstanceFlags::VALIDATION requested, but unable to find layer: VK_LAYER_KHRONOS_validation
+[2025-03-30 12:20:18.024] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:341] Debug utils not enabled: debug_utils_user_data not passed to Instance::from_raw
+[2025-03-30 12:20:18.028] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\dx12\instance.rs:31] Unable to enable D3D12 debug interface: 0x887A002D
+[2025-03-30 12:20:18.028] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\auxil\dxgi\factory.rs:160] Unable to enable DXGI debug interface: 0x887A002D
+[2025-03-30 12:20:18.140] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:62] Settings {
+    present_mode: AutoVsync,
+    backends: Backends(
+        VULKAN | GL | METAL | DX12 | BROWSER_WEBGPU,
+    ),
+    default_font: Font {
+        family: SansSerif,
+        weight: Normal,
+        stretch: Normal,
+        style: Normal,
+    },
+    default_text_size: Pixels(
+        16.0,
+    ),
+    antialiasing: None,
+}
+[2025-03-30 12:20:19.260] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:71] Available adapters: [
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "NVIDIA",
+        driver_info: "572.60",
+        backend: Vulkan,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "Microsoft Basic Render Driver",
+        vendor: 5140,
+        device: 140,
+        device_type: Cpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER/PCIe/SSE2",
+        vendor: 4318,
+        device: 0,
+        device_type: Other,
+        driver: "",
+        driver_info: "",
+        backend: Gl,
+    },
+]
+[2025-03-30 12:20:20.993] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:94] Selected: AdapterInfo {
+    name: "NVIDIA GeForce RTX 2080 SUPER",
+    vendor: 4318,
+    device: 7809,
+    device_type: DiscreteGpu,
+    driver: "NVIDIA",
+    driver_info: "572.60",
+    backend: Vulkan,
+}
+[2025-03-30 12:20:20.996] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:103] Available formats: Copied {
+    it: Iter(
+        [
+            Bgra8UnormSrgb,
+            Rgba8UnormSrgb,
+            Bgra8Unorm,
+            Rgba8Unorm,
+        ],
+    ),
+}
+[2025-03-30 12:20:20.997] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:119] Available alpha modes: [
+    Opaque,
+]
+[2025-03-30 12:20:20.997] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:137] Selected format: Bgra8UnormSrgb with alpha mode: Auto
+[2025-03-30 12:20:21.170] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_winit-0.13.0\src\program.rs:522] Window attributes for id `Id(
+    1,
+)`: WindowAttributes {
+    inner_size: Some(
+        Logical(
+            LogicalSize {
+                width: 1200.0,
+                height: 800.0,
+            },
+        ),
+    ),
+    min_inner_size: None,
+    max_inner_size: None,
+    position: Some(
+        Logical(
+            LogicalPosition {
+                x: 2157.0,
+                y: 72.0,
+            },
+        ),
+    ),
+    resizable: true,
+    enabled_buttons: WindowButtons(
+        CLOSE | MINIMIZE | MAXIMIZE,
+    ),
+    title: "Media Player",
+    maximized: false,
+    visible: false,
+    transparent: false,
+    blur: false,
+    decorations: true,
+    window_icon: Some(
+        RaiiIcon {
+            handle: 1223166591,
+        },
+    ),
+    preferred_theme: None,
+    resize_increments: None,
+    content_protected: false,
+    window_level: Normal,
+    active: true,
+    cursor: Icon(
+        Default,
+    ),
+    parent_window: None,
+    fullscreen: None,
+    platform_specific: PlatformSpecificWindowAttributes {
+        owner: None,
+        menu: None,
+        taskbar_icon: None,
+        no_redirection_bitmap: false,
+        drag_and_drop: true,
+        skip_taskbar: false,
+        class_name: "Window Class",
+        decoration_shadow: false,
+        backdrop_type: Auto,
+        clip_children: true,
+        border_color: None,
+        title_background_color: None,
+        title_text_color: None,
+        corner_preference: None,
+    },
+}
+[2025-03-30 12:20:22.408] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:22.415] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:22.415] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:22.421] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:22.422] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:22.428] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:22.736] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3936 callbacks/sec
+[2025-03-30 12:20:23.205] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:23.212] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:24.588] INFO [app\src\states\playlist_state.rs:95] UI requesting Create Playlist: New Playlist
+[2025-03-30 12:20:24.588] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:24.595] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:24.595] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:24.602] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:25.842] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:25.849] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:26.965] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:26.972] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:27.648] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:27.658] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:27.737] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.5949 callbacks/sec
+[2025-03-30 12:20:28.508] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:28.516] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:28.517] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:20:28.525] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:20:32.737] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39544 callbacks/sec
+[2025-03-30 12:20:37.740] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.354706 callbacks/sec
+[2025-03-30 12:20:42.740] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.593155 callbacks/sec
+[2025-03-30 12:20:47.741] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.38977 callbacks/sec
+[2025-03-30 12:20:52.741] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39494 callbacks/sec

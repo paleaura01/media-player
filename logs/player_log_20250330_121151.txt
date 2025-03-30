@@ -2668,3 +2668,111 @@
 [2025-03-30 12:12:48.657] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
 [2025-03-30 12:12:48.732] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
 [2025-03-30 12:12:48.739] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:12:52.886] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.37803 callbacks/sec
+[2025-03-30 12:12:53.043] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:12:53.050] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:12:54.601] INFO [app\src\application.rs:497] Playing track 0 from playlist 7
+[2025-03-30 12:12:54.602] INFO [app\src\states\app_state.rs:131] Attempting to play file: \\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3
+[2025-03-30 12:12:54.602] INFO [core\src\player\mod.rs:253] Player::stop()
+[2025-03-30 12:12:54.702] INFO [core\src\player\mod.rs:297] Player stop operation completed
+[2025-03-30 12:12:54.803] INFO [core\src\player\mod.rs:95] Player::play(\\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3)
+[2025-03-30 12:12:54.803] INFO [core\src\player\mod.rs:101] Network path detected, using enhanced buffering
+[2025-03-30 12:12:54.804] INFO [core\src\audio\decoder.rs:970] Playing audio file with enhanced mode - prefetch=true, buffer_size=Some(8388608)
+[2025-03-30 12:12:54.804] INFO [core\src\audio\decoder.rs:977] Using network-optimized playback settings for \\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3
+[2025-03-30 12:12:54.804] INFO [core\src\audio\decoder.rs:299] Attempting to play file: \\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3
+[2025-03-30 12:12:54.828] INFO [core\src\audio\decoder.rs:410] Found audio stream: 2 channels, 44100 Hz
+[2025-03-30 12:12:54.828] INFO [core\src\audio\decoder.rs:424] Using codec: mp3float
+[2025-03-30 12:12:54.828] INFO [core\src\audio\decoder.rs:446] Codec parameters: sample_fmt=AV_SAMPLE_FMT_FLTP, sample_rate=44100, channels=2
+[2025-03-30 12:12:54.829] INFO [core\src\audio\decoder.rs:465] Track duration: 3388.081633s
+[2025-03-30 12:12:54.829] INFO [core\src\audio\decoder.rs:473] Setting up audio output with CPAL...
+[2025-03-30 12:12:54.829] INFO [core\src\audio\decoder.rs:475] Audio host: WASAPI
+[2025-03-30 12:12:54.832] INFO [core\src\audio\decoder.rs:479] Using output device: E2SW3918 (NVIDIA High Definition Audio)
+[2025-03-30 12:12:55.089] INFO [core\src\audio\decoder.rs:511] Selected output config: 2 channels, 44100 Hz
+[2025-03-30 12:12:55.089] INFO [core\src\audio\decoder.rs:548] Output config: 2 channels, 44100 Hz
+[2025-03-30 12:12:55.089] INFO [core\src\audio\position.rs:45] Set total_samples to 298828800 (channel_count = 2)
+[2025-03-30 12:12:55.089] INFO [core\src\audio\position.rs:51] Set channel_count to 2
+[2025-03-30 12:12:55.089] INFO [core\src\audio\decoder.rs:564] Creating ring buffer with 70560 samples (0.27 MB)
+[2025-03-30 12:12:55.089] INFO [core\src\audio\decoder.rs:576] Ring buffer initialized: capacity=70560, available=0
+[2025-03-30 12:12:55.089] INFO [core\src\audio\decoder.rs:581] Building audio output stream...
+[2025-03-30 12:12:55.105] INFO [core\src\audio\decoder.rs:660] Started audio playback stream
+[2025-03-30 12:12:55.105] INFO [core\src\audio\decoder.rs:743] Beginning decode loop for file: \\?\UNC\FREENAS\OurShare\Music\Lidarr\Dum & Bass\Mixes\Rollers\Torn - Samurai Music Podcast 039_522220077 - Samurai Music.mp3
+[2025-03-30 12:12:55.304] INFO [core\src\player\mod.rs:223] Started playback successfully
+[2025-03-30 12:12:55.304] INFO [app\src\states\app_state.rs:151] Started playback successfully
+[2025-03-30 12:12:57.886] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39837 callbacks/sec
+[2025-03-30 12:13:00.010] INFO [app\src\application.rs:476] (Playlist) Received Seek(0.1840)
+[2025-03-30 12:13:00.010] INFO [core\src\audio\position.rs:130] Seek requested to 0.1840 (18.40%)
+[2025-03-30 12:13:00.010] INFO [core\src\audio\position.rs:136] Current frame: 113495/149414400 (0.08%), Target frame: 27492252/149414400 (18.40%)
+[2025-03-30 12:13:00.011] INFO [core\src\audio\decoder.rs:776] Seek requested to position 0.1840
+[2025-03-30 12:13:00.166] INFO [core\src\audio\decoder.rs:801] Seek successful
+[2025-03-30 12:13:01.999] INFO [core\src\player\mod.rs:235] Player::pause()
+[2025-03-30 12:13:02.887] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.58924 callbacks/sec
+[2025-03-30 12:13:04.019] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:04.026] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:07.781] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:07.788] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:07.893] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.27793 callbacks/sec
+[2025-03-30 12:13:10.398] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:10.404] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:10.574] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:10.580] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:12.893] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.594734 callbacks/sec
+[2025-03-30 12:13:17.894] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39287 callbacks/sec
+[2025-03-30 12:13:22.894] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39022 callbacks/sec
+[2025-03-30 12:13:27.895] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39565 callbacks/sec
+[2025-03-30 12:13:32.895] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59626 callbacks/sec
+[2025-03-30 12:13:37.896] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.397606 callbacks/sec
+[2025-03-30 12:13:42.896] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39817 callbacks/sec
+[2025-03-30 12:13:47.896] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39091 callbacks/sec
+[2025-03-30 12:13:48.780] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:48.787] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:48.860] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:48.867] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:49.053] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:49.059] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:51.412] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:51.419] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:52.405] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:52.412] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:52.461] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:52.467] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:52.898] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.569664 callbacks/sec
+[2025-03-30 12:13:53.033] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:53.040] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:53.502] INFO [app\src\states\app_state.rs:525] Saving playlists to data\playlists.json
+[2025-03-30 12:13:53.509] INFO [app\src\states\app_state.rs:537] Successfully saved playlists
+[2025-03-30 12:13:57.899] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.398895 callbacks/sec
+[2025-03-30 12:14:02.901] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.361786 callbacks/sec
+[2025-03-30 12:14:07.902] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59212 callbacks/sec
+[2025-03-30 12:14:12.902] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.38953 callbacks/sec
+[2025-03-30 12:14:17.956] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3573 callbacks/sec
+[2025-03-30 12:14:22.956] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39151 callbacks/sec
+[2025-03-30 12:14:27.957] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59223 callbacks/sec
+[2025-03-30 12:14:32.957] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39398 callbacks/sec
+[2025-03-30 12:14:37.958] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39486 callbacks/sec
+[2025-03-30 12:14:42.958] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39129 callbacks/sec
+[2025-03-30 12:14:47.959] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.58235 callbacks/sec
+[2025-03-30 12:14:52.969] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.41362 callbacks/sec
+[2025-03-30 12:14:57.973] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.33042 callbacks/sec
+[2025-03-30 12:15:02.975] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.551346 callbacks/sec
+[2025-03-30 12:15:07.976] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.395546 callbacks/sec
+[2025-03-30 12:15:12.976] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39363 callbacks/sec
+[2025-03-30 12:15:17.981] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.547874 callbacks/sec
+[2025-03-30 12:15:22.983] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.396286 callbacks/sec
+[2025-03-30 12:15:27.984] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.5914 callbacks/sec
+[2025-03-30 12:15:32.984] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39098 callbacks/sec
+[2025-03-30 12:15:37.985] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39218 callbacks/sec
+[2025-03-30 12:15:42.986] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.18829 callbacks/sec
+[2025-03-30 12:15:47.986] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59388 callbacks/sec
+[2025-03-30 12:15:52.986] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39755 callbacks/sec
+[2025-03-30 12:15:57.987] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39695 callbacks/sec
+[2025-03-30 12:16:02.998] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 97.98316 callbacks/sec
+[2025-03-30 12:16:07.999] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39008 callbacks/sec
+[2025-03-30 12:16:13.000] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.37742 callbacks/sec
+[2025-03-30 12:16:18.000] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39529 callbacks/sec
+[2025-03-30 12:16:23.001] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39249 callbacks/sec
+[2025-03-30 12:16:28.001] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.59765 callbacks/sec
+[2025-03-30 12:16:33.002] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.38939 callbacks/sec
+[2025-03-30 12:16:38.012] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39959 callbacks/sec
+[2025-03-30 12:16:43.015] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.58507 callbacks/sec
+[2025-03-30 12:16:48.016] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.3898 callbacks/sec
+[2025-03-30 12:16:53.016] INFO [core\src\audio\diagnostics.rs:387] Audio diagnostics: 98.39123 callbacks/sec

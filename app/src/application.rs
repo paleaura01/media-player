@@ -12,9 +12,9 @@ use tokio::time::sleep; // Use tokio instead
 use crate::ui::playlist_view::PlaylistAction;
 use crate::ui::library_view::LibraryMessage;
 
-// Create a structure to represent a batch processing job
+// Create a structure to represent a batch processing job - make it public
 #[derive(Debug, Clone)]
-struct BatchProcessingJob {
+pub struct BatchProcessingJob {
     files: Vec<PathBuf>,
     playlist_id: u32,
     current_index: usize,
@@ -256,8 +256,8 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
             
             let mut tracks = Vec::new();
             let playlist_id = job_clone.playlist_id;
-            let mut processed_in_batch = 0;
-            let mut failed_in_batch = 0;
+            let mut _processed_in_batch = 0; // Added underscore to fix warning
+            let mut _failed_in_batch = 0;    // Added underscore to fix warning
 
             for i in job_clone.current_index..end_index {
                 if let Some(file_path) = job_clone.files.get(i) {
@@ -281,15 +281,15 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                                 });
 
                                 job_clone.processed_count += 1;
-                                processed_in_batch += 1;
+                                _processed_in_batch += 1;  // Updated with underscore
                             } else {
                                 job_clone.failed_count += 1;
-                                failed_in_batch += 1;
+                                _failed_in_batch += 1;     // Updated with underscore
                             }
                         },
                         Err(_) => {
                             job_clone.failed_count += 1;
-                            failed_in_batch += 1;
+                            _failed_in_batch += 1;         // Updated with underscore
                         }
                     }
                 }
