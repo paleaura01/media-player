@@ -8,7 +8,7 @@ pub struct PlaylistViewState {
     pub editing_playlist: Option<u32>,
     pub edit_value: String,
     pub last_click: Option<(u32, Instant)>,
-    pub is_seeking: bool, // Added new field for seek tracking
+    pub is_seeking: bool, // Added field for seek tracking
 }
 
 impl PlaylistViewState {
@@ -72,14 +72,20 @@ impl PlaylistViewState {
                 Action::Playlist(CorePlaylistAction::PlayTrack(playlist_id, track_idx))
             },
             
-            // ===== Fix for the Seek variant =====
+            // Fixed implementation for BatchAddTracks
+            PlaylistAction::BatchAddTracks(playlist_id, tracks) => {
+                println!("Request to add {} tracks to playlist {}", tracks.len(), playlist_id);
+                Action::Playlist(CorePlaylistAction::BatchAddTracks(playlist_id, tracks))
+            },
+            
+            // Fix for the Seek variant
             PlaylistAction::Seek(position) => {
                 println!("██ DEBUG: PlaylistAction::Seek({:.4}) in playlist_view_state.rs", position);
                 println!("██ DEBUG: Converting to Action::Player(PlayerAction::Seek)");
                 Action::Player(core::PlayerAction::Seek(position))
             },
             
-            // Add the UpdateProgress variant
+            // UpdateProgress variant
             PlaylistAction::UpdateProgress(_pos) => {
                 // Just for UI updates during dragging, no actual seeking
                 Action::Playlist(CorePlaylistAction::None)
@@ -93,7 +99,7 @@ impl PlaylistViewState {
                 Action::Playlist(CorePlaylistAction::None)
             },
             
-            // New handler for RemoveTrack
+            // Handler for RemoveTrack
             PlaylistAction::RemoveTrack(playlist_id, track_idx) => {
                 println!("Requesting to remove track {} from playlist {}", track_idx, playlist_id);
                 Action::Playlist(CorePlaylistAction::RemoveTrack(playlist_id, track_idx))

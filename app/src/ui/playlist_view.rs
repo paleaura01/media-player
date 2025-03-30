@@ -20,7 +20,8 @@ pub enum PlaylistAction {
     Seek(f32),
     UpdateProgress(f32),
     RemoveTrack(u32, usize),
-    Library(crate::ui::library_view::LibraryMessage), // Add this new variant
+    BatchAddTracks(u32, Vec<core::Track>),
+    Library(crate::ui::library_view::LibraryMessage), 
 }
 
 // SVG loading function

@@ -51,11 +51,29 @@ pub fn initialize_ffmpeg() -> Result<()> {
 
 // Get list of supported extensions for UI filtering
 pub fn get_supported_extensions() -> Vec<String> {
-    // Common audio formats
+    // Comprehensive list of audio formats supported by FFmpeg
     let common_extensions = [
-        "mp3", "wav", "flac", "ogg", "m4a", "aac", "opus", 
-        "wma", "ape", "mka", "mp4", "mp2", "ac3", "amr", "au",
-        "mid", "midi", "ra", "rm", "tta", "wv", "caf", "aiff"
+        // Common formats
+        "mp3", "wav", "flac", "ogg", "m4a", "aac", "opus", "wma", "ape", "mka",
+        "mp4", "mp2", "ac3", "amr", "au", "mid", "midi", "ra", "rm", "tta", "wv", 
+        "caf", "aiff", "aif",
+        
+        // Less common but supported formats
+        "oga", "m4b", "dts", "mpc", "tak", "pcm", "sbc", "voc", "w64", "webm",
+        "3ga", "dsf", "dff", "gsm", "spx", "shn", "xa", "svx", "8svx", "pvf",
+        "sf", "vox", "iff", "sln", "aa3", "oma", "at3", "adx", "adp", "dxa",
+        "dca", "imc", "wady", "mat", "mmf", "eam", "eas", "paf", "raw",
+        
+        // Module formats
+        "mod", "s3m", "xm", "it",
+        
+        // Additional container formats that might contain audio
+        "mkv", "avi", "mov", "wmv", "3gp", "ogv", "mka",
+        
+        // Additional variations and capitalized extensions (Windows compatibility)
+        "MP3", "WAV", "FLAC", "OGG", "M4A", "AAC", "OPUS", "WMA", "APE", "MKA",
+        "MP4", "MP2", "AC3", "AMR", "AU", "MID", "MIDI", "RA", "RM", "TTA", "WV",
+        "CAF", "AIFF", "AIF"
     ];
     
     common_extensions.iter().map(|&s| s.to_string()).collect()

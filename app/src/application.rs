@@ -1,14 +1,27 @@
-// app/src/application.rs
-use iced::{Element, Subscription, Task, Point};
+// app/src/application.rs - Add improved batch processing support
+use iced::{Element, Subscription, Task};  // Removed Point import
 use crate::ui;
 use crate::states::window_state;
 use crate::states::app_state::MediaPlayer;
 use iced::keyboard::{Key, key::Named};
 use std::path::PathBuf;
 use std::time::Duration;
+use std::fs;
+// Removed unused VecDeque import
 
 use crate::ui::playlist_view::PlaylistAction;
 use crate::ui::library_view::LibraryMessage;
+
+// Create a structure to represent a batch processing job
+#[derive(Debug, Clone)]
+struct BatchProcessingJob {
+    files: Vec<PathBuf>,
+    playlist_id: u32,
+    current_index: usize,
+    batch_size: usize,
+    processed_count: usize,
+    failed_count: usize,
+}
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -23,7 +36,7 @@ pub enum Message {
     /// Window events
     WindowClosed { x: i32, y: i32 },
     /// Mouse position for hover detection
-    MousePosition(Point),
+    MousePosition(()),
     /// Window focus events
     WindowFocusLost,
     WindowFocusGained,
@@ -38,9 +51,18 @@ pub enum Message {
     /// Set a temporary status message
     SetStatusMessage(String, Duration),
     /// File validation result
-    FileValidationResult(Option<(String, PathBuf, u32)>), // path_str, abs_path, playlist_id
+    FileValidationResult(Option<(String, PathBuf, u32)>),
+    /// Batch file processing result
+    BatchProcessingResult(Vec<(String, PathBuf)>, u32),
+    /// Process next batch of files
+    ProcessNextBatch(BatchProcessingJob),
+    /// Batch processing complete notification
+    BatchProcessingComplete(usize, usize, u32),
+    /// Directory scan result for batch processing
+    DirectoryScanResult(Vec<PathBuf>, u32),
 }
 
+// Main update function - ensures every arm returns Task<Message>
 fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
     // Preserve shuffle between updates
     let shuffle_before = state.player_state.shuffle_enabled;
@@ -48,8 +70,8 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
     // Clone message early to avoid borrowing issues
     let message_clone = message.clone();
 
-    // Return a Tick task for any message that is Tick
-    match &message {
+    // The main match expression determines the return value
+    match message_clone {
         Message::Tick => {
             // Only update state on tick if we're not currently in a seek operation
             if !state.playlist_view_state.is_seeking {
@@ -58,7 +80,7 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                 state.player_state.shuffle_enabled = shuffle_before;
                 state.check_for_completed_tracks();
             }
-            
+
             // Clear status message if expired
             if let (Some(time), Some(duration)) = (state.status_message_time, state.status_message_duration) {
                 if time.elapsed() > duration {
@@ -67,511 +89,579 @@ fn update(state: &mut MediaPlayer, message: Message) -> Task<Message> {
                     state.status_message_duration = None;
                 }
             }
-            
+
             // Schedule the next tick
-            return Task::perform(
+            Task::perform(
                 async {
-                    // Using async-std's sleep function
                     async_std::task::sleep(Duration::from_millis(100)).await;
                 },
                 |_| Message::Tick
-            );
+            ) // No semicolon - this is the return value for this arm
         },
 
-        // Special handler for ClearSeekFlag message
         Message::ClearSeekFlag => {
             state.playlist_view_state.is_seeking = false;
             log::debug!("Cleared seeking flag asynchronously");
-            
+
             // Continue ticking
-            return Task::perform(
+            Task::perform(
                 async {
                     async_std::task::sleep(Duration::from_millis(100)).await;
                 },
                 |_| Message::Tick
-            );
+            ) // No semicolon
         },
-        
-        // Handle status message
+
         Message::SetStatusMessage(msg, duration) => {
             state.status_message = Some(msg.clone());
             state.status_message_time = Some(std::time::Instant::now());
-            state.status_message_duration = Some(*duration);
-            
+            state.status_message_duration = Some(duration);
+
             // Schedule a tick to clear the message after duration
-            let duration_clone = *duration;
-            return Task::perform(
+            let duration_clone = duration;
+            Task::perform(
                 async move {
                     async_std::task::sleep(duration_clone).await;
                 },
-                |_| Message::Tick
-            );
+                |_| Message::Tick // Using Tick to potentially clear it, ensures a Task is returned
+            ) // No semicolon
         },
-        
-        // Handle file validation result
+
         Message::FileValidationResult(result) => {
             if let Some((path_str, abs_path, playlist_id)) = result {
                 let path_str_clone = path_str.clone();
                 let abs_path_clone = abs_path.clone();
-                let playlist_id_clone = *playlist_id;
+                let playlist_id_clone = playlist_id;
 
-                // Use FFmpeg to determine if file is supported audio
                 if core::audio::decoder::is_supported_audio_format(&path_str_clone) {
                     let filename = abs_path_clone
                         .file_name()
                         .and_then(|n| n.to_str())
                         .unwrap_or("Unknown")
                         .to_string();
-                        
+
                     let track = core::Track {
-                        path: path_str_clone,
+                        path: path_str_clone.clone(),
                         title: Some(filename.clone()),
                         artist: None,
                         album: None,
-                        play_count: 0, // Initialize play count to 0
+                        play_count: 0,
                     };
                     state.handle_action(core::Action::Playlist(core::PlaylistAction::AddTrack(playlist_id_clone, track)));
                     log::info!("Added audio file to playlist: {}", filename);
-                    
-                    return Task::perform(
-                        async {
-                            async_std::task::sleep(Duration::from_millis(100)).await;
-                        },
-                        |_| Message::Tick
-                    );
+
+                    // Use SetStatusMessage which returns a Task
+                    Task::perform(
+                        async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                        move |_| Message::SetStatusMessage(format!("Added: {}", filename), Duration::from_secs(2))
+                    )
                 } else {
-                    // Show a status message that the file is not supported
                     let path_str_for_closure = path_str_clone.clone();
-                    return Task::perform(
-                        async {
-                            async_std::task::sleep(Duration::from_millis(1)).await;
-                        },
-                        move |_| Message::SetStatusMessage(format!("Unsupported audio format: {}", path_str_for_closure), Duration::from_secs(3))
-                    );
+                    Task::perform(
+                        async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                        move |_| Message::SetStatusMessage(format!("Unsupported: {}", path_str_for_closure), Duration::from_secs(3))
+                    )
                 }
             } else {
-                // File validation failed
-                return Task::perform(
-                    async {
-                        async_std::task::sleep(Duration::from_millis(1)).await;
-                    },
+                Task::perform(
+                    async { async_std::task::sleep(Duration::from_millis(1)).await; },
                     |_| Message::SetStatusMessage("File validation failed".to_string(), Duration::from_secs(3))
+                )
+            }
+        },
+
+        Message::DirectoryScanResult(files, playlist_id) => {
+            if files.is_empty() {
+                return Task::perform(
+                    async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                    |_| Message::SetStatusMessage("No files found in directory".to_string(), Duration::from_secs(2))
                 );
             }
-        },
-        
-        _ => {
-            // For non-Tick messages, update state only if not in a seek operation
-            if !matches!(message, 
-                Message::Playlist(PlaylistAction::Seek(_)) | 
-                Message::Playlist(PlaylistAction::UpdateProgress(_))
-            ) {
-                state.player.update_progress();
-                state.player_state = state.player.get_state();
-                state.player_state.shuffle_enabled = shuffle_before;
-                state.check_for_completed_tracks();
-            }
-        }
-    }
 
-    // Process all other messages
-    match message_clone {
-        Message::Tick | Message::ClearSeekFlag | Message::SetStatusMessage(_, _) | Message::FileValidationResult(_) => {
-            // Already handled above
-            Task::none() 
+            log::info!("Found {} files to process for playlist {}", files.len(), playlist_id);
+
+            let job = BatchProcessingJob {
+                files: files.clone(),
+                playlist_id,
+                current_index: 0,
+                batch_size: 50,
+                processed_count: 0,
+                failed_count: 0,
+            };
+
+            let job_for_closure = job.clone();
+            Task::perform(
+                async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                move |_| Message::ProcessNextBatch(job_for_closure.clone())
+            )
         },
+
+        Message::ProcessNextBatch(job) => {
+            let mut job_clone = job.clone();
+
+            log::info!("BATCH: Processing batch {}/{} files - progress: {}/{}",
+                      job_clone.current_index, job_clone.current_index + job_clone.batch_size,
+                      job_clone.processed_count, job_clone.files.len());
+
+            if job_clone.current_index >= job_clone.files.len() {
+                log::info!("BATCH: All batches completed. Processed {} files, failed {} files",
+                          job_clone.processed_count, job_clone.failed_count);
+
+                let processed = job_clone.processed_count;
+                let failed = job_clone.failed_count;
+                let playlist_id = job_clone.playlist_id;
+
+                return Task::perform(
+                    async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                    move |_| Message::BatchProcessingComplete(processed, failed, playlist_id)
+                );
+            }
+
+            let end_index = std::cmp::min(job_clone.current_index + job_clone.batch_size, job_clone.files.len());
+            log::info!("BATCH: Processing files from index {} to {} (batch size: {})",
+                      job_clone.current_index, end_index, job_clone.batch_size);
+
+            let mut tracks = Vec::new();
+            let playlist_id = job_clone.playlist_id;
+            let mut processed_in_batch = 0;
+            let mut failed_in_batch = 0;
+
+            for i in job_clone.current_index..end_index {
+                if let Some(file_path) = job_clone.files.get(i) {
+                    log::info!("PROC: Processing file {}: {:?}", i, file_path);
+
+                    match std::fs::canonicalize(file_path) {
+                        Ok(abs_path) => {
+                            let path_str = abs_path.to_string_lossy().to_string();
+
+                            log::info!("FORMAT CHECK: File {:?} - supported: {}",
+                                      abs_path, core::audio::decoder::is_supported_audio_format(&path_str));
+
+                            if core::audio::decoder::is_supported_audio_format(&path_str) {
+                                let filename = abs_path
+                                    .file_name()
+                                    .and_then(|n| n.to_str())
+                                    .unwrap_or("Unknown")
+                                    .to_string();
+
+                                log::info!("PROC: Adding supported file: {}", filename);
+
+                                tracks.push(core::Track {
+                                    path: path_str,
+                                    title: Some(filename),
+                                    artist: None,
+                                    album: None,
+                                    play_count: 0,
+                                });
+
+                                job_clone.processed_count += 1;
+                                processed_in_batch += 1;
+                            } else {
+                                log::info!("PROC: Skipping unsupported file: {:?}", abs_path);
+                                job_clone.failed_count += 1;
+                                failed_in_batch += 1;
+                            }
+                        },
+                        Err(e) => {
+                            log::error!("PROC: Error canonicalizing path {:?}: {}", file_path, e);
+                            job_clone.failed_count += 1;
+                            failed_in_batch += 1;
+                        }
+                    }
+                }
+            }
+
+            log::info!("BATCH: Batch stats - processed: {}, failed: {}, tracks to add: {}",
+                      processed_in_batch, failed_in_batch, tracks.len());
+
+            job_clone.current_index = end_index;
+
+            if !tracks.is_empty() {
+                log::info!("BATCH: Adding {} tracks to playlist {}", tracks.len(), playlist_id);
+
+                state.handle_action(core::Action::Playlist(
+                    core::PlaylistAction::BatchAddTracks(playlist_id, tracks)
+                ));
+            } else {
+                log::warn!("BATCH: No tracks to add in this batch!");
+            }
+
+            // Always schedule the next batch or completion check
+            let job_for_next_batch = job_clone.clone();
+            Task::perform(
+                async {
+                    async_std::task::sleep(Duration::from_millis(50)).await; // Delay before next batch
+                },
+                move |_| Message::ProcessNextBatch(job_for_next_batch.clone())
+            ) // Return Task
+        },
+
+        Message::BatchProcessingComplete(processed, failed, _playlist_id) => {
+            log::info!("Processed {} files successfully, {} files failed", processed, failed);
+            Task::perform(
+                async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                move |_| Message::SetStatusMessage(
+                    format!("Added {} audio files ({} failed)", processed, failed),
+                    Duration::from_secs(3)
+                )
+            )
+        },
+
+        Message::BatchProcessingResult(files, playlist_id) => {
+            if files.is_empty() {
+                return Task::perform(
+                    async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                    |_| Message::SetStatusMessage("No valid files to add".to_string(), Duration::from_secs(2))
+                );
+            }
+
+            let mut tracks = Vec::with_capacity(files.len());
+            let mut supported_count = 0;
+
+            for (path_str, abs_path) in files {
+                if core::audio::decoder::is_supported_audio_format(&path_str) {
+                    let filename = abs_path
+                        .file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or("Unknown")
+                        .to_string();
+
+                    tracks.push(core::Track {
+                        path: path_str.clone(),
+                        title: Some(filename),
+                        artist: None,
+                        album: None,
+                        play_count: 0,
+                    });
+
+                    supported_count += 1;
+                }
+            }
+
+            if !tracks.is_empty() {
+                state.handle_action(core::Action::Playlist(
+                    core::PlaylistAction::BatchAddTracks(playlist_id, tracks)
+                ));
+                log::info!("Added {} tracks to playlist in batch", supported_count);
+                let final_count = supported_count;
+                Task::perform(
+                    async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                    move |_| Message::SetStatusMessage(format!("Added {} files to playlist", final_count), Duration::from_secs(2))
+                )
+            } else {
+                Task::perform(
+                    async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                    |_| Message::SetStatusMessage("No supported audio files found".to_string(), Duration::from_secs(3))
+                )
+            }
+        },
+
+        // --- Action Handlers ---
         Message::Action(action) => {
             let shuffle_before = state.player_state.shuffle_enabled;
             match action {
                 core::Action::Player(player_action) => {
                     match player_action {
                         core::PlayerAction::Seek(pos) => {
-                            // Set seeking flag
                             state.playlist_view_state.is_seeking = true;
-                            
-                            // First clear buffers
                             state.player.clear_audio_buffers();
-                            
-                            // Then request the seek
                             if let Ok(mut lock) = state.player.playback_position.lock() {
                                 lock.request_seek(pos);
-                                log::debug!("(Action) Requested seek to {:.4} - lock acquired successfully", pos);
+                                log::debug!("(Action) Requested seek to {:.4}", pos);
                             } else {
                                 log::error!("(Action) Failed to acquire lock for seek to {:.4}", pos);
                             }
-                            
-                            // Update UI state immediately for responsiveness
                             state.player_state.progress = pos;
-                            log::debug!("(Action) Updated UI progress to {:.4}", pos);
-                            
-                            // Clear seeking flag asynchronously after a delay
                             Task::perform(
-                                async {
-                                    async_std::task::sleep(Duration::from_millis(50)).await;
-                                },
+                                async { async_std::task::sleep(Duration::from_millis(50)).await; },
                                 |_| Message::ClearSeekFlag
                             )
                         },
                         core::PlayerAction::SetVolume(vol) => {
                             state.player.set_volume(vol);
                             state.player_state.volume = vol;
-                            
-                            // Continue ticking
-                            Task::perform(
-                                async {
-                                    async_std::task::sleep(Duration::from_millis(100)).await;
-                                },
-                                |_| Message::Tick
-                            )
+                            Task::none() // Volume change is synchronous
                         },
                         core::PlayerAction::Shuffle => {
                             state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
-                            
-                            // Continue ticking
-                            Task::perform(
-                                async {
-                                    async_std::task::sleep(Duration::from_millis(100)).await;
-                                },
-                                |_| Message::Tick
-                            )
+                            Task::none() // Shuffle toggle is synchronous
                         },
                         core::PlayerAction::Play(ref path) => {
                             let is_network = path.starts_with("\\\\") || path.contains("://");
-                            
-                            // For network files, show a loading message
-                            if is_network {
-                                let _ = Task::perform(
-                                    async { async_std::task::sleep(Duration::from_millis(1)).await; },
-                                    |_| Message::SetStatusMessage("Loading network file...".to_string(), Duration::from_secs(3))
-                                );
-                            }
-                            
-                            // Handle the play action
                             state.handle_action(core::Action::Player(player_action));
                             state.player_state.shuffle_enabled = shuffle_before;
-                            
-                            // Continue ticking
-                            Task::perform(
-                                async {
-                                    async_std::task::sleep(Duration::from_millis(100)).await;
-                                },
-                                |_| Message::Tick
-                            )
+                            if is_network {
+                                Task::perform(
+                                    async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                                    |_| Message::SetStatusMessage("Loading network file...".to_string(), Duration::from_secs(3))
+                                )
+                            } else {
+                                Task::none() // Playback starts in a thread, no immediate task needed here
+                            }
                         },
                         _ => {
                             state.handle_action(core::Action::Player(player_action));
                             state.player_state.shuffle_enabled = shuffle_before;
-                            
-                            // Continue ticking
-                            Task::perform(
-                                async {
-                                    async_std::task::sleep(Duration::from_millis(100)).await;
-                                },
-                                |_| Message::Tick
-                            )
+                            Task::none() // Other player actions are synchronous or handled by playback thread
                         }
                     }
                 },
-                _ => {
+                _ => { // Playlist or Library Actions passed via Action enum
                     state.handle_action(action);
                     state.player_state.shuffle_enabled = shuffle_before;
-                    
-                    // Continue ticking
-                    Task::perform(
-                        async {
-                            async_std::task::sleep(Duration::from_millis(100)).await;
-                        },
-                        |_| Message::Tick
-                    )
+                    Task::none() // Playlist/Library actions are typically synchronous state updates
                 }
             }
         },
+
         Message::Playlist(action) => {
             match action {
                 PlaylistAction::Seek(pos) => {
-                    // Set seeking flag
                     state.playlist_view_state.is_seeking = true;
-                    
-                    // More detailed logging
-                    log::info!("(Playlist) Received Seek({:.4}) -> Requesting seek in playback_position", pos);
-                    
-                    // Clear any buffers first
+                    log::info!("(Playlist) Received Seek({:.4})", pos);
                     state.player.clear_audio_buffers();
-                    
-                    // Request the seek with proper locking
                     if let Ok(mut lock) = state.player.playback_position.lock() {
                         lock.request_seek(pos);
-                        log::debug!("Seek request successfully set for position {:.4}", pos);
+                        log::debug!("Seek request set for {:.4}", pos);
                     } else {
                         log::error!("Failed to acquire lock for seek request");
                     }
-                    
-                    // Update the UI state immediately for responsiveness
                     state.player_state.progress = pos;
-                    log::debug!("Updated UI progress to {:.4}", pos);
-                    
-                    // Clear seeking flag asynchronously after a delay
                     Task::perform(
-                        async {
-                            async_std::task::sleep(Duration::from_millis(100)).await;
-                        },
+                        async { async_std::task::sleep(Duration::from_millis(100)).await; },
                         |_| Message::ClearSeekFlag
                     )
                 },
                 PlaylistAction::UpdateProgress(pos) => {
-                    // Set seeking flag during dragging too
                     state.playlist_view_state.is_seeking = true;
-                    
-                    // Just update the UI progress without initiating a seek
                     state.player_state.progress = pos;
                     log::debug!("Updated UI progress during dragging to {:.4}", pos);
-                    
-                    // Continue ticking
-                    Task::perform(
-                        async {
-                            async_std::task::sleep(Duration::from_millis(100)).await;
-                        },
-                        |_| Message::Tick
-                    )
+                    Task::none() // Just UI update, no task needed
                 },
                 PlaylistAction::PlayTrack(pid, tid) => {
                     log::info!("Playing track {} from playlist {}", tid, pid);
-                    
-                    // Check if the track is from a network path and get its title
-                    let track_info = state.playlists.get_playlist(pid)
+                    let path_str = state.playlists.get_playlist(pid)
                         .and_then(|p| p.tracks.get(tid))
-                        .map(|t| (t.path.clone(), t.title.clone().unwrap_or_else(|| t.path.clone())));
-                    
-                    if let Some((path, title)) = track_info {
-                        if path.starts_with("\\\\") || path.contains("://") {
-                            let _ = Task::perform(
-                                async { async_std::task::sleep(Duration::from_millis(1)).await; },
-                                move |_| Message::SetStatusMessage(format!("Playing: {}", title), 
-                                    Duration::from_secs(2))
-                            );
-                        }
-                    }
-                    
+                        .map(|t| t.path.clone());
                     state.handle_action(core::Action::Playlist(core::PlaylistAction::PlayTrack(pid, tid)));
-                    state.player_state = state.player.get_state();
+                    state.player_state = state.player.get_state(); // Update state after handle_action
                     state.player_state.shuffle_enabled = shuffle_before;
-                    
-                    // Continue ticking
-                    Task::perform(
-                        async {
-                            async_std::task::sleep(Duration::from_millis(100)).await;
-                        },
-                        |_| Message::Tick
-                    )
+                    if let Some(path) = path_str {
+                        if path.starts_with("\\\\") || path.contains("://") {
+                           Task::perform(
+                                async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                                |_| Message::SetStatusMessage("Loading network file...".to_string(), Duration::from_secs(3))
+                            )
+                        } else {
+                            Task::none()
+                        }
+                    } else {
+                        Task::none()
+                    }
+                },
+                PlaylistAction::BatchAddTracks(pid, tracks) => {
+                    log::info!("Adding {} tracks to playlist {} in batch", tracks.len(), pid);
+                    state.handle_action(core::Action::Playlist(core::PlaylistAction::BatchAddTracks(pid, tracks)));
+                    Task::none()
                 },
                 PlaylistAction::PlayerControl(ctrl) => {
                     match ctrl {
                         core::PlayerAction::SetVolume(vol) => {
                             state.player.set_volume(vol);
                             state.player_state.volume = vol;
+                            Task::none()
                         },
                         core::PlayerAction::Shuffle => {
                             state.player_state.shuffle_enabled = !state.player_state.shuffle_enabled;
+                            Task::none()
                         },
                         core::PlayerAction::Seek(pos) => {
-                            // Set seeking flag
                             state.playlist_view_state.is_seeking = true;
-                            
-                            // Clear buffers first
                             state.player.clear_audio_buffers();
-                            
-                            // Then request the seek
                             if let Ok(mut lock) = state.player.playback_position.lock() {
                                 lock.request_seek(pos);
-                                log::debug!("(PlayerControl) Seek request set for position {:.4}", pos);
+                                log::debug!("(PlayerControl) Seek request set for {:.4}", pos);
                             } else {
                                 log::error!("(PlayerControl) Failed to acquire lock for seek request");
                             }
-                            
-                            // Update UI immediately
                             state.player_state.progress = pos;
-                            
-                            // Clear seeking flag asynchronously
-                            return Task::perform(
-                                async {
-                                    async_std::task::sleep(Duration::from_millis(100)).await;
-                                },
+                            Task::perform(
+                                async { async_std::task::sleep(Duration::from_millis(100)).await; },
                                 |_| Message::ClearSeekFlag
-                            );
+                            )
                         },
                         _ => {
                             state.handle_action(core::Action::Player(ctrl));
                             state.player_state = state.player.get_state();
                             state.player_state.shuffle_enabled = shuffle_before;
+                            Task::none()
                         }
                     }
-                    
-                    // Continue ticking
-                    Task::perform(
-                        async {
-                            async_std::task::sleep(Duration::from_millis(100)).await;
-                        },
-                        |_| Message::Tick
-                    )
                 },
                 PlaylistAction::Library(library_action) => {
-                    // Handle library messages forwarded through PlaylistAction
                     match library_action {
                         LibraryMessage::AddMusicFolder => {
-                            // Open a folder selection dialog asynchronously
-                            return Task::perform(
-                                async {
-                                    rfd::AsyncFileDialog::new().pick_folder().await.map(|f| f.path().to_owned())
-                                },
+                            Task::perform(
+                                async { rfd::AsyncFileDialog::new().pick_folder().await.map(|f| f.path().to_owned()) },
                                 Message::FolderSelected
-                            );
+                            )
                         },
                         LibraryMessage::ToggleView => {
-                            // Handle toggle view if needed
+                            // Handle toggle view if needed in state
+                            Task::none()
                         }
                     }
-                    
-                    // Continue background ticks
-                    Task::perform(
-                        async {
-                            async_std::task::sleep(Duration::from_millis(100)).await;
-                        },
-                        |_| Message::Tick
-                    )
                 },
-                _ => {
-                    // other playlist actions
+                _ => { // Other playlist actions like Select, Delete, Rename etc.
                     let core_action = state.playlist_view_state.handle_action(action);
                     state.handle_action(core_action);
                     state.player_state = state.player.get_state();
                     state.player_state.shuffle_enabled = shuffle_before;
-                    
-                    // For non-seek operations, continue the background ticks
-                    Task::perform(
-                        async {
-                            async_std::task::sleep(Duration::from_millis(100)).await;
-                        },
-                        |_| Message::Tick
-                    )
+                    Task::none() // These are synchronous state updates
                 }
             }
         },
+
         Message::Library(library_message) => {
-            // Direct library messages
             match library_message {
                 LibraryMessage::AddMusicFolder => {
-                    // Open a folder selection dialog asynchronously
-                    return Task::perform(
-                        async {
-                            rfd::AsyncFileDialog::new().pick_folder().await.map(|f| f.path().to_owned())
-                        },
+                    Task::perform(
+                        async { rfd::AsyncFileDialog::new().pick_folder().await.map(|f| f.path().to_owned()) },
                         Message::FolderSelected
-                    );
+                    )
                 },
                 LibraryMessage::ToggleView => {
-                    // Handle toggle view if needed
+                    // Handle toggle view if needed in state
+                    Task::none()
                 }
             }
-            
-            // Continue background ticks
-            Task::perform(
-                async {
-                    async_std::task::sleep(Duration::from_millis(100)).await;
-                },
-                |_| Message::Tick
-            )
         },
-        // All other message variants should return a background tick
-        _ => {
-            // Process the message as before...
-            match message_clone {
-                Message::FolderSelected(Some(path)) => {
-                    if let Some(path_str) = path.to_str() {
-                        log::info!("Selected music folder: {}", path_str);
-                        
-                        // Check if this is a network path
-                        if path_str.starts_with("\\\\") || path_str.contains("://") {
-                            // For network paths, show a status message
-                            let _path_str_owned = path_str.to_owned();
-                            let _ = Task::perform(
-                                async {
-                                    async_std::task::sleep(Duration::from_millis(1)).await;
-                                },
-                                move |_| Message::SetStatusMessage("Scanning network folder...".to_string(), Duration::from_secs(3))
-                            );
-                        }
-                        
-                        state.handle_action(core::Action::Library(
-                            core::LibraryAction::AddScanDirectory(path_str.to_string()),
-                        ));
-                        state.handle_action(core::Action::Library(core::LibraryAction::StartScan));
-                    }
-                },
-                Message::FolderSelected(None) => {
-                    log::info!("Folder selection cancelled");
-                },
-                Message::WindowClosed { x, y } => {
-                    if let Err(e) = window_state::save_window_position(x, y) {
-                        log::error!("Failed to save window position: {}", e);
-                    }
-                },
-                Message::MousePosition(_pos) => {},
-                Message::WindowFocusLost => {},
-                Message::WindowFocusGained => {},
-                Message::FileHovered => {},
-                Message::FileDropped(path) => {
-                    log::info!("File dropped: {:?}", path);
-                    
-                    if let Some(selected_idx) = state.playlists.selected {
-                        if selected_idx < state.playlists.playlists.len() {
-                            let playlist_id = state.playlists.playlists[selected_idx].id;
-                            
-                            // Show file processing message
-                            let _ = Task::perform(
-                                async {
-                                    async_std::task::sleep(Duration::from_millis(1)).await;
-                                },
-                                |_| Message::SetStatusMessage("Processing file...".to_string(), Duration::from_secs(2))
-                            );
-                            
-                            // Use async file processing to avoid blocking the UI
-                            let path_clone = path.clone();
-                            let playlist_id_clone = playlist_id;
-                            
-                            // Use Task::perform for asynchronous file handling
-                            return Task::perform(
-                                async move {
-                                    // This runs in a background task
-                                    match std::fs::canonicalize(&path_clone) {
-                                        Ok(abs_path) => {
-                                            let path_str = abs_path.to_string_lossy().to_string();
-                                            Some((path_str, abs_path, playlist_id_clone))
-                                        },
-                                        _ => None,
-                                    }
-                                },
-                                Message::FileValidationResult
-                            );
-                        }
-                    }
-                },
-                Message::FilesHoveredLeft => {},
-                _ => {},
+
+        Message::FolderSelected(Some(path)) => {
+            if let Some(path_str) = path.to_str() {
+                log::info!("Selected music folder: {}", path_str);
+                state.handle_action(core::Action::Library(
+                    core::LibraryAction::AddScanDirectory(path_str.to_string()),
+                ));
+                state.handle_action(core::Action::Library(core::LibraryAction::StartScan));
+
+                // Schedule DirectoryScanResult Task after adding dir and starting scan
+                 if path.is_dir() {
+                    log::info!("Scanning directory for audio files recursively: {}", path_str);
+                    let playlist_id = state.playlists.playlists.last().map(|p| p.id).unwrap_or(0); // Use last selected/created or default
+                    let path_clone = path.clone();
+                    Task::perform(
+                        async move {
+                            let mut files = Vec::new();
+                            scan_directory_recursively(&path_clone, &mut files);
+                            files
+                        },
+                        move |files| Message::DirectoryScanResult(files, playlist_id)
+                    )
+                } else {
+                    Task::none() // Not a directory
+                }
+
+            } else {
+                Task::none() // Path conversion failed
             }
-            
-            // Always schedule a new tick for background updates
-            Task::perform(
-                async {
-                    async_std::task::sleep(Duration::from_millis(100)).await;
-                },
-                |_| Message::Tick
-            )
+        },
+        Message::FolderSelected(None) => {
+            log::info!("Folder selection cancelled");
+            Task::none()
+        },
+
+        Message::WindowClosed { x, y } => {
+            if let Err(e) = window_state::save_window_position(x, y) {
+                log::error!("Failed to save window position: {}", e);
+            }
+            Task::none()
+        },
+        Message::MousePosition(_) => { Task::none() },
+        Message::WindowFocusLost => { Task::none() },
+        Message::WindowFocusGained => { Task::none() },
+        Message::FileHovered => { Task::none() },
+
+        Message::FileDropped(path) => {
+            log::info!("File dropped: {:?}", path);
+            if let Some(selected_idx) = state.playlists.selected {
+                if selected_idx < state.playlists.playlists.len() {
+                    let playlist_id = state.playlists.playlists[selected_idx].id;
+
+                    // Task for status message
+                    let _status_task = Task::perform(
+                        async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                        |_| Message::SetStatusMessage("Processing dropped item...".to_string(), Duration::from_secs(2))
+                    );
+
+                    if path.is_dir() {
+                        log::info!("Found directory, scanning for audio files recursively");
+                        let playlist_id_clone = playlist_id;
+                        let path_clone = path.clone();
+                        Task::perform(
+                            async move {
+                                let mut files = Vec::new();
+                                scan_directory_recursively(&path_clone, &mut files);
+                                files
+                            },
+                            move |files| Message::DirectoryScanResult(files, playlist_id_clone)
+                        )
+                    } else {
+                        let path_clone = path.clone();
+                        let playlist_id_clone = playlist_id;
+                        Task::perform(
+                            async move {
+                                match std::fs::canonicalize(&path_clone) {
+                                    Ok(abs_path) => {
+                                        let path_str = abs_path.to_string_lossy().to_string();
+                                        Some((path_str, abs_path, playlist_id_clone))
+                                    },
+                                    _ => None,
+                                }
+                            },
+                            Message::FileValidationResult
+                        )
+                    }
+                } else {
+                    Task::none() // No valid playlist selected
+                }
+            } else {
+                 Task::perform( // No playlist selected, show message
+                    async { async_std::task::sleep(Duration::from_millis(1)).await; },
+                    |_| Message::SetStatusMessage("Select a playlist before dropping files".to_string(), Duration::from_secs(3))
+                )
+            }
+        },
+        Message::FilesHoveredLeft => { Task::none() },
+    } // End main match
+}
+
+// Recursive directory scanner function
+fn scan_directory_recursively(dir: &PathBuf, files: &mut Vec<PathBuf>) {
+    log::info!("SCAN: Scanning directory: {:?}", dir);
+
+    let count_before = files.len();
+
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+
+            if path.is_dir() {
+                scan_directory_recursively(&path, files);
+            } else if path.is_file() {
+                files.push(path.clone());
+                // Reduce log spam for individual files during scan
+                // log::info!("SCAN: Added file: {:?}", path);
+            }
         }
     }
+
+    let count_after = files.len();
+    log::info!("SCAN: Directory {:?} added {} files (total now: {})",
+               dir, count_after - count_before, count_after);
 }
 
 fn view(state: &MediaPlayer) -> Element<Message> {
-    // Get our PlaylistAction element from render_with_state
     let rendered = ui::render::render_with_state(
         &state.player_state,
         &state.playlists,
@@ -579,73 +669,69 @@ fn view(state: &MediaPlayer) -> Element<Message> {
         &state.playlist_view_state,
         &state.status_message,
     );
-    
-    // Check if it's a Library action and map accordingly
-    match rendered {
-        playlist_element => {
-            playlist_element.map(|action| {
-                match action {
-                    PlaylistAction::Library(lib_msg) => Message::Library(lib_msg),
-                    other => Message::Playlist(other),
-                }
-            })
+
+    // Map PlaylistAction to Message
+    rendered.map(|action| {
+        match action {
+            PlaylistAction::Library(lib_msg) => Message::Library(lib_msg),
+            other => Message::Playlist(other),
         }
-    }
+    })
 }
 
 fn subscription(_state: &MediaPlayer) -> Subscription<Message> {
-    // Just listen to window events - we'll use Task::perform for the timer
+    // Listen to window events and keyboard, map them to Messages
     iced::event::listen().map(|event| match event {
         iced::Event::Keyboard(iced::keyboard::Event::KeyPressed { key, .. }) => match key {
             Key::Named(Named::Space) => {
-                Message::Action(core::Action::Player(core::PlayerAction::Pause))
+                Message::Action(core::Action::Player(core::PlayerAction::Pause)) // Should toggle pause/resume
             }
             Key::Named(Named::Escape) => {
                 Message::Action(core::Action::Player(core::PlayerAction::Stop))
             }
-            _ => Message::Playlist(PlaylistAction::None),
+            _ => Message::Playlist(PlaylistAction::None), // Or a specific NoOp Message variant if preferred
         },
-        iced::Event::Mouse(iced::mouse::Event::CursorMoved { position }) => {
-            Message::MousePosition(position)
+        iced::Event::Mouse(iced::mouse::Event::CursorMoved { position: _ }) => {
+            Message::MousePosition(())
         }
         iced::Event::Window(iced::window::Event::CloseRequested) => {
+            // Ideally get actual position here if possible, otherwise use last known or default
             Message::WindowClosed { x: 100, y: 100 }
         }
         iced::Event::Window(iced::window::Event::Moved(position)) => {
-            let x = position.x as i32;
-            let y = position.y as i32;
-            Message::WindowClosed { x, y }
+             // Save position on move as well
+            Message::WindowClosed { x: position.x as i32, y: position.y as i32 }
         }
         iced::Event::Window(iced::window::Event::Unfocused) => Message::WindowFocusLost,
         iced::Event::Window(iced::window::Event::Focused) => Message::WindowFocusGained,
         iced::Event::Window(iced::window::Event::FileHovered(_)) => Message::FileHovered,
+        // Use the corrected singular event name
         iced::Event::Window(iced::window::Event::FileDropped(path)) => {
-            Message::FileDropped(path)
+            Message::FileDropped(path) // Map to our message
         }
         iced::Event::Window(iced::window::Event::FilesHoveredLeft) => Message::FilesHoveredLeft,
+        // Use RedrawRequested for the initial Tick to start the timer loop
         iced::Event::Window(iced::window::Event::RedrawRequested(_)) => {
-            // Just use this to get the first tick when the app starts
             Message::Tick
         },
-        _ => Message::Playlist(PlaylistAction::None),
+        _ => Message::Playlist(PlaylistAction::None), // Catch-all for other events
     })
 }
 
 pub fn run() -> iced::Result {
-    // Initialize FFmpeg at application start
     if let Err(e) = core::audio::decoder::initialize_ffmpeg() {
         log::error!("Failed to initialize FFmpeg: {}", e);
+        // Optionally, you might want to return an error or show a message here
     } else {
         log::info!("FFmpeg initialized successfully");
-        
-        // Log supported formats
         let formats = core::audio::decoder::get_supported_extensions();
         log::info!("Supported audio formats: {}", formats.join(", "));
     }
-    
+
     iced::application("Media Player", update, view)
         .subscription(subscription)
         .window(window_state::window_settings())
         .theme(|_state| ui::theme::dark_theme())
+        // Removed the invalid .channel_capacity() call
         .run()
 }

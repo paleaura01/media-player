@@ -1,3 +1,4 @@
+// core/src/playlist.rs (adding BatchAddTracks variant)
 use serde::{Serialize, Deserialize};
 use std::path::Path;
 use std::fs;
@@ -21,6 +22,7 @@ pub enum PlaylistAction {
     AddTrack(u32, Track),
     RemoveTrack(u32, usize),
     PlayTrack(u32, usize),
+    BatchAddTracks(u32, Vec<Track>), // Add BatchAddTracks for bulk operations
     None,
 }
 
@@ -109,6 +111,17 @@ impl PlaylistState {
             true
         } else {
             false
+        }
+    }
+    
+    // Implement batch add tracks functionality
+    pub fn batch_add_tracks(&mut self, id: u32, tracks: Vec<Track>) -> usize {
+        if let Some(playlist) = self.get_playlist_mut(id) {
+            let count = tracks.len();
+            playlist.tracks.extend(tracks);
+            count
+        } else {
+            0
         }
     }
 }
