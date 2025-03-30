@@ -1,0 +1,154 @@
+[2025-03-25 17:19:00.315] INFO [app\src\main.rs:45] Logging initialized to file: logs/player_log_20250325_171900.txt
+[2025-03-25 17:19:00.318] INFO [app\src\main.rs:65] Application starting...
+[2025-03-25 17:19:00.351] INFO [core\src\player\mod.rs:33] Initializing Media Player...
+[2025-03-25 17:19:00.351] INFO [app\src\states\app_state.rs:57] MediaPlayer default state created
+[2025-03-25 17:19:00.532] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:696] InstanceFlags::VALIDATION requested, but unable to find layer: VK_LAYER_KHRONOS_validation
+[2025-03-25 17:19:00.576] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\vulkan\instance.rs:341] Debug utils not enabled: debug_utils_user_data not passed to Instance::from_raw
+[2025-03-25 17:19:00.579] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\dx12\instance.rs:31] Unable to enable D3D12 debug interface: 0x887A002D
+[2025-03-25 17:19:00.580] WARN [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-hal-0.19.5\src\auxil\dxgi\factory.rs:160] Unable to enable DXGI debug interface: 0x887A002D
+[2025-03-25 17:19:00.685] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:62] Settings {
+    present_mode: AutoVsync,
+    backends: Backends(
+        VULKAN | GL | METAL | DX12 | BROWSER_WEBGPU,
+    ),
+    default_font: Font {
+        family: SansSerif,
+        weight: Normal,
+        stretch: Normal,
+        style: Normal,
+    },
+    default_text_size: Pixels(
+        16.0,
+    ),
+    antialiasing: None,
+}
+[2025-03-25 17:19:00.689] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:724] Adapter Vulkan AdapterInfo { name: "NVIDIA GeForce RTX 2080 SUPER", vendor: 4318, device: 7809, device_type: DiscreteGpu, driver: "NVIDIA", driver_info: "572.60", backend: Vulkan }
+[2025-03-25 17:19:00.994] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:724] Adapter Dx12 AdapterInfo { name: "NVIDIA GeForce RTX 2080 SUPER", vendor: 4318, device: 7809, device_type: DiscreteGpu, driver: "", driver_info: "", backend: Dx12 }
+[2025-03-25 17:19:00.994] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:724] Adapter Dx12 AdapterInfo { name: "Microsoft Basic Render Driver", vendor: 5140, device: 140, device_type: Cpu, driver: "", driver_info: "", backend: Dx12 }
+[2025-03-25 17:19:00.995] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:724] Adapter Gl AdapterInfo { name: "NVIDIA GeForce RTX 2080 SUPER/PCIe/SSE2", vendor: 4318, device: 0, device_type: Other, driver: "", driver_info: "", backend: Gl }
+[2025-03-25 17:19:07.423] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:71] Available adapters: [
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "NVIDIA",
+        driver_info: "572.60",
+        backend: Vulkan,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER",
+        vendor: 4318,
+        device: 7809,
+        device_type: DiscreteGpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "Microsoft Basic Render Driver",
+        vendor: 5140,
+        device: 140,
+        device_type: Cpu,
+        driver: "",
+        driver_info: "",
+        backend: Dx12,
+    },
+    AdapterInfo {
+        name: "NVIDIA GeForce RTX 2080 SUPER/PCIe/SSE2",
+        vendor: 4318,
+        device: 0,
+        device_type: Other,
+        driver: "",
+        driver_info: "",
+        backend: Gl,
+    },
+]
+[2025-03-25 17:19:10.589] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\wgpu-core-0.19.4\src\instance.rs:771] Adapter Vulkan AdapterInfo { name: "NVIDIA GeForce RTX 2080 SUPER", vendor: 4318, device: 7809, device_type: DiscreteGpu, driver: "NVIDIA", driver_info: "572.60", backend: Vulkan }
+[2025-03-25 17:19:10.590] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:94] Selected: AdapterInfo {
+    name: "NVIDIA GeForce RTX 2080 SUPER",
+    vendor: 4318,
+    device: 7809,
+    device_type: DiscreteGpu,
+    driver: "NVIDIA",
+    driver_info: "572.60",
+    backend: Vulkan,
+}
+[2025-03-25 17:19:10.594] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:103] Available formats: Copied {
+    it: Iter(
+        [
+            Bgra8UnormSrgb,
+            Rgba8UnormSrgb,
+            Bgra8Unorm,
+            Rgba8Unorm,
+        ],
+    ),
+}
+[2025-03-25 17:19:10.594] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:119] Available alpha modes: [
+    Opaque,
+]
+[2025-03-25 17:19:10.594] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_wgpu-0.13.5\src\window\compositor.rs:137] Selected format: Bgra8UnormSrgb with alpha mode: Auto
+[2025-03-25 17:19:10.770] INFO [C:\Users\Joshua\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\iced_winit-0.13.0\src\program.rs:522] Window attributes for id `Id(
+    1,
+)`: WindowAttributes {
+    inner_size: Some(
+        Logical(
+            LogicalSize {
+                width: 1200.0,
+                height: 800.0,
+            },
+        ),
+    ),
+    min_inner_size: None,
+    max_inner_size: None,
+    position: Some(
+        Logical(
+            LogicalPosition {
+                x: 2055.0,
+                y: 77.0,
+            },
+        ),
+    ),
+    resizable: true,
+    enabled_buttons: WindowButtons(
+        CLOSE | MINIMIZE | MAXIMIZE,
+    ),
+    title: "Media Player",
+    maximized: false,
+    visible: false,
+    transparent: false,
+    blur: false,
+    decorations: true,
+    window_icon: Some(
+        RaiiIcon {
+            handle: 3084381,
+        },
+    ),
+    preferred_theme: None,
+    resize_increments: None,
+    content_protected: false,
+    window_level: Normal,
+    active: true,
+    cursor: Icon(
+        Default,
+    ),
+    parent_window: None,
+    fullscreen: None,
+    platform_specific: PlatformSpecificWindowAttributes {
+        owner: None,
+        menu: None,
+        taskbar_icon: None,
+        no_redirection_bitmap: false,
+        drag_and_drop: true,
+        skip_taskbar: false,
+        class_name: "Window Class",
+        decoration_shadow: false,
+        backdrop_type: Auto,
+        clip_children: true,
+        border_color: None,
+        title_background_color: None,
+        title_text_color: None,
+        corner_preference: None,
+    },
+}
+[2025-03-25 17:19:14.651] INFO [core\src\player\mod.rs:237] Dropping Player, stopping playback
